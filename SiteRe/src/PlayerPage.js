@@ -60,7 +60,7 @@ function PlayerPage() {
                 </div>
                 <div className="video-box">
                    <div className="player">
-                        <VideoPlayer src={src} autoPlay={false} />
+                       
                    </div>
                 </div>
                 <div className="test">
