@@ -1,12 +1,13 @@
 body{
-  color: rgb(255, 255, 255);
+  background-color: #000000;
   margin: 0;
   font-family: "Ubuntu", sans-serif;
   font-weight: 400;
   font-style: normal;
 }
 .mainhome{
+  height: 1000px;
   background-color: #000000;
   justify-items: center;
-  height: 900px;
+  
 }

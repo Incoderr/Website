@@ -2,7 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
 module.exports = {
-  entry: './src/index.js', // Ваш основной файл JS
+  entry: './src/index.jsx', // Ваш основной файл JS
   output: {
     filename: 'bundle.js', // Название выходного файла
     path: path.resolve(__dirname, './dist'), // Папка для выходных файлов
@@ -11,7 +11,7 @@ module.exports = {
     rules: [
       {
         test: /\.(js|jsx)$/,  // Обработка файлов .js и .jsx
-        exclude: /node_modules/, // Правильное исключение node_modules
+        exclude: /node_modules/, // Исключение node_modules
         use: {
           loader: 'babel-loader', // Используем babel-loader для трансформации JSX
         },
@@ -19,6 +19,10 @@ module.exports = {
       {
         test: /\.css$/,  // Обработка CSS
         use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.svg$/, //кароче svg чтоб работало
+        use: ['@svgr/webpack']
       },
     ],
   },
@@ -28,11 +32,11 @@ module.exports = {
       filename: './index.html',
     }),
   ],
-  
   resolve: {
     extensions: ['.js', '.jsx'], // Поддержка .js и .jsx файлов
   },
   mode: 'development', // Режим разработки
+  devtool: 'source-map', // Правильное использование source maps
   devServer: {
     historyApiFallback: true,
     static: path.join(__dirname, 'dist'),

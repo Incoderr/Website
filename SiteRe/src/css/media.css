@@ -1,0 +1,11 @@
+@media (max-width: 1000px) {
+    body{
+        background-color: aqua;
+    }
+    .logo, .add-li {
+        display: none;
+    }
+    .search-box input{
+        width: 40px;
+    }
+}
