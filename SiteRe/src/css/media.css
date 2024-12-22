@@ -1,11 +1,9 @@
 @media (max-width: 1000px) {
     body{
-        background-color: aqua;
+        background-color: rgb(50, 122, 122);
     }
-    .logo, .add-li {
-        display: none;
-    }
-    .search-box input{
-        width: 40px;
+      
+    .header-box{
+        margin: 13px 8px 13px 8px;
     }
 }

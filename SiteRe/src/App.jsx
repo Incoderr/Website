@@ -8,16 +8,16 @@ import Profile from "./Pages/Profile";
 
 function App() {
   return (
-  <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/Player" element={<Player />} />
-      <Route path="*" element={<NotFound />} />
-      <Route path="/categories" element={<Categories />} />
-      <Route path="/profile" element={<Profile />} />
-    </Routes>
-  </BrowserRouter>
-  )
-};
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/player" element={<Player />} />
+          <Route path="*" element={<NotFound />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/profile" element={<Profile />} />
+        </Routes>
+      </BrowserRouter>
+  );
+}
 
 export default App;

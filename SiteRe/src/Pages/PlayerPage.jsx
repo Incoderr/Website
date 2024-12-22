@@ -17,8 +17,8 @@ function PlayerPage() {
 
 return  (  
   <div>
-    <HeaderEl/>
-    <main>
+      <HeaderEl/>
+    <main className="all-paddding">
         <div className="container">
             <div className="box-content">
                 <div className="info">
