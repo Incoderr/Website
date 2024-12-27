@@ -1,12 +1,12 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
 function Home() {
   return (
     <div>
         <footer>
           <div className="container">
-              <Link to={"/register"}>hi</Link>
+              <h5>Для правообладателей</h5>
+              © 2024-2024 Абибас group
           </div>                                      
         </footer>
     </div>

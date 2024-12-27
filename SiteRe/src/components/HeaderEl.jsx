@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, NavLink } from "react-router-dom";
-import AuthModal from "./RegisterEl";
+import AuthModal from "./AuthModal";
 import "./Header-Footer.scss";
 import "../css/media.css";
 
@@ -9,23 +9,8 @@ function HeaderEl() {
   const [notifications, setNotifications] = useState([]);
   const notificationRef = useRef(null);
   //rega
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const defaultAvatar = "../assets/image/default-avatar.jpg";
 
-// Восстановление пользователя из localStorage
-useEffect(() => {
-  const savedUser = localStorage.getItem("currentUser");
-  if (savedUser) {
-    setCurrentUser(JSON.parse(savedUser));
-  }
-}, []);   
-
-const handleLogout = () => {
-  localStorage.removeItem("currentUser"); // Удалить пользователя из localStorage
-  setCurrentUser(null);
-};
-
+    
   // Открыть/закрыть список уведомлений
   const toggleNotifications = () => {
     setIsNotificationOpen((prev) => !prev);
@@ -131,26 +116,8 @@ const handleLogout = () => {
           </div>
           {/* регистрация */}
           <div className="circle">
-            {currentUser ? (
-              <div className="user-info">
-                <Link to={"/profile"}>
-                  <img src={currentUser.avatar || defaultAvatar} alt="Avatar" />
-                </Link>
-                <button onClick={handleLogout}>Выйти</button>
-              </div>
-            ) : (
-              <button onClick={() => setIsAuthModalOpen(true)}>Войти</button>
-            )}
-            {isAuthModalOpen && (
-              <AuthModal
-              onClose={() => setIsAuthModalOpen(false)}
-              onLogin={(user) => {
-                user.avatar = user.avatar || defaultAvatar; // Установить аватар по умолчанию
-                localStorage.setItem("currentUser", JSON.stringify(user));
-                setCurrentUser(user);
-              }}
-              />
-            )}
+            <button>Войти</button>
+            <AuthModal/>
           </div>
         </nav>
       </div>

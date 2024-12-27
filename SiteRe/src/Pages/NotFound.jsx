@@ -6,7 +6,7 @@ const NotFound = () => {
   return (
     <div className='NotFound' style={{justifyItems: 'center'}}>
       <h2>Страница не найдена</h2>
-      <Link to="/">go to home</Link>
+      <Link to="/">Домой</Link>
     </div>
   )
 };

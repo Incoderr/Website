@@ -1,5 +1,5 @@
 import React from "react";
-import "../css/index.css";
+import "../css/style.scss";
 import "../css/media.css";
 import { Link } from "react-router-dom";
 /*кампоненты*/
@@ -47,7 +47,7 @@ function Home() {
                 <div className="play-button-container">
                   <Link to={"/player"} >
                     <div className="play-button">
-                      <i class="bi bi-play fs-1"></i>
+                      <i className="bi bi-play fs-1"></i>
                       <h1>Смотреть</h1>
                     </div>
                   </Link>
@@ -69,7 +69,7 @@ function Home() {
                 <div className="play-button-container">
                   <Link to={"/player"} >
                     <div className="play-button">
-                      <i class="bi bi-play fs-1"></i>
+                      <i className="bi bi-play fs-1"></i>
                       <h1>Смотреть</h1>
                     </div>
                   </Link>
@@ -91,7 +91,7 @@ function Home() {
                 <div className="play-button-container">
                   <Link to={"/player"} >
                     <div className="play-button">
-                      <i class="bi bi-play fs-1"></i>
+                      <i className="bi bi-play fs-1"></i>
                       <h1>Смотреть</h1>
                     </div>
                   </Link>
@@ -105,9 +105,11 @@ function Home() {
           </Swiper>
         </div>
         <div className="home-container">
-          <div className="label"><h1>Top</h1></div>
+          <div className="label"><h1>В топе</h1></div>
           <AnimeSlider />
-          <div className="label"><h1>Popular</h1></div>
+          <div className="label"><h1>Популярно</h1></div>
+          <AnimeSlider />
+          <div className="label"><h1>Новые серии</h1></div>
           <AnimeSlider />
         </div>
       </main>
