@@ -95,3 +95,7 @@ button{
 button.bookmark:focus{
   outline: solid 1px rgb(255, 255, 255);
 }
+iframe{
+  width: 100%;
+  height: 100%;
+}

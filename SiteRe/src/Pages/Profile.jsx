@@ -1,50 +1,97 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import HeaderEl from "../components/HeaderEl";
+import FooterEl from "../components/FooterEl";
+import { useNavigate } from "react-router-dom";
+import "../css/style.scss";
 
-function Profile({ user }) {
-  const [avatar, setAvatar] = useState(user?.avatar || "../assets/image/default-avatar.jpg");
-  const [file, setFile] = useState(null);
+function Profile() {
+  const [user, setUser] = useState(null);
+  const [avatar, setAvatar] = useState(null);
+  const navigate = useNavigate();
 
-  const handleAvatarChange = async (e) => {
-    e.preventDefault();
-
-    if (!user) return; // Проверка на наличие пользователя
-
-    const formData = new FormData();
-    formData.append("avatar", file);
-    formData.append("username", user.username);
-
-    const response = await fetch("/update-avatar", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      setAvatar(data.avatar); // Обновление аватара в интерфейсе
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("http://localhost:5000/api/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => setUser(data))
+        .catch(() => setUser(null)); // Если ошибка, очищаем состояние пользователя
     } else {
-      alert("Ошибка загрузки аватара");
+      setUser(null); // Если токен отсутствует
     }
+  }, []);
+
+  const handleLogout = () => {
+    // Удаляем токен из localStorage
+    localStorage.removeItem("token");
+    // Перенаправляем на страницу входа
+    navigate("/");
   };
 
-  // Если пользователь не авторизован
-  if (!user) {
-    return <div>Пожалуйста, войдите в систему.</div>;
-  }
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("avatar", file);
+      
+      const token = localStorage.getItem("token");
+      fetch("http://localhost:5000/api/upload-avatar", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setAvatar(data.avatar);
+        })
+        .catch((error) => console.error("Error uploading avatar:", error));
+    }
+  };
 
   return (
     <div>
       <HeaderEl />
-      <div className="profile">
-        <h1>Профиль</h1>
-        <img src={avatar} alt="Аватар" className="profile-avatar" />
-        <p>Имя пользователя: {user.username}</p>
-
-        <form onSubmit={handleAvatarChange}>
-          <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-          <button type="submit">Загрузить новый аватар</button>
-        </form>
-      </div>
+      <main className="all-paddding background">
+        <div className="main-box">
+        <div className="avatar-box">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              style={{ display: "none" }}
+              id="avatar-upload"
+            />
+            <label htmlFor="avatar-upload" className="avatar-label">
+              <div className="avatar-overlay">
+              <img 
+                className="header-avatar" 
+                src={`http://localhost:5000${user?.avatar || "https://i.imgur.com/hepj9ZS.png"}`} 
+                alt="Avatar" />
+                <i className="bi bi-plus avatar-icon"></i>
+              </div>
+            </label>
+            <h1>{user?.username || "Гость"}</h1>
+          </div>
+          <div className="profile-buttons">
+            <button className="profile-button" type="button">
+              Статистика
+            </button>
+            <button className="profile-button" type="button">
+              Закладки
+            </button>
+            <button className="profile-button" type="button">
+              Настройки
+            </button>
+            <button className="profile-button" type="button" onClick={handleLogout}>
+              Выйти
+            </button>
+          </div>
+          <div className="profile-window"></div>
+        </div>
+      </main>
+      <FooterEl />
     </div>
   );
 }

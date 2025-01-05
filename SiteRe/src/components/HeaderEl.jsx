@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, NavLink } from "react-router-dom";
-import AuthModal from "./AuthModal";
 import "./Header-Footer.scss";
 import "../css/media.css";
 
@@ -9,7 +8,31 @@ function HeaderEl() {
   const [notifications, setNotifications] = useState([]);
   const notificationRef = useRef(null);
   //rega
+  const [user, setUser] = useState(null);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // Проверяем, есть ли авторизованный пользователь
+      fetch("http://localhost:5000/api/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            // Если ответ не OK, пользователь не найден или истек токен
+            setUser(null);
+            return;
+          }
+          return res.json();
+        })
+        .then((data) => {
+          setUser(data);
+        })
+        .catch(() => {
+          setUser(null);
+        });
+    }
+  }, []);
     
   // Открыть/закрыть список уведомлений
   const toggleNotifications = () => {
@@ -72,17 +95,11 @@ function HeaderEl() {
         </nav>
         <nav className="nav-but">
           <div className="search-box">
-            <div className="jst-search">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Введите название"
-              />
-            </div>
-            <li className="circle search-but">
+            <button type="button" className="search-button">
               <i className="bi bi-search fs-4"></i>
-            </li>
-          </div>
+            </button>
+            <input className="search-input" type="text" placeholder="Введите название" />        
+            </div>
           <div className="notification-container" ref={notificationRef}>
             <button
               className="circle notification-btn"
@@ -116,8 +133,16 @@ function HeaderEl() {
           </div>
           {/* регистрация */}
           <div className="circle">
-            <button>Войти</button>
-            <AuthModal/>
+            {user ? (
+            <Link to={`/profile`}>
+              <img 
+                className="header-avatar" 
+                src={`http://localhost:5000${user?.avatar || "https://i.imgur.com/hepj9ZS.png"}`} 
+                alt="Avatar" />
+            </Link>
+            ) : (
+            <Link to="/Auth">Войти</Link>
+            )}
           </div>
         </nav>
       </div>

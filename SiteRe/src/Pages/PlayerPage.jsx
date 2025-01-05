@@ -40,7 +40,7 @@ return  (
                 </div>
                 <div className="video-box">
                    <div className="player">
-                       
+                       <iframe src="https://cache2.animix.lol/content/watch/IQWiZWliSrnYBUiMsBb1_17358022894331735802289433" frameborder="0"></iframe>
                    </div>
                 </div>
                 <div className="test">

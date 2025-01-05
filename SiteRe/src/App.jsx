@@ -5,6 +5,7 @@ import Home from "./Pages/Home";
 import NotFound from "./Pages/NotFound";
 import Categories from "./Pages/Categories";
 import Profile from "./Pages/Profile";
+import Auth from "./Pages/Auth";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/auth" element={<Auth />} />
         </Routes>
       </BrowserRouter>
   );
