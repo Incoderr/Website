@@ -1,0 +1,9 @@
+@media (max-width: 1000px) {
+    body{
+        background-color: rgb(50, 122, 122);
+    }
+      
+    .header-box{
+        margin: 13px 8px 13px 8px;
+    }
+}

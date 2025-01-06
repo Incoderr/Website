@@ -1,0 +1,281 @@
+body {
+  color: #ffffff;
+  background-color: #000000;
+}
+.image-box {
+  width: 100%; /*ширина*/
+  height: 100%; /*высота*/
+  background-color: rgb(0, 0, 0);
+  img {
+    max-width: 100%; /* Ограничение по ширине */
+    max-height: 100%; /* Ограничение по высоте */
+  }
+  .swiper {
+    width: 100%;
+    height: 800px; /*высота*/
+  }
+  .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #222222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+  .swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+/*главный свайпер*/
+.Slide-container{
+  position: absolute;
+  width: 450px;
+  height: 400px;
+  margin-left: 50px;
+  left: 0;
+  word-break: break-all;
+  justify-items: center;
+}
+.home-container{
+  height: 1800px;
+  padding: 20px;
+  .swiper {
+    display: flex;
+    width: 100%;
+    z-index: 1;
+  }
+  .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: auto !important;
+  }
+  .swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+.gradient{
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.623) 0%, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 0) 90%, rgba(0, 0, 0, 0.623) 100%);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+}
+/*навигация по списку*/
+.custom-prev,
+.custom-next {
+  position: absolute;
+  top: 35%;
+  transform: translateY(-50%);
+  z-index: 10;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  pointer-events: all;
+}
+.custom-prev {
+  left: 10px;
+}
+.custom-next {
+  right: 10px;
+}
+/* Неактивная кнопка */
+.custom-prev.disabled,
+.custom-next.disabled {
+  opacity: 1;
+
+}
+/* Наведение */
+.custom-prev:not(.disabled):hover,
+.custom-next:not(.disabled):hover {
+  color: #ffffff;
+}
+.label{
+  justify-items: center;
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+/*аниме шняги*/
+/*общий контейнер сама карточка*/
+.anime-container{
+  width: 200px; /*ширина*/
+  height: auto; /*высота*/
+  cursor: pointer;
+}
+/*рейтинг*/
+.rating{
+  position: absolute;
+  right: 0;
+  font-size: 18px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-top: 10px;
+  margin-right: 10px;
+  border-radius: 15px;
+  background-color: #00b109;
+}
+/*описание*/
+.description{
+  font-size: clamp(2px, 2vw, 24px);
+  height: 100%;
+}
+.description-container{
+  position: absolute;
+  display: flex;
+  opacity: 0;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  transition: 0.2s ease-in-out;
+}
+/*появление описания*/
+.anime-container:hover .description-container{
+  opacity: 1;
+  background-color: #000000b2;
+}
+/*контейнер для кнопок под карточкой*/
+.button-container{
+  font-size: 20px;
+  align-content: center;
+}
+/*контейнер для картинка*/
+.poster-container{
+  width: 200px; /*ширина*/
+  height: 280px; /*высота*/
+}
+/*картинка*/
+.poster{
+  width: 200px;
+  height: 280px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+/*контейнер для названия*/
+.name-container{
+  margin-top: 12px;
+}
+/*название*/
+.name{
+  font-size: 19px;
+  word-break: break-all;
+}
+/*кнопка смотреть контейнер*/
+.play-button-container{
+  outline: solid 1px #ffffff;
+  border-radius: 50px;
+  display: flex;
+  transition: 0.2s ease-in-out;
+}
+.play-button-container:hover{
+  background-color: #e58045;
+}
+/*кнопка смотреть*/
+.play-button {
+  gap: 5px;
+  display: flex;
+  height: 50px;
+  align-items: center;
+  padding: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
+  h1{
+    font-size: 25px;
+    margin: 0;
+  }
+}
+a{
+  text-decoration: none;
+}
+.pad-box{
+  padding: 15px;
+  gap: 20px;
+}
+/*страница профился*/
+.main-box{
+  padding-top: 20px;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  flex-direction: column;
+}
+.avatar-box{
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 20px;
+
+  img{
+    border-radius: 50%;
+    width: 128px;
+    height: 128px;
+  }
+}
+.profile-buttons{
+  gap: 20px;
+  display: flex;
+  margin-bottom: 20px;
+}
+.background {
+  background-image: url('https://i.imgur.com/Rs4pQwI.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  flex-direction: column;
+}
+.profile-button{
+  background-color: #262b36;
+  padding: 5px;
+  border-radius: 10px;
+  font-size: 24px;
+}
+.profile-window{
+  width: 80%;
+  height: 550px;
+  border-radius: 20px;
+  background-color: #262b3663;
+  outline: solid 1px #ffffff57;
+  backdrop-filter: blur(10px);
+}
+.avatar-label {
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+}
+.avatar-overlay {
+  position: relative;
+  display: inline-block;
+}
+.avatar-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 30px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.avatar-label:hover .header-avatar {
+  opacity: 0.4;
+}
+.avatar-label:hover .avatar-icon {
+  opacity: 1;  
+}
+.window-content{
+  padding: 30px;
+}
+/* {
+  outline: 1px solid green
+}*/
