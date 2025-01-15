@@ -1,6 +1,7 @@
 import React from "react";
 import "../css/style.scss";
 import "../css/media.css";
+import "../css/Home.css";
 import { Link } from "react-router-dom";
 /*кампоненты*/
 import HeaderEl from "../components/HeaderEl";
@@ -26,67 +27,20 @@ function Home() {
             effect={"fade"}
             centeredSlides={true}
             loop={true}
-            autoplay={{
+            /*autoplay={{
               delay: 9000,
-            }}
+            }}*/
             pagination={{
               clickable: true,
             }}
-            modules={[Autoplay, Pagination, EffectFade]}
+            modules={[ Pagination, EffectFade]}
             className="mySwiper"
           >
             <SwiperSlide>
               <div className="Slide-container">
-                <h1>Info</h1>
+                <img className="anime-logo" src="https://i.pinimg.com/originals/a8/41/05/a841058b5aa02f75349bb083652f2658.png" alt="" />
                 <p>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Nostrum a eveniet atque tempore tenetur earum rem doloremque?
-                  Nobis quod quia ullam mollitia adipisci? Accusamus,
-                  consequuntur nulla debitis dicta est quaerat?
-                </p>
-                <div className="play-button-container">
-                  <Link to={"/player"} >
-                    <div className="play-button">
-                      <i className="bi bi-play fs-1"></i>
-                      <h1>Смотреть</h1>
-                    </div>
-                  </Link>
-                </div>
-              </div>
-              <img 
-                src="https://images.wallpaperscraft.com/image/single/night_city_aerial_view_lights_city_134887_1920x1080.jpg" 
-                alt="poster1" />
-            </SwiperSlide>
-            <SwiperSlide>
-            <div className="Slide-container">
-                <h1>Info</h1>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Nostrum a eveniet atque tempore tenetur earum rem doloremque?
-                  Nobis quod quia ullam mollitia adipisci? Accusamus,
-                  consequuntur nulla debitis dicta est quaerat?
-                </p>
-                <div className="play-button-container">
-                  <Link to={"/player"} >
-                    <div className="play-button">
-                      <i className="bi bi-play fs-1"></i>
-                      <h1>Смотреть</h1>
-                    </div>
-                  </Link>
-                </div>
-              </div>
-              <img 
-                src="https://images.wallpaperscraft.com/image/single/city_night_panorama_117682_1920x1080.jpg" 
-                alt="poster3" />
-            </SwiperSlide>
-            <SwiperSlide>
-            <div className="Slide-container">
-                <h1>Info</h1>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Nostrum a eveniet atque tempore tenetur earum rem doloremque?
-                  Nobis quod quia ullam mollitia adipisci? Accusamus,
-                  consequuntur nulla debitis dicta est quaerat?
+                  
                 </p>
                 <div className="play-button-container">
                   <Link to={"/player"} >
@@ -98,9 +52,49 @@ function Home() {
                 </div>
               </div>
               <img
-                src="https://images.wallpaperscraft.com/image/single/tokyo_night_city_skyscrapers_121628_1920x1080.jpg" 
-                alt="poster3"
-              />
+                className="Swiper-image" 
+                src="https://images.wallpaperscraft.com/image/single/night_city_aerial_view_lights_city_134887_1920x1080.jpg" 
+                alt="poster1" />
+            </SwiperSlide>
+            <SwiperSlide>
+              <div className="Slide-container">
+                <img className="anime-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Naruto_logo.svg/2560px-Naruto_logo.svg.png" alt="" />
+                <p>
+                  
+                </p>
+                <div className="play-button-container">
+                  <Link to={"/player"} >
+                    <div className="play-button">
+                      <i className="bi bi-play fs-1"></i>
+                      <h1>Смотреть</h1>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+              <img
+                className="Swiper-image" 
+                src="https://images.wallpaperscraft.com/image/single/night_city_aerial_view_lights_city_134887_1920x1080.jpg" 
+                alt="poster1" />
+            </SwiperSlide>
+            <SwiperSlide>
+              <div className="Slide-container">
+                <img className="anime-logo" src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo.png" alt="" />
+                <p>
+                  
+                </p>
+                <div className="play-button-container">
+                  <Link to={"/player"} >
+                    <div className="play-button">
+                      <i className="bi bi-play fs-1"></i>
+                      <h1>Смотреть</h1>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+              <img
+                className="Swiper-image" 
+                src="https://images.wallpaperscraft.com/image/single/night_city_aerial_view_lights_city_134887_1920x1080.jpg" 
+                alt="poster1" />
             </SwiperSlide>
           </Swiper>
         </div>

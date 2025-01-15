@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../css/NotFound.css';
+import HeaderEl from "../components/HeaderEl.jsx";
 
 const NotFound = () => {
   return (

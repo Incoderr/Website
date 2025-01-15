@@ -1,151 +1,142 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
-import "./Header-Footer.scss";
-import "../css/media.css";
+import { Swiper, SwiperSlide } from "swiper/react"; // Импортируем Swiper
+import axios from "axios";
+
+import "../components/hed.css";
 
 function HeaderEl() {
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const notificationRef = useRef(null);
-  //rega
-  const [user, setUser] = useState(null);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      // Проверяем, есть ли авторизованный пользователь
-      fetch("http://localhost:5000/api/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => {
-          if (!res.ok) {
-            // Если ответ не OK, пользователь не найден или истек токен
-            setUser(null);
-            return;
-          }
-          return res.json();
-        })
-        .then((data) => {
-          setUser(data);
-        })
-        .catch(() => {
-          setUser(null);
-        });
-    }
-  }, []);
-    
-  // Открыть/закрыть список уведомлений
+
+  const toggleSearch = () => {
+    if (isNotificationOpen) setIsNotificationOpen(false);
+    setIsSearchOpen(!isSearchOpen);
+  };
+
   const toggleNotifications = () => {
-    setIsNotificationOpen((prev) => !prev);
+    if (isSearchOpen) setIsSearchOpen(false);
+    setIsNotificationOpen(!isNotificationOpen);
   };
+//result
 
-  // Закрыть список уведомлений при клике вне области
-  const handleClickOutside = (event) => {
-    if (
-      notificationRef.current &&
-      !notificationRef.current.contains(event.target)
-    ) {
-      setIsNotificationOpen(false);
+
+// Реальный поиск при вводе текста
+
+  useEffect(() => {
+    if (query.trim() === "") {
+      setResults([]);
+      return;
     }
-  };
 
-  // Используем моковые данные вместо запроса на сервер
-  useEffect(() => {
-    const mockData = [
-      { id: 1, message: "Новое сообщение" },
-      { id: 2, message: "У вас есть новое уведомление" },
-      { id: 3, message: "Запрос подтвержден" },
-    ];
-
-    // Эмулируем задержку, как если бы данные пришли с сервера
-    const fetchMockData = () => {
-      setTimeout(() => {
-        setNotifications(mockData);
-      }, 0); // 1 секунда задержки
+    const fetchResults = async () => {
+      try {
+        const response = await axios.get("https://shikimori.me/api/animes", {
+          params: {
+            search: query, // Динамическое значение из input
+            limit: 10, // Количество результатов
+          },
+        });
+        setResults(response.data);
+      } catch (error) {
+        console.error("Ошибка при выполнении поиска:", error);
+      }
     };
+    
+    
 
-    fetchMockData();
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, []);
+    const debounceFetch = setTimeout(fetchResults, 300);
+    return () => clearTimeout(debounceFetch);
+  }, [query]);
 
   return (
     <header>
-      <div className="header-box">
-        <nav className="nav-box">
-          <ul className="nav-ul">
-            <NavLink
-              to={"/"}
-              className={({ isActive }) => (isActive ? "active-link" : "")}
-            >
-              <span className="span-st">Главная</span>
-            </NavLink>
-            <NavLink
-              to={"/categories"}
-              className={({ isActive }) => (isActive ? "active-link" : "")}
-            >
-              <span className="span-st">Категории</span>
-            </NavLink>
-          </ul>
-        </nav>
-        <nav className="nav-but">
+      <div className="header-container">
+        <div className="left">
+          <NavLink
+            to={"/"}
+            className={({ isActive }) => (isActive ? "active-link" : "")}
+          >
+            Главная
+          </NavLink>
+          <NavLink
+            to={"/categories"}
+            className={({ isActive }) => (isActive ? "active-link" : "")}
+          >
+            Категории
+          </NavLink>
+        </div>
+        <div className="right">
           <div className="search-box">
-            <button type="button" className="search-button">
+            <button
+              type="button"
+              onClick={toggleSearch}
+              style={{ background: "none", border: "none", cursor: "pointer" }}
+            >
               <i className="bi bi-search fs-4"></i>
             </button>
-            <input className="search-input" type="text" placeholder="Введите название" />        
-            </div>
-          <div className="notification-container" ref={notificationRef}>
-            <button
-              className="circle notification-btn"
-              onClick={toggleNotifications}
-              aria-label="Уведомления"
-            >
-              <i
-                className={`bi ${
-                  notifications.length > 0 ? "bi-bell-fill" : "bi-bell-slash"
-                }`}
-                style={{ fontSize: "24px" }}
-              ></i>
-            </button>
-
-            {/* Список уведомлений */}
-            <ul
-              className={`notification-list ${
-                isNotificationOpen ? "open" : ""
-              }`}
-            >
-              {notifications.length > 0 ? (
-                notifications.map((notification, index) => (
-                  <li className="notification-item" key={index}>
-                    {notification.message}
-                  </li>
-                ))
-              ) : (
-                <li className="notification-item">Нет новых уведомлений</li>
-              )}
-            </ul>
           </div>
-          {/* регистрация */}
-          <div className="circle">
-            {user ? (
-            <Link to={`/profile`}>
-              <img 
-                className="header-avatar" 
-                src={`http://localhost:5000${user?.avatar || "https://i.imgur.com/hepj9ZS.png"}`} 
-                alt="Avatar" />
+          <div>
+            <button 
+            type="button"
+            onClick={toggleNotifications}
+            style={{ background: "none", border: "none", cursor: "pointer" }}
+            >
+            <i className="bi bi-bell-slash fs-4"></i>
+            </button>
+          </div>
+          <div className="login">
+            <Link className="login" to={"/auth"}>
+              Войти
             </Link>
+            <Link className="login" to={"/profile"}>
+              Зарегистрироватся
+            </Link>
+          </div>
+        </div>
+      </div>
+      {/* Дропдаун поиск */}
+      {isSearchOpen && (
+        <div className="search-dropdown">
+          <div className="dropdown-input">
+            <input type="text" placeholder="Введите текст для поиска..." className="search-input" value={query} onChange={(e) => setQuery(e.target.value)} />
+          </div>
+          <div className="dropdawn-result">
+            {results.length > 0 ? (
+              <Swiper 
+                spaceBetween={10} 
+                slidesPerView="auto"
+              > 
+                {results.slice(0, 10).map((anime) => (
+                  <SwiperSlide key={anime.id} className="card-container">
+                    <div className="search-card">
+                      <img src={`https://shikimori.me${anime.image.preview}`} alt={anime.name} />
+                    </div>
+                      <h3>{anime.name}</h3>
+                      <p>{anime.russian}</p>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
             ) : (
-            <Link to="/Auth">Войти</Link>
+              <p>Нет результатов</p>
             )}
           </div>
-        </nav>
-      </div>
+        </div>
+      )}
+      {/* Дропдаун уведы */}
+      {isNotificationOpen && (
+        <div className="notification-dropdown">
+          <div className="notification-container">
+            <p>hello</p>
+            <p>good morning</p>
+            <p>void</p>
+            <p>happy</p>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

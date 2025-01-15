@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../css/Auth.scss";
+import { ModalContainer, ModalWindow, FormContainerLf, FormContainerRg, Form, ButtonSt, LeftBox, RightBox, Overlay, SpanCont, SpanEl, ColBut, PassBut, PassBut1, PCont, InputBox, CloseBtn, ForgotPassword} from "../css/AuthStyle";
 
 const Auth = () => {
   const [loginData, setLoginData] = useState({ username: "", password: "" });
@@ -34,57 +34,19 @@ const Auth = () => {
   const handleClose = () => {
     navigate(-1);
   };
-
-  const handleSignUp = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(signUpData),
-      });      
-      if (response.ok) {
-        navigate("/profile");
-      } else {
-        const errorData = await response.json();
-        console.error("Registration failed", errorData);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-  
-  const handleLogin = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginData),
-      });
-      if (response.ok) {
-        const { token } = await response.json();
-        localStorage.setItem("token", token);
-        navigate("/profile");
-      } else {
-        const errorData = await response.json();
-        console.error("Login failed", errorData);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
   
   return (
-    <div className={`modal-container ${isSignUp ? "sign-up-mode" : ""}`}>
-      <div className="modal-window">
+    <ModalContainer className={isSignUp ? "sign-up-mode" : ""}>
+      <ModalWindow>
         {/* Left side */}
-        <div className="left-box">
-          <div className="form-container-lf">
+        <LeftBox>
+          <FormContainerLf>
             <h2>Login</h2>
-            <form>
-              <div className="input-box">
+            <Form>
+              <InputBox>
                 <label>Никнейм</label>
-                <div className="span-cont">
-                  <span className="span-el"><i className="bi bi-person-fill"></i></span>
+                <SpanCont>
+                  <SpanEl><i className="bi bi-person-fill"></i></SpanEl>
                   <input
                     className="auth-input"
                     type="text"
@@ -93,19 +55,19 @@ const Auth = () => {
                     placeholder="Введите никнейм или email"
                     onChange={(e) => handleInputChange(e, "login")}
                   />
-                </div>
-              </div>
-              <div className="input-box">
+                </SpanCont>
+              </InputBox>
+              <InputBox>
                 <label>Пароль</label>
-                <div className="span-cont">
-                  <span className="span-el"><i className="bi bi-lock-fill"></i></span>
-                  <button type="button" className="pass-but1" onClick={toggleLoginPasswordVisibility}>
+                <SpanCont>
+                  <SpanEl><i className="bi bi-lock-fill"></i></SpanEl>
+                  <PassBut1 type="button" onClick={toggleLoginPasswordVisibility}>
                     {loginPasswordVisible ? (
                       <i className="bi bi-eye-fill"></i>
                     ) : (
                       <i className="bi bi-eye-slash-fill"></i>
                     )}
-                  </button>
+                  </PassBut1>
                   <input
                     className="password auth-input"
                     type={loginPasswordVisible ? "text" : "password"}
@@ -114,31 +76,31 @@ const Auth = () => {
                     placeholder="Введите пароль"
                     onChange={(e) => handleInputChange(e, "login")}
                   />
-                </div>
-              </div>
-              <div className="forgot-password">
+                </SpanCont>
+              </InputBox>
+              <ForgotPassword>
                 <button type="button">Забыли пароль?</button>
-              </div>
+              </ForgotPassword>
               <hr />
-              <p className="p-cont">
+              <PCont>
                 Не зарегистрированы?
-                <button className="col-but" type="button" onClick={toggleView}>
+                <ColBut type="button" onClick={toggleView}>
                   Зарегистрироваться
-                </button>
-              </p>
-              <button type="button" className="button-st" onClick={handleLogin}>Войти</button>
-            </form>
-          </div>
-        </div>
+                </ColBut>
+              </PCont>
+              <ButtonSt type="button">Войти</ButtonSt>
+            </Form>
+          </FormContainerLf>
+        </LeftBox>
         {/* Right side */}
-        <div className="right-box">
-          <div className="form-container-rg">
+        <RightBox>
+          <FormContainerRg>
             <h2>Регистрация</h2>
-            <form>
-              <div className="input-box">
+            <Form>
+              <InputBox>
                 <label>Никнейм</label>
-                <div className="span-cont">
-                  <span className="span-el"><i className="bi bi-person-fill"></i></span>
+                <SpanCont>
+                  <SpanEl><i className="bi bi-person-fill"></i></SpanEl>
                   <input
                     className="auth-input"
                     type="text"
@@ -147,12 +109,12 @@ const Auth = () => {
                     placeholder="Придумайте никнейм"
                     onChange={(e) => handleInputChange(e, "signUp")}
                   />
-                </div>
-              </div>
-              <div className="input-box">
+                </SpanCont>
+              </InputBox>
+              <InputBox>
                 <label>Почта</label>
-                <div className="span-cont">
-                  <span className="span-el"><i className="bi bi-at"></i></span>
+                <SpanCont>
+                  <SpanEl><i className="bi bi-at"></i></SpanEl>
                   <input
                     className="auth-input"
                     type="email"
@@ -161,19 +123,19 @@ const Auth = () => {
                     placeholder="Введите email"
                     onChange={(e) => handleInputChange(e, "signUp")}
                   />
-                </div>
-              </div>
-              <div className="input-box">
+                </SpanCont>
+              </InputBox>
+              <InputBox>
                 <label>Пароль</label>
-                <div className="span-cont">
-                  <span className="span-el"><i className="bi bi-lock-fill"></i></span>
-                  <button type="button" className="pass-but" onClick={toggleSignUpPasswordVisibility}>
+                <SpanCont>
+                  <SpanEl><i className="bi bi-lock-fill"></i></SpanEl>
+                  <PassBut type="button" onClick={toggleSignUpPasswordVisibility}>
                     {signUpPasswordVisible ? (
                       <i className="bi bi-eye-fill"></i>
                     ) : (
                       <i className="bi bi-eye-slash-fill"></i>
                     )}
-                  </button>
+                  </PassBut>
                   <input
                     className="password auth-input"
                     type={signUpPasswordVisible ? "text" : "password"}
@@ -182,25 +144,25 @@ const Auth = () => {
                     placeholder="Придумайте пароль"
                     onChange={(e) => handleInputChange(e, "signUp")}
                   />
-                </div>
-              </div>
+                </SpanCont>
+              </InputBox>
               <hr />
-              <p className="p-cont">
+              <PCont>
                 Уже есть аккаунт?
-                <button className="col-but" type="button" onClick={toggleView}>
+                <ColBut type="button" onClick={toggleView}>
                   Войти
-                </button>
-              </p>
-              <button type="button" className="button-st" onClick={handleSignUp}>Зарегистрироваться</button>
-            </form>
-          </div>
-        </div>
+                </ColBut>
+              </PCont>
+              <ButtonSt type="button">Зарегистрироваться</ButtonSt>
+            </Form>
+          </FormContainerRg>
+        </RightBox>
         {/* Close Button */}
-        <button className="close-btn" type="button" onClick={handleClose}>Закрыть</button>
+        <CloseBtn type="button" onClick={handleClose}>Закрыть</CloseBtn>
         {/* Overlay */}
-        <div className="overlay"></div>
-      </div>
-    </div>
+        <Overlay className="overlay"/>
+      </ModalWindow>
+    </ModalContainer>
   );
 };
 

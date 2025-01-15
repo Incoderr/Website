@@ -13,10 +13,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/player" element={<Player />} />
-          <Route path="*" element={<NotFound />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
   );

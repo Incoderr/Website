@@ -1,0 +1,120 @@
+header{
+    z-index: 1000;
+    background-color: #0000004f;
+    width: 100%;
+    height: 3.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+}
+button{
+    background-color: #00000000;
+}
+.header-container{
+    display: flex;
+    margin: 0px 90px 0px 90px; 
+    justify-content: space-between;
+    width: 100%;
+}
+.left{
+    display: flex;
+    gap: 15px;
+    font-size: 20px;
+    align-items: center;
+}
+.right{
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.active-link{
+    color: rgb(111, 0, 255);
+}
+.login{
+    background-color: rgba(0, 0, 0, 0);
+}
+.login{
+    display: flex;
+    gap: 10px;
+    font-size: 16px;
+}
+.search-box{
+
+}
+.search-dropdown {
+    padding: 10px;
+    position: absolute;
+    top: 3.5rem; /* Высота header */
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+.search-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    color: white;
+    border: 1px solid #dddddda8;
+    border-radius: 10px;
+    background-color: #1c1d21;
+}
+.dropdown-input{}
+.dropdawn-result{
+    gap: 60px;
+    margin-top: 5px;
+    padding: 25px 15px 25px 15px;
+    background-color: #1f2025;
+    border-radius: 10px;
+    display: flex;
+    height: auto;
+    max-height: 800px;
+
+    .swiper-slide {
+        flex-shrink: 1;
+        user-select: none;
+        margin: 0;
+        display: flex;
+      }
+}  
+.search-card{
+    width: 13rem; /*ширина*/
+    height: auto; /*высота*/
+    background-color: #373838;
+    border-radius: 10px;
+    transition: ease-in-out 0.2s;
+    cursor: pointer;
+    
+    img{
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+    }
+}
+.card-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 14.5rem;
+    word-break: break-all;
+    h3{
+        margin-top: 1rem;
+        font-size: 24px;
+    }
+}
+.search-card:hover{
+    transform: scale(1.04);
+}
+.notification-dropdown{
+    padding: 10px;
+    position: absolute;
+    top: 3.5rem; /* Высота header */
+    right: 15rem;
+    z-index: 1000;
+}
+.notification-container{
+    background-color: #1f2025;
+    padding: 25px 15px 25px 15px;
+    border-radius: 10px;
+}

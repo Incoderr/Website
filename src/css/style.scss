@@ -1,35 +1,7 @@
 body {
   color: #ffffff;
-  background-color: #000000;
 }
-.image-box {
-  width: 100%; /*ширина*/
-  height: 100%; /*высота*/
-  background-color: rgb(0, 0, 0);
-  img {
-    max-width: 100%; /* Ограничение по ширине */
-    max-height: 100%; /* Ограничение по высоте */
-  }
-  .swiper {
-    width: 100%;
-    height: 800px; /*высота*/
-  }
-  .swiper-slide {
-    text-align: center;
-    font-size: 18px;
-    background: #222222;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-  }
-  .swiper-slide img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
+
 /*главный свайпер*/
 .Slide-container{
   position: absolute;
@@ -201,81 +173,7 @@ a{
   gap: 20px;
 }
 /*страница профился*/
-.main-box{
-  padding-top: 20px;
-  display: flex;
-  width: 100%;
-  align-items: center;
-  flex-direction: column;
-}
-.avatar-box{
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  flex-direction: column;
-  margin-bottom: 20px;
 
-  img{
-    border-radius: 50%;
-    width: 128px;
-    height: 128px;
-  }
-}
-.profile-buttons{
-  gap: 20px;
-  display: flex;
-  margin-bottom: 20px;
-}
-.background {
-  background-image: url('https://i.imgur.com/Rs4pQwI.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  min-height: 100vh;
-  flex-direction: column;
-}
-.profile-button{
-  background-color: #262b36;
-  padding: 5px;
-  border-radius: 10px;
-  font-size: 24px;
-}
-.profile-window{
-  width: 80%;
-  height: 550px;
-  border-radius: 20px;
-  background-color: #262b3663;
-  outline: solid 1px #ffffff57;
-  backdrop-filter: blur(10px);
-}
-.avatar-label {
-  cursor: pointer;
-  position: relative;
-  display: inline-block;
-}
-.avatar-overlay {
-  position: relative;
-  display: inline-block;
-}
-.avatar-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 30px;
-  color: white;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.avatar-label:hover .header-avatar {
-  opacity: 0.4;
-}
-.avatar-label:hover .avatar-icon {
-  opacity: 1;  
-}
-.window-content{
-  padding: 30px;
-}
 /* {
   outline: 1px solid green
 }*/

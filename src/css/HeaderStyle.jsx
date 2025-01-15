@@ -1,0 +1,171 @@
+import styled from "styled-components";
+
+export const Header = styled.header`
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  background-color: #0000004f;
+  backdrop-filter: blur(2px);
+  width: 100%;
+  text-decoration: none;
+  position: fixed;
+  justify-content: space-between;
+  
+  ul{
+    padding: 0;
+    margin: 0;
+  }
+
+  h2{
+    font-size: 30px;
+    margin: 0;
+  }
+
+  button{
+    background-color: #00000000;
+    
+  }
+
+  ul a{
+    text-decoration: none;
+    color: #ffffff;
+  }
+`;
+
+export const HeaderBox = styled.div`
+  display: flex;
+  margin: 13px 90px 13px 90px;
+`;
+
+export const NavBox = styled.nav`
+  display: flex;
+  justify-items: center;
+  align-content: center;
+
+  ul{
+    padding: 0;
+    margin: 0;
+  }
+`;
+
+export const NavUl = styled.ul`
+  align-items: center;
+  display: flex;
+  gap: 15px;
+  list-style-type: none;
+
+
+  .active-link{
+    color: rgb(111, 0, 255);
+  }
+`;
+
+export const NavBut = styled.nav`
+  display: flex;
+  gap: 10px;
+  list-style-type: none;
+  align-items: center;
+  margin-left: auto; /* Чтобы отодвинуть влево и расположить рядом с NavBox */
+`;
+
+export const Circle = styled.div`
+  align-content: center;
+  text-align: center;
+  display: flex;
+  width: 40px;
+  height: 40px;
+  gap: 10px;
+
+  .header-avatar{
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+  }
+`;
+
+export const SearchBox = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+
+  .search-button{
+    position: absolute;
+    right: 6px;
+  }
+
+  .search-input {
+    width: 400px;
+    height: 40px;
+    background-color: #0e0c0a;
+    border-color: #00000000;
+    outline: solid 1px #ffffff;
+    border-radius: 20px;
+    padding-left: 13px;
+    padding-right: 40px;
+   color: #ffffff;
+  }
+`;
+
+export const NotificationContainer = styled.div`
+  position: relative;
+  display: inline-block;
+
+  .notification-list {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: -100px;
+    width: 250px;
+    background-color: #222;
+    border: 1px solid #444;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    z-index: 1000;
+    overflow: hidden;
+  }
+
+  .notification-list.open {
+    display: block;
+  }
+
+  .notification-item {
+    padding: 10px;
+    color: #fff;
+    font-size: 14px;
+    border-bottom: 1px solid #444;
+  }
+
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+`;
+
+export const SpanSt = styled.span`
+  text-align: center;
+  align-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: color 0.3s ease;
+`;
+
+export const SignBut = styled.button`
+  font-size: 18px;
+  outline: solid 1px #ffffffb7;
+  border-radius: 20px;
+  padding: 0 8px 0 8px;
+  &.login{
+    color: #000000;
+    background-color: #ffffff;
+  }
+
+  &.signup{
+    color: #ffffff;
+    
+  }
+`;

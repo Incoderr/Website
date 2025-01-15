@@ -28,6 +28,7 @@ button{
   border: none;
   cursor: pointer;
   color: #ffffff;
+  padding: 0;
 }
 .video-info{
   display: flex;
