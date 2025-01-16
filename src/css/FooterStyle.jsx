@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const Footer = styled.footer`
-  background-color: #0e0c0a85;
+  background-color: #0e0c0a;
   position: absolute;
   backdrop-filter: blur(10px);
   width: 100%;

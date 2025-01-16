@@ -18,6 +18,10 @@
       justify-content: center;
       align-items: center;
       width: 100%;
+
+      .Slide-container{
+        margin: 0;
+      }
     }
     .Swiper-image {
       display: block;

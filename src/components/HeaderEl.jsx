@@ -3,6 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react"; // Импортируем Swiper
 import axios from "axios";
 
+import "../css/media.css"
 import "../components/hed.css";
 
 function HeaderEl() {
@@ -107,7 +108,7 @@ function HeaderEl() {
           <div className="dropdawn-result">
             {results.length > 0 ? (
               <Swiper 
-                spaceBetween={10} 
+                spaceBetween={15} 
                 slidesPerView="auto"
               > 
                 {results.slice(0, 10).map((anime) => (

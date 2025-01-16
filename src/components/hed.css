@@ -64,20 +64,23 @@ button{
 .dropdawn-result{
     gap: 60px;
     margin-top: 5px;
-    padding: 25px 15px 25px 15px;
     background-color: #1f2025;
     border-radius: 10px;
     display: flex;
     height: auto;
     max-height: 800px;
 
+    p{
+        margin: 0;
+    }
+
     .swiper-slide {
         flex-shrink: 1;
         user-select: none;
-        margin: 0;
         display: flex;
+        height: auto;
       }
-}  
+}
 .search-card{
     width: 13rem; /*ширина*/
     height: auto; /*высота*/
@@ -85,6 +88,7 @@ button{
     border-radius: 10px;
     transition: ease-in-out 0.2s;
     cursor: pointer;
+
     
     img{
         width: 100%;
@@ -103,7 +107,7 @@ button{
         font-size: 24px;
     }
 }
-.search-card:hover{
+ .search-card:hover{
     transform: scale(1.04);
 }
 .notification-dropdown{

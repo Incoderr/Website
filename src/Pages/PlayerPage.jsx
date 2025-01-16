@@ -40,7 +40,7 @@ return  (
                 </div>
                 <div className="video-box">
                    <div className="player">
-                       <iframe src="https://cache2.animix.lol/content/watch/IQWiZWliSrnYBUiMsBb1_17358022894331735802289433" frameborder="0"></iframe>
+                       <iframe src="https://r460301.yandexwebcache.org/higurashi-no-naku/4/10.1080.2f6ffcfe6630ef55.mp4?hash1=a76137b01ebbf4d61150c99bb183185e&hash2=d776228c0b6806ee84acf89469d2d408" frameborder="0"></iframe>
                    </div>
                 </div>
                 <div className="test">
