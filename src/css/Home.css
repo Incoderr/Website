@@ -56,20 +56,39 @@
   justify-content: center;
   align-items: center;
 }
-.play-button:hover{
+.play:hover{
+  transform: scale(0.95);
+}
+.play-bookmark:hover{
   transform: scale(0.95);
 }
 .play-button {
-  background-color: rgb(255, 255, 255);
-  border-radius: 50px;
-  color: #000000;
-  padding-left: 10px;
-  padding-right: 10px;
   display: flex;
   align-items: center;
-  height: 50px;
-  transition: ease-in-out 0.2s;
-
+  gap: 10px;
+  .play{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: ease-in-out 0.2s;
+    background-color: white;
+    color: #000000;
+    height: 50px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 50px;
+  }
+  .play-bookmark{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #A78BFA;
+    border-radius: 20px;
+    width: 43px;
+    height: 43px;
+    transition: ease-in-out 0.2s;
+    color: #e61818;
+  }
   h1{
     font-size: 24px;
     margin: 0;

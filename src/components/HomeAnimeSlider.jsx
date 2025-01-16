@@ -58,12 +58,19 @@ const HomeAnimeSwiper = () => {
                 <p>{anime.description || "Описание недоступно"}</p>
               </div>
               <div className="play-button-container">
-                <Link to={"/player"}>
                   <div className="play-button">
-                    <i className="bi bi-play fs-1"></i>
-                    <h1>Смотреть</h1>
+                    <Link to={"/player"}>
+                        <div className="play">
+                            <i className="bi bi-play fs-1"></i>
+                            <h1>Смотреть</h1>
+                        </div>
+                    </Link>
+                    <div className="play-bookmark">
+                        <button type="button">
+                            <i class="bi bi-bookmark fs-3"></i>
+                        </button>
+                    </div>
                   </div>
-                </Link>
               </div>
             </div>
             <iframe 
