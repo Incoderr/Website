@@ -18,10 +18,7 @@
       justify-content: center;
       align-items: center;
       width: 100%;
-
-      .Slide-container{
-        margin: 0;
-      }
+      height: auto;
     }
     .Swiper-image {
       display: block;
@@ -29,8 +26,52 @@
       height: 100%;
       object-fit: cover;
     }
-  }
-  
+}
+.Slide-container{
+  position: absolute;
+  width: 450px;
+  margin-left: 50px;
+  left: 0;
+  justify-items: center;
+} 
 .anime-logo{
     box-sizing: border-box;
+}
+.Slider-description {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical; 
+  -webkit-line-clamp: 10; /* строки */
+  word-break: break-word;
+  margin-bottom: 10px;
+
+  p {
+    font-size: 16px;
+  }
+}
+
+.play-button-container{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.play-button:hover{
+  background-color: #e58045;
+}
+.play-button {
+  outline:  solid 1px #ff0000;
+  border-radius: 10px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  height: 50px;
+
+  h1{
+    font-size: 24px;
+    margin: 0;
+  }
+}
+a{
+  text-decoration: none;
 }

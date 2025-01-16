@@ -62,8 +62,7 @@ button{
 }
 .dropdown-input{}
 .dropdawn-result{
-    gap: 60px;
-    margin-top: 5px;
+    margin-top: 10px;
     background-color: #1f2025;
     border-radius: 10px;
     display: flex;
@@ -79,7 +78,14 @@ button{
         user-select: none;
         display: flex;
         height: auto;
+        margin-left: 15px;
+        margin-right: 15px;
+        margin-top: 20px;
       }
+}
+.dropdawn-margin{
+    display: flex;
+    margin: 20px;
 }
 .search-card{
     width: 13rem; /*ширина*/
@@ -88,7 +94,6 @@ button{
     border-radius: 10px;
     transition: ease-in-out 0.2s;
     cursor: pointer;
-
     
     img{
         width: 100%;

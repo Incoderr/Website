@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react"; // Импортируем Swiper
 import axios from "axios";
 
-import "../css/media.css"
+import "../css/media.css";
 import "../components/hed.css";
 
 function HeaderEl() {
@@ -11,7 +11,6 @@ function HeaderEl() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
-
 
   const toggleSearch = () => {
     if (isNotificationOpen) setIsNotificationOpen(false);
@@ -22,10 +21,9 @@ function HeaderEl() {
     if (isSearchOpen) setIsSearchOpen(false);
     setIsNotificationOpen(!isNotificationOpen);
   };
-//result
+  //result
 
-
-// Реальный поиск при вводе текста
+  // Реальный поиск при вводе текста
 
   useEffect(() => {
     if (query.trim() === "") {
@@ -46,8 +44,6 @@ function HeaderEl() {
         console.error("Ошибка при выполнении поиска:", error);
       }
     };
-    
-    
 
     const debounceFetch = setTimeout(fetchResults, 300);
     return () => clearTimeout(debounceFetch);
@@ -81,12 +77,12 @@ function HeaderEl() {
             </button>
           </div>
           <div>
-            <button 
-            type="button"
-            onClick={toggleNotifications}
-            style={{ background: "none", border: "none", cursor: "pointer" }}
+            <button
+              type="button"
+              onClick={toggleNotifications}
+              style={{ background: "none", border: "none", cursor: "pointer" }}
             >
-            <i className="bi bi-bell-slash fs-4"></i>
+              <i className="bi bi-bell-slash fs-4"></i>
             </button>
           </div>
           <div className="login">
@@ -103,29 +99,35 @@ function HeaderEl() {
       {isSearchOpen && (
         <div className="search-dropdown">
           <div className="dropdown-input">
-            <input type="text" placeholder="Введите текст для поиска..." className="search-input" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <input
+              type="text"
+              placeholder="Введите текст для поиска..."
+              className="search-input"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
           </div>
           <div className="dropdawn-result">
-            {results.length > 0 ? (
-              <Swiper 
-                spaceBetween={15} 
-                slidesPerView="auto"
-              > 
-                {results.slice(0, 10).map((anime) => (
-                  <SwiperSlide key={anime.id} className="card-container">
-                    <div className="search-card">
-                      <img src={`https://shikimori.me${anime.image.preview}`} alt={anime.name} />
-                    </div>
+              {results.length > 0 ? (
+                <Swiper spaceBetween={0} slidesPerView="auto">
+                  {results.slice(0, 10).map((anime) => (
+                    <SwiperSlide key={anime.id} className="card-container">
+                      <div className="search-card">
+                        <img
+                          src={`https://shikimori.me${anime.image.preview}`}
+                          alt={anime.name}
+                        />
+                      </div>
                       <h3>{anime.name}</h3>
                       <p>{anime.russian}</p>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            ) : (
-              <p>Нет результатов</p>
-            )}
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              ) : (
+                <p>Нет результатов</p>
+              )}
+            </div>
           </div>
-        </div>
       )}
       {/* Дропдаун уведы */}
       {isNotificationOpen && (
