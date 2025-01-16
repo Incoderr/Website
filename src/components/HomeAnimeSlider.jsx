@@ -48,7 +48,12 @@ const HomeAnimeSwiper = () => {
                 src={anime.image.original}
                 alt={anime.name}
               />
-              <h1>{anime.name}</h1>
+              <h1>{anime.russian}</h1>
+              <div className="anime-info">
+                <p className="score">{anime.score}</p>
+                <p>Серий:{anime.episodes}</p>
+                <p>{anime.released_on}</p>
+              </div>
               <div className="Slider-description">
                 <p>{anime.description || "Описание недоступно"}</p>
               </div>
@@ -61,11 +66,10 @@ const HomeAnimeSwiper = () => {
                 </Link>
               </div>
             </div>
-            <iframe
-              className="Swiper-image"
-              src={anime.videos.playerurl}
-              alt={anime.name}
-            />
+            <iframe 
+                
+            >
+            </iframe>
           </SwiperSlide>
         ))}
       </Swiper>

@@ -57,15 +57,18 @@
   align-items: center;
 }
 .play-button:hover{
-  background-color: #e58045;
+  transform: scale(0.95);
 }
 .play-button {
-  outline:  solid 1px #ff0000;
-  border-radius: 10px;
-  padding: 5px;
+  background-color: rgb(255, 255, 255);
+  border-radius: 50px;
+  color: #000000;
+  padding-left: 10px;
+  padding-right: 10px;
   display: flex;
   align-items: center;
   height: 50px;
+  transition: ease-in-out 0.2s;
 
   h1{
     font-size: 24px;
@@ -74,4 +77,15 @@
 }
 a{
   text-decoration: none;
+}
+.anime-info{
+  display: flex;
+  gap: 10px;
+  .score{
+    background-color: #38b000;
+    border-radius: 20px;
+    padding-left: 7px;
+    padding-right: 7px;
+    width: auto;
+  }
 }
