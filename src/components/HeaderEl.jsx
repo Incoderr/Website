@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react"; // Импортируем Swiper
 import axios from "axios";
 
-import "../css/media.css";
+import "../css/media.scss";
 import "../components/hed.css";
 
 function HeaderEl() {
@@ -88,9 +88,6 @@ function HeaderEl() {
           <div className="login">
             <Link className="login" to={"/auth"}>
               Войти
-            </Link>
-            <Link className="login" to={"/profile"}>
-              Зарегистрироватся
             </Link>
           </div>
         </div>

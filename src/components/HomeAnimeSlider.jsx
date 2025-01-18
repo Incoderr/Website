@@ -7,6 +7,8 @@ import "swiper/css/navigation";
 import { Autoplay, Pagination, EffectFade, } from "swiper/modules";
 import { Link } from "react-router-dom";
 
+import bebop from "../assets/video/Cowboy-Bebop.mp4";
+
 const HomeAnimeSwiper = () => {
   const [animeList, setAnimeList] = useState([]);
 
@@ -73,10 +75,7 @@ const HomeAnimeSwiper = () => {
                   </div>
               </div>
             </div>
-            <iframe 
-                
-            >
-            </iframe>
+            <video src={bebop} autoPlay muted loop></video>
           </SwiperSlide>
         ))}
       </Swiper>
