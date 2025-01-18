@@ -6,7 +6,7 @@ function Categories() {
   return (
     <div>
       <HeaderEl />
-      <main className="all-paddding">
+      <main className="all-padding">
         <CategoriesBox>
           <SideBar>
             <h2>Категории</h2>
