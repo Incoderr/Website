@@ -13,7 +13,7 @@ import "../css/all-paddding.css";
 
 function Home() {
   return (
-    <div className="media">
+    <div>
       <HeaderEl />
       <main>
         <HomeAnimeSlider/>
