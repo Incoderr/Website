@@ -76,7 +76,7 @@ function HeaderEl() {
               <i className="bi bi-search fs-4"></i>
             </button>
           </div>
-          <div>
+          <div className="notification-box">
             <button
               type="button"
               onClick={toggleNotifications}

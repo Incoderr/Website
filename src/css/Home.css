@@ -1,3 +1,7 @@
+:root{
+  --bg-button: #A78BFA;
+  --st-border: 10px;
+}
 .image-box {
     width: 100%; /*ширина*/
     height: 100%; /*высота*/

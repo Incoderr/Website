@@ -30,7 +30,7 @@ button{
 }
 
 .active-link{
-    color: rgb(111, 0, 255);
+    color: var(--bg-button);
 }
 .login{
     background-color: rgba(0, 0, 0, 0);
@@ -41,7 +41,7 @@ button{
     font-size: 16px;
 }
 .search-box{
-
+    transition: ease-in-out 0.2s;
 }
 .search-dropdown {
     padding: 10px;
@@ -126,4 +126,18 @@ button{
     background-color: #1f2025;
     padding: 25px 15px 25px 15px;
     border-radius: 10px;
+}
+.notification-box{
+    transition: ease-in-out 0.2s;
+}
+.search-box:hover{
+    transform: scale(0.95);
+}
+.notification-box:hover{
+    transform: scale(0.95);
+}
+.header-avatar{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
 }
