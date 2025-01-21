@@ -32,7 +32,7 @@ const Auth = () => {
   // Handle login form submit
   const handleLoginSubmit = async (data) => {
     try {
-      const response = await axios.post("http://localhost:8000/api/login", data);
+      const response = await axios.post("https://test-site-jk7hhk6uy74hg72i4i.netlify.app/api/login", data);
       alert(response.data.message);
     } catch (error) {
       alert(error.response?.data?.detail || "Ошибка входа");

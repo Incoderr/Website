@@ -10,7 +10,7 @@ app = FastAPI()
 # Настройка CORS для работы с React
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Замените на конкретный адрес вашего React-приложения
+    allow_origins=["http://localhost:5173, https://test-site-jk7hhk6uy74hg72i4i.netlify.app"],  # Замените на конкретный адрес вашего React-приложения
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
