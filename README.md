@@ -3,3 +3,5 @@
 
 //border
 --st-border: 10px;
+
+uvicorn main:app --reload

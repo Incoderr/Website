@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import axios from "axios";
 import "../css/Auth.css";
 
 const Auth = () => {
@@ -6,36 +8,12 @@ const Auth = () => {
   const [showPasswordLogin, setShowPasswordLogin] = useState(false);
   const [showPasswordSignup, setShowPasswordSignup] = useState(false);
 
-  // State for login form
-  const [loginData, setLoginData] = useState({
-    login: "",
-    password: "",
-  });
-
-  // State for signup form
-  const [signupData, setSignupData] = useState({
-    signupLogin: "",
-    email: "",
-    signupPassword: "",
-  });
-
-  // Handle login form input change
-  const handleLoginChange = (e) => {
-    const { name, value } = e.target;
-    setLoginData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  // Handle signup form input change
-  const handleSignupChange = (e) => {
-    const { name, value } = e.target;
-    setSignupData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm();
 
   // Toggle between login and signup forms
   const toggleForm = () => {
@@ -52,21 +30,37 @@ const Auth = () => {
   };
 
   // Handle login form submit
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    alert(JSON.stringify(loginData));
+  const handleLoginSubmit = async (data) => {
+    try {
+      const response = await axios.post("http://localhost:8000/api/login", data);
+      alert(response.data.message);
+    } catch (error) {
+      alert(error.response?.data?.detail || "Ошибка входа");
+    }
   };
 
   // Handle signup form submit
-  const handleSignupSubmit = (e) => {
-    e.preventDefault();
-    alert(JSON.stringify(signupData));
+  const handleSignupSubmit = async (data) => {
+    try {
+      const response = await axios.post("http://localhost:8000/api/signup", data);
+      alert(response.data.message);
+    } catch (error) {
+      if (error.response?.status === 400) {
+        const errorMessage = error.response.data.detail;
+        if (errorMessage.includes("логином")) {
+          setError("signupLogin", { message: "Этот логин уже зарегистрирован" });
+        }
+        if (errorMessage.includes("email")) {
+          setError("email", { message: "Этот email уже зарегистрирован" });
+        }
+      }
+    }
   };
 
   return (
     <div className="bg">
       <div className="form-box">
-        <form onSubmit={isLogin ? handleLoginSubmit : handleSignupSubmit}>
+        <form onSubmit={handleSubmit(isLogin ? handleLoginSubmit : handleSignupSubmit)}>
           {isLogin ? (
             <div className="login-container">
               <h1>Войти</h1>
@@ -78,13 +72,11 @@ const Auth = () => {
                   </span>
                   <input
                     type="text"
-                    name="login"
-                    value={loginData.login}
-                    onChange={handleLoginChange}
+                    {...register("login", { required: "Логин обязателен" })}
                     placeholder="Введите логин или почту"
-                    required
                   />
                 </div>
+                {errors.login && <p className="error">{errors.login.message}</p>}
               </label>
               <label>
                 <h6>Пароль:</h6>
@@ -101,14 +93,12 @@ const Auth = () => {
                   </span>
                   <input
                     type={showPasswordLogin ? "text" : "password"}
-                    name="password"
-                    value={loginData.password}
-                    onChange={handleLoginChange}
+                    {...register("password", { required: "Пароль обязателен" })}
                     placeholder="Введите пароль"
-                    required
                     className="password-input"
                   />
                 </div>
+                {errors.password && <p className="error">{errors.password.message}</p>}
               </label>
               <p className="no-account" onClick={toggleForm}>
                 Нет аккаунта?
@@ -128,13 +118,11 @@ const Auth = () => {
                   </span>
                   <input
                     type="text"
-                    name="signupLogin"
-                    value={signupData.signupLogin}
-                    onChange={handleSignupChange}
+                    {...register("signupLogin", { required: "Логин обязателен" })}
                     placeholder="Придумайте никнейм"
-                    required
                   />
                 </div>
+                {errors.signupLogin && <p className="error">{errors.signupLogin.message}</p>}
               </label>
               <label>
                 <h6>Email:</h6>
@@ -144,13 +132,26 @@ const Auth = () => {
                   </span>
                   <input
                     type="email"
-                    name="email"
-                    value={signupData.email}
-                    onChange={handleSignupChange}
+                    {...register("email", {
+                      required: "Email обязателен",
+                      validate: async (value) => {
+                        try {
+                          const response = await axios.post(
+                            "http://localhost:8000/check-email",
+                            { email: value }
+                          );
+                          if (!response.data.available) {
+                            return "Этот email уже зарегистрирован";
+                          }
+                        } catch {
+                          return "Ошибка проверки email";
+                        }
+                      },
+                    })}
                     placeholder="Введите почту"
-                    required
                   />
                 </div>
+                {errors.email && <p className="error">{errors.email.message}</p>}
               </label>
               <label>
                 <h6>Пароль:</h6>
@@ -167,20 +168,20 @@ const Auth = () => {
                   </span>
                   <input
                     type={showPasswordSignup ? "text" : "password"}
-                    name="signupPassword"
-                    value={signupData.signupPassword}
-                    onChange={handleSignupChange}
+                    {...register("signupPassword", { required: "Пароль обязателен" })}
                     placeholder="Придумайте пароль"
-                    required
                     className="password-input"
                   />
                 </div>
+                {errors.signupPassword && (
+                  <p className="error">{errors.signupPassword.message}</p>
+                )}
               </label>
               <p className="no-account" onClick={toggleForm}>
                 Уже есть аккаунт?
               </p>
               <button className="form-but" type="submit">
-                Зарегистрироватся
+                Зарегистрироваться
               </button>
             </div>
           )}

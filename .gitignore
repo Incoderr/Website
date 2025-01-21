@@ -1,2 +1,4 @@
 node_modules/
 .env
+Server/.idea
+Server/py/__pycache__
