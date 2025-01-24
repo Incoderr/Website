@@ -98,3 +98,12 @@ form{
   position: absolute;
   margin-left: 273px;
 }
+.close{
+  z-index: 10;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 5px;
+  border-radius: 10px;
+  background-color: var(--bg-button);
+}

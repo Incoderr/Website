@@ -1,6 +1,5 @@
 import React from "react";
 import "../css/style.scss";
-import "../css/media.scss";
 import "../css/Home.css";
 import { Link } from "react-router-dom";
 /*кампоненты*/
@@ -13,7 +12,7 @@ import "../css/all-paddding.css";
 
 function Home() {
   return (
-    <div className="media">
+    <div>
       <HeaderEl />
       <main>
         <HomeAnimeSlider/>

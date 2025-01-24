@@ -13,7 +13,7 @@ button{
 }
 .header-container{
     display: flex;
-     
+    margin: 0px 90px 0px 90px;
     justify-content: space-between;
     width: 100%;
     box-sizing: border-box;

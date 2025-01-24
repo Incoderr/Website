@@ -1,5 +1,6 @@
 import React from "react";
 import HeaderEl from "../components/HeaderEl";
+import "../css/Categories.css";
 import styled from 'styled-components';
 
 function Categories() {
@@ -7,16 +8,16 @@ function Categories() {
     <div>
       <HeaderEl />
       <main className="all-padding">
-        <CategoriesBox>
-          <SideBar>
+        <div className="CategoriesBox" >
+          <div className="side-bar">
             <h2>Категории</h2>
             <hr />
             <p>Хоррор</p>
             <p>Фентези</p>
             <p>Детектив</p>
             <p>Романтика</p>
-          </SideBar>
-          <CategorieCardBox>
+          </div>
+          <div className="CategorieCardBox">
             <NavContainer>
               <CategorieNavigate>
                 <i className="bi bi-grid fs-3 icon-box"></i>
@@ -25,16 +26,16 @@ function Categories() {
               </CategorieNavigate>
             </NavContainer>
             <CardContainer>
-              <CategorieCard></CategorieCard>
-              <CategorieCard></CategorieCard>
-              <CategorieCard></CategorieCard>
-              <CategorieCard></CategorieCard>
-              <CategorieCard></CategorieCard>
-              <CategorieCard></CategorieCard>
-              <CategorieCard></CategorieCard>
+              <div className="CategorieCard"></div>
+              <div className="CategorieCard"></div>
+              <div className="CategorieCard"></div>
+              <div className="CategorieCard"></div>
+              <div className="CategorieCard"></div>
+              <div className="CategorieCard"></div>
+              <div className="CategorieCard"></div>
             </CardContainer>
-          </CategorieCardBox>
-        </CategoriesBox>
+          </div>
+        </div>
       </main>
     </div>
   );
@@ -42,11 +43,7 @@ function Categories() {
 
 export default Categories;
 
-const CategoriesBox = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 60px;
-`;
+
 
 const CardContainer = styled.div`
   gap: 13px;
@@ -55,20 +52,9 @@ const CardContainer = styled.div`
   padding: 10px;
 `;
 
-const CategorieCard = styled.div`
-  width: 200px;
-  height: 300px;
-  border-radius: 10px;
-  background-color: #1b1d21;
-`;
 
-const CategorieCardBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: auto;
-  max-width: 1072px;
-  margin-left: 20px;
-`;
+
+
 
 const NavContainer = styled.div`
   margin-left: auto;
@@ -100,18 +86,3 @@ const CategorieNavigate = styled.nav`
     }
 `;
 
-const SideBar = styled.div`
-background-color: #1b1d21;
-  width: 240px;
-  height: 400px;
-  display: flex;
-  flex-direction: column;
-  padding: 10px 10px 10px 25px;
-  border-radius: 10px;
-  margin-top: 60px;
-  gap: 10px;
-
-  p{
-    font-size: 20px;
-  }
-`;

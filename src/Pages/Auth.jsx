@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import { Link } from "react-router-dom";
 import "../css/Auth.css";
 
 const Auth = () => {
@@ -8,19 +8,26 @@ const Auth = () => {
   const [showPasswordLogin, setShowPasswordLogin] = useState(false);
   const [showPasswordSignup, setShowPasswordSignup] = useState(false);
 
+  const [loginData, setLoginData] = useState({
+    login: "",
+    password: "",
+  });
+
+  const [signupData, setSignupData] = useState({
+    login: "",
+    email: "",
+    password: "",
+  });
+
   const {
     register,
-    handleSubmit,
-    setError,
     formState: { errors },
   } = useForm();
 
-  // Toggle between login and signup forms
   const toggleForm = () => {
     setIsLogin(!isLogin);
   };
 
-  // Toggle password visibility
   const togglePasswordVisibilityLogin = () => {
     setShowPasswordLogin(!showPasswordLogin);
   };
@@ -29,38 +36,19 @@ const Auth = () => {
     setShowPasswordSignup(!showPasswordSignup);
   };
 
-  // Handle login form submit
-  const handleLoginSubmit = async (data) => {
-    try {
-      const response = await axios.post("https://test-site-jk7hhk6uy74hg72i4i.netlify.app/api/login", data);
-      alert(response.data.message);
-    } catch (error) {
-      alert(error.response?.data?.detail || "Ошибка входа");
-    }
+  const handleLoginChange = (e) => {
+    setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
 
-  // Handle signup form submit
-  const handleSignupSubmit = async (data) => {
-    try {
-      const response = await axios.post("http://localhost:8000/api/signup", data);
-      alert(response.data.message);
-    } catch (error) {
-      if (error.response?.status === 400) {
-        const errorMessage = error.response.data.detail;
-        if (errorMessage.includes("логином")) {
-          setError("signupLogin", { message: "Этот логин уже зарегистрирован" });
-        }
-        if (errorMessage.includes("email")) {
-          setError("email", { message: "Этот email уже зарегистрирован" });
-        }
-      }
-    }
+  const handleSignupChange = (e) => {
+    setSignupData({ ...signupData, [e.target.name]: e.target.value });
   };
 
   return (
     <div className="bg">
+      <Link className="close" to={"/"}>Выйти</Link>
       <div className="form-box">
-        <form onSubmit={handleSubmit(isLogin ? handleLoginSubmit : handleSignupSubmit)}>
+        <form>
           {isLogin ? (
             <div className="login-container">
               <h1>Войти</h1>
@@ -72,7 +60,9 @@ const Auth = () => {
                   </span>
                   <input
                     type="text"
-                    {...register("login", { required: "Логин обязателен" })}
+                    name="login"
+                    value={loginData.login}
+                    onChange={handleLoginChange}
                     placeholder="Введите логин или почту"
                   />
                 </div>
@@ -93,7 +83,9 @@ const Auth = () => {
                   </span>
                   <input
                     type={showPasswordLogin ? "text" : "password"}
-                    {...register("password", { required: "Пароль обязателен" })}
+                    name="password"
+                    value={loginData.password}
+                    onChange={handleLoginChange}
                     placeholder="Введите пароль"
                     className="password-input"
                   />
@@ -118,7 +110,9 @@ const Auth = () => {
                   </span>
                   <input
                     type="text"
-                    {...register("signupLogin", { required: "Логин обязателен" })}
+                    name="login"
+                    value={signupData.login}
+                    onChange={handleSignupChange}
                     placeholder="Придумайте никнейм"
                   />
                 </div>
@@ -132,22 +126,9 @@ const Auth = () => {
                   </span>
                   <input
                     type="email"
-                    {...register("email", {
-                      required: "Email обязателен",
-                      validate: async (value) => {
-                        try {
-                          const response = await axios.post(
-                            "http://localhost:8000/check-email",
-                            { email: value }
-                          );
-                          if (!response.data.available) {
-                            return "Этот email уже зарегистрирован";
-                          }
-                        } catch {
-                          return "Ошибка проверки email";
-                        }
-                      },
-                    })}
+                    name="email"
+                    value={signupData.email}
+                    onChange={handleSignupChange}
                     placeholder="Введите почту"
                   />
                 </div>
@@ -168,7 +149,9 @@ const Auth = () => {
                   </span>
                   <input
                     type={showPasswordSignup ? "text" : "password"}
-                    {...register("signupPassword", { required: "Пароль обязателен" })}
+                    name="password"
+                    value={signupData.password}
+                    onChange={handleSignupChange}
                     placeholder="Придумайте пароль"
                     className="password-input"
                   />

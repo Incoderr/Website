@@ -3,7 +3,6 @@ import { Link, NavLink } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react"; // Импортируем Swiper
 import axios from "axios";
 
-import "../css/media.scss";
 import "../components/hed.css";
 
 function HeaderEl() {
