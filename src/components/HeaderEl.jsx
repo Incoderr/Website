@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react"; // Импортируем Swiper
+import { Mousewheel } from 'swiper/modules';
 import axios from "axios";
 
 import "../components/hed.css";
@@ -11,6 +12,9 @@ function HeaderEl() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
 
+  const searchRef = useRef(null);
+  const notificationRef = useRef(null);
+
   const toggleSearch = () => {
     if (isNotificationOpen) setIsNotificationOpen(false);
     setIsSearchOpen(!isSearchOpen);
@@ -20,9 +24,33 @@ function HeaderEl() {
     if (isSearchOpen) setIsSearchOpen(false);
     setIsNotificationOpen(!isNotificationOpen);
   };
-  //result
 
-  // Реальный поиск при вводе текста
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Check search dropdown
+      if (
+        searchRef.current && 
+        !searchRef.current.contains(event.target) && 
+        !event.target.closest('.search-box')
+      ) {
+        setIsSearchOpen(false);
+      }
+
+      // Check notification dropdown
+      if (
+        notificationRef.current && 
+        !notificationRef.current.contains(event.target) && 
+        !event.target.closest('.notification-box')
+      ) {
+        setIsNotificationOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (query.trim() === "") {
@@ -34,8 +62,8 @@ function HeaderEl() {
       try {
         const response = await axios.get("https://shikimori.me/api/animes", {
           params: {
-            search: query, // Динамическое значение из input
-            limit: 10, // Количество результатов
+            search: query,
+            limit: 10,
           },
         });
         setResults(response.data);
@@ -93,7 +121,7 @@ function HeaderEl() {
       </div>
       {/* Дропдаун поиск */}
       {isSearchOpen && (
-        <div className="search-dropdown">
+         <div ref={searchRef} className="search-dropdown">
           <div className="dropdown-input">
             <input
               type="text"
@@ -105,7 +133,12 @@ function HeaderEl() {
           </div>
           <div className="dropdawn-result">
               {results.length > 0 ? (
-                <Swiper spaceBetween={0} slidesPerView="auto">
+                <Swiper 
+                  spaceBetween={0} 
+                  slidesPerView="auto"
+                  mousewheel={true}
+                  modules={[Mousewheel]}
+                >
                   {results.slice(0, 10).map((anime) => (
                     <SwiperSlide key={anime.id} className="card-container">
                       <div className="search-card">
@@ -127,7 +160,7 @@ function HeaderEl() {
       )}
       {/* Дропдаун уведы */}
       {isNotificationOpen && (
-        <div className="notification-dropdown">
+        <div ref={notificationRef} className="notification-dropdown">
           <div className="notification-container">
             <p>hello</p>
             <p>good morning</p>

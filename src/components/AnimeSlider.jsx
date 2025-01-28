@@ -7,21 +7,16 @@ import { Link } from "react-router-dom";
 
 function AnimeSlider() {
   const [animeList, setAnimeList] = useState([]);
-  const dataFetchedRef = useRef(false);
+  const swiperRef = useRef(null);
 
   useEffect(() => {
-    if (dataFetchedRef.current) return; // Если данные уже были загружены, пропускаем
-    dataFetchedRef.current = true; // Устанавливаем флаг
-
     const fetchAnime = async (criteria = "popularity") => {
-      //или ranked — по рейтингу.popularity — по популярности.new — новинки.aired_on — по дате выхода.random — случайные.
       try {
         const response = await fetch(
           `https://shikimori.one/api/animes?limit=20&order=${criteria}`
         );
         const data = await response.json();
-        console.log(data);
-        setAnimeList(Array.isArray(data) ? data : data.data || []); // Проверяем, является ли data массивом
+        setAnimeList(Array.isArray(data) ? data : data.data || []);
       } catch (error) {
         console.error("Ошибка при загрузке данных:", error);
       }
@@ -29,14 +24,6 @@ function AnimeSlider() {
 
     fetchAnime();
   }, []);
-  // Состояния для иконок
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  // Обработчики кликов
-  const toggleBookmark = () => {
-    setIsBookmarked((prev) => !prev);
-  };
-  // кароче кастом управление лентой
-  const swiperRef = useRef(null);
 
   const updateNavigationButtons = (swiper) => {
     const prevButton = document.querySelector(".custom-prev");
@@ -55,7 +42,29 @@ function AnimeSlider() {
     }
   };
 
+  useEffect(() => {
+    if (swiperRef.current) {
+      updateNavigationButtons(swiperRef.current);
+    }
+  }, [animeList]);
+
   return (
+    <div className="anime-slider-container">
+      <div className="gradient">
+        {/* Кастомные кнопки навигации */}
+        <button
+          className="custom-prev disabled"
+          onClick={() => swiperRef.current?.slidePrev()}
+        >
+          <i className="bi bi-chevron-left fs-1"></i>
+        </button>
+        <button
+          className="custom-next disabled"
+          onClick={() => swiperRef.current?.slideNext()}
+        >
+          <i className="bi bi-chevron-right fs-1"></i>
+        </button>
+      </div>
       <Swiper
         onSlideChange={(swiper) => updateNavigationButtons(swiper)}
         onInit={(swiper) => {
@@ -69,47 +78,29 @@ function AnimeSlider() {
           prevEl: ".custom-prev",
         }}
         modules={[Navigation]}
-        className="anime-slider"
       >
-        <div className="gradient">
-          <div
-            className="custom-prev"
-            onClick={() => swiperRef.current.slidePrev()}
-          >
-            <i className="bi bi-chevron-left fs-1"></i>
-          </div>
-          <div
-            className="custom-next"
-            onClick={() => swiperRef.current.slideNext()}
-          >
-            <i className="bi bi-chevron-right fs-1"></i>
-          </div>
-        </div>
         {animeList.map((anime) => (
           <SwiperSlide key={anime.id}>
             <div className="anime-container">
-              <span className="rating">{anime.score || "N/A"}</span>
               <div className="description-container">
                 <Link to={"/player"} className="description">
-                  <p className="description">
-                    {anime.description ||
-                      anime.synopsis ||
-                      "Описание недоступно"}
-                  </p>
+                  <div className="description-content">
+                    <h5>name</h5>
+                    <p>
+                      Рейтинг:34
+                    </p>
+                    <p className="description-text">
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas molestias ducimus distinctio asperiores blanditiis fugit, eum rerum harum aliquam minus repudiandae! Hic nisi laudantium ex quis temporibus perspiciatis quasi ducimus!
+                    </p>
+                  </div>
                 </Link>
                 <div className="button-container">
                   <Link to={"/player"}>
                     <i className="bi bi-caret-right-fill fs-4"></i>
                     Смотреть
                   </Link>
-                  <button className="circle" onClick={toggleBookmark}>
-                    <i
-                      className={`bi ${
-                        isBookmarked
-                          ? "bi-bookmark-fill fs-5"
-                          : "bi-bookmark fs-5  "
-                      }`}
-                    />
+                  <button className="circle">
+                    <i className="bi bi-bookmark fs-5" />
                   </button>
                 </div>
               </div>
@@ -127,6 +118,7 @@ function AnimeSlider() {
           </SwiperSlide>
         ))}
       </Swiper>
+    </div>
   );
 }
 

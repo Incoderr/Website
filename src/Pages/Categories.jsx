@@ -1,39 +1,126 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import HeaderEl from "../components/HeaderEl";
 import "../css/Categories.css";
-import styled from 'styled-components';
 
 function Categories() {
+  const [viewMode, setViewMode] = useState("grid");
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const handleViewChange = (mode) => {
+    setViewMode(mode);
+  };
+
+  const toggleMobileFilter = () => {
+    setIsMobileFilterOpen(!isMobileFilterOpen);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        !event.target.classList.contains("mobile-filter-toggle")
+      ) {
+        setIsMobileFilterOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div>
       <HeaderEl />
       <main className="all-padding">
-        <div className="CategoriesBox" >
-          <div className="side-bar">
+        <div className="CategoriesBox">
+          {/* Desktop Sidebar */}
+          <div className="side-bar desktop-categories">
             <h2>Категории</h2>
             <hr />
-            <p>Хоррор</p>
-            <p>Фентези</p>
-            <p>Детектив</p>
-            <p>Романтика</p>
+            <p>1</p>
+            <p>2</p>
+            <p>3</p>
+            <p>4</p>
           </div>
+          {/* Mobile Categories Dropdown */}
+          {isMobileFilterOpen && (
+            <div ref={dropdownRef} className="mobile-categories-dropdown">
+              <h2>Категории</h2>
+              <hr />
+              <p>1</p>
+              <p>2</p>
+              <p>3</p>
+              <p>4</p>
+            </div>
+          )}
+
           <div className="CategorieCardBox">
-            <NavContainer>
-              <CategorieNavigate>
-                <i className="bi bi-grid fs-3 icon-box"></i>
-                <i className="bi bi-list fs-3 icon-box"></i>
+            <div className="NavContainer">
+              <div className="CategorieNavigate">
+                <i
+                  className={`bi bi-filter fs-3 icon-box mobile-filter-icon ${
+                    viewMode === "filter" ? "active" : ""
+                  }`}
+                  onClick={() => {
+                    setViewMode("filter");
+                    toggleMobileFilter();
+                  }}
+                ></i>
+                <i
+                  className={`bi bi-grid fs-3 icon-box ${
+                    viewMode === "grid" ? "active" : ""
+                  }`}
+                  onClick={() => handleViewChange("grid")}
+                ></i>
+                <i
+                  className={`bi bi-list fs-3 icon-box ${
+                    viewMode === "list" ? "active" : ""
+                  }`}
+                  onClick={() => handleViewChange("list")}
+                ></i>
                 <input type="text" />
-              </CategorieNavigate>
-            </NavContainer>
-            <CardContainer>
-              <div className="CategorieCard"></div>
-              <div className="CategorieCard"></div>
-              <div className="CategorieCard"></div>
-              <div className="CategorieCard"></div>
-              <div className="CategorieCard"></div>
-              <div className="CategorieCard"></div>
-              <div className="CategorieCard"></div>
-            </CardContainer>
+              </div>
+            </div>
+            <div
+              className={`CardContainer ${
+                viewMode === "list" ? "list-view" : ""
+              }`}
+            >
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((card) => (
+                <div
+                  key={card}
+                  className={`CategorieCard ${
+                    viewMode === "list" ? "list-card" : ""
+                  }`}
+                >
+                  {viewMode === "list" ? (
+                    <div className="list-card-content">
+                      <div className="CategorieCard"></div>
+                      <div className="list-card-text">
+                        <h3>Название книги</h3>
+                        <p>Краткое описание книги</p>
+                        <p>Автор: Имя Автора</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="CategorieCard">
+                      <div className="CategorieCard-count">
+                        <div className="CategorieCard-image">
+                          <div className="test-card"></div>
+                        </div>
+                        <div className="grid-card-title">
+                          <h3>Название</h3>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </main>
@@ -42,47 +129,3 @@ function Categories() {
 }
 
 export default Categories;
-
-
-
-const CardContainer = styled.div`
-  gap: 13px;
-  display: flex;
-  flex-wrap: wrap;
-  padding: 10px;
-`;
-
-
-
-
-
-const NavContainer = styled.div`
-  margin-left: auto;
-  margin-right: 9px;
-  margin-bottom: 13px;
-`;
-
-const CategorieNavigate = styled.nav`
-  display: flex;
-  gap: 7px;
-
-    input{
-      width: 400px;
-      background-color: #313337;
-      border-color: #00000000;
-      border-radius: 10px;
-      color: white;
-      padding-left: 10px;
-    }
-
-    .icon-box{
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #313337;
-      border-radius: 5px;
-      width: 35px;
-      height: 35px;
-    }
-`;
-

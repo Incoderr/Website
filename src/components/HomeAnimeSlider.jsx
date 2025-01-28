@@ -1,37 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/effect-fade";
-import "swiper/css/pagination";
 import "swiper/css/navigation";
-import { Autoplay, Pagination, EffectFade } from "swiper/modules";
+import { Navigation, EffectFade } from "swiper/modules";
 import { Link } from "react-router-dom";
 
-import bebop from "../assets/video/Cowboy-Bebop.mp4";
-
-const HomeAnimeSwiper = () => {
-  const [animeList, setAnimeList] = useState([]);
-
-  useEffect(() => {
-    // Функция для получения данных о конкретных аниме
-    const fetchAnime = async () => {
-      try {
-        const animeIds = [1, 20, 21]; // IDs: Акира, Наруто, Ван Пис (примерные ID для Shikimori)
-        const promises = animeIds.map((id) =>
-          fetch(`https://shikimori.one/api/animes/${id}`).then((res) =>
-            res.json()
-          )
-        );
-        const data = await Promise.all(promises);
-        setAnimeList(data);
-        console.log(data);
-      } catch (error) {
-        console.error("Error fetching anime data:", error);
-      }
-    };
-
-    fetchAnime();
-  }, []);
+const HomeAnimeSwiper = ({ slidesCount = 3 }) => {
+  // Генерация массива слайдов на основе slidesCount
+  const slides = Array.from({ length: slidesCount }, (_, index) => ({
+    id: index + 1,
+    name: `Название ${index + 1}`,
+    rating: (Math.random() * 10).toFixed(1),
+    episodes: Math.floor(Math.random() * 100),
+    releaseDate: "2025",
+    description: `Описание для слайда ${index + 1}`,
+    imageUrl: "", // Замените на ваши изображения
+  }));
 
   return (
     <div className="image-box">
@@ -40,28 +25,26 @@ const HomeAnimeSwiper = () => {
         effect={"fade"}
         centeredSlides={true}
         loop={true}
-        pagination={{ clickable: true }}
-        modules={[Pagination, EffectFade]}
+        navigation={true}
+        modules={[Navigation, EffectFade]}
         className="mySwiper"
       >
-        {animeList.map((anime) => (
-          <SwiperSlide key={anime.id}>
+        {slides.map((slide) => (
+          <SwiperSlide key={slide.id}>
             <div className="Slide-container">
               <div className="Slider-name">
-                <img
-                  className="anime-logo"
-                  src={anime.image.original}
-                  alt={anime.name}
-                />
-                <h1>{anime.russian}</h1>
+                <div className="image-name">
+                  <img className="anime-logo" src={slide.imageUrl} alt={slide.name} />
+                  <h1>{slide.name}</h1>
+                </div>
                 <div className="anime-info">
-                  <p className="score">{anime.score}</p>
-                  <p>Серий:{anime.episodes}</p>
-                  <p>{anime.released_on}</p>
+                  <p className="score">Рейтинг: {slide.rating}</p>
+                  <p>Серий: {slide.episodes}</p>
+                  <p>Релиз: {slide.releaseDate}</p>
                 </div>
               </div>
               <div className="Slider-description">
-                <p>{anime.description || "Описание недоступно"}</p>
+                <p>{slide.description}</p>
               </div>
               <div className="play-button-container">
                 <div className="play-button">
@@ -79,7 +62,7 @@ const HomeAnimeSwiper = () => {
                 </div>
               </div>
             </div>
-            <img src="" alt="" />
+            <img src={slide.imageUrl} alt={slide.name} />
           </SwiperSlide>
         ))}
       </Swiper>

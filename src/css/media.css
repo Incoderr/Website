@@ -2,12 +2,6 @@
   header .header-container{
     margin: 0px 10px 0px 10px; 
   }
-  .side-bar{
-    display: none;
-  }
-  .CategorieCardBox{
-    max-width: 500px;
-  }
 }
 
 @media (max-width: 768px) { /* tablet */

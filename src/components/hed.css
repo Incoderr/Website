@@ -120,7 +120,7 @@ button{
     padding: 10px;
     position: absolute;
     top: 3.5rem; /* Высота header */
-    right: 15rem;
+    right: 85px;
     z-index: 1000;
 }
 .notification-container{
@@ -129,6 +129,7 @@ button{
     border-radius: 10px;
 }
 .notification-box{
+    position: relative;
     transition: ease-in-out 0.2s;
 }
 .search-box:hover{
@@ -141,4 +142,12 @@ button{
     width: 40px;
     height: 40px;
     border-radius: 50%;
+}
+@media (max-width: 768px){
+    .notification-dropdown {
+        position: absolute;
+        top: 100%; /* Positions directly below the icon */
+        right: 20px; /* Aligns with right edge of icon */
+        margin-top: 10px; /* Small gap between icon and dropdown */
+    }
 }
