@@ -27,7 +27,7 @@ function Home() {
           </div>
   
           <div className="label">
-            <h1>Топ-20</h1>
+            <h1>Топ-10</h1>
           </div>
           <AnimeTop/>
         </div>

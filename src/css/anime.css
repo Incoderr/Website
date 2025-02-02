@@ -1,0 +1,8 @@
+.pla{
+    width: 1280px;
+    height: 720px;
+}
+.pla-box{
+    display: flex;
+    justify-content: center;
+}

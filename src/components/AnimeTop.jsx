@@ -15,16 +15,6 @@ const CardExample = () => {
     { id: 8, name: "Isabella Anderson", score: 8.95 },
     { id: 9, name: "Lucas Martin", score: 8.92 },
     { id: 10, name: "Mia Thompson", score: 8.88 },
-    { id: 11, name: "Ethan White", score: 8.85 },
-    { id: 12, name: "Ava Garcia", score: 8.82 },
-    { id: 13, name: "Noah Martinez", score: 8.79 },
-    { id: 14, name: "Charlotte Robinson", score: 8.76 },
-    { id: 15, name: "Liam Clark", score: 8.73 },
-    { id: 16, name: "Amelia Rodriguez", score: 8.70 },
-    { id: 17, name: "Benjamin Lee", score: 8.67 },
-    { id: 18, name: "Harper Walker", score: 8.64 },
-    { id: 19, name: "Sebastian Hall", score: 8.61 },
-    { id: 20, name: "Victoria Young", score: 8.58 }
   ];
 
   return (
