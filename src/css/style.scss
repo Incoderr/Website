@@ -1,7 +1,18 @@
 body {
   color: #ffffff;
 }
-
+button {
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+a{
+  color: white;
+}
 /*главный свайпер*/
 .home-container{
   height: 1800px;
