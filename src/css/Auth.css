@@ -11,49 +11,50 @@
   align-items: center;
   justify-content: center;
 }
-form{
-  padding: 20px;
-  background-color: #000000;
-  outline: solid 1px #ffffff98;
-  border-radius: 10px; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  input{
-    border-color: transparent;
-    border-radius: 10px;
-    padding-left: 25px;
-    outline: solid 1px #ffffff79;
-    background-color: #1b1b1b;
-    color: white;
-    height: 40px;
-    width: 300px;
-  }
-  .password-input{
-    padding-right: 30px;
-    width: 300px;
-    height: 40px;
-  }
-  input:focus{
-    outline: solid 1px #002efa;
-  }
-  label{
-    display: flex;
-    flex-direction: column;
-  }
-  p{
-    font-size: 16px;
-  }
-  label{
-    font-size: 16px;
-  }
-  h6{
-    margin-bottom: 10px;
-  }
-}
 .form-box{
   display: flex;
   align-items: center;
+  
+  form{
+    padding: 20px;
+    background-color: #000000;
+    outline: solid 1px #ffffff98;
+    border-radius: 10px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    input{
+      border-color: transparent;
+      border-radius: 10px;
+      padding-left: 25px;
+      outline: solid 1px #ffffff79;
+      background-color: #1b1b1b;
+      color: white;
+      height: 40px;
+      width: 300px;
+    }
+    .password-input{
+      padding-right: 30px;
+      width: 300px;
+      height: 40px;
+    }
+    input:focus{
+      outline: solid 1px #002efa;
+    }
+    label{
+      display: flex;
+      flex-direction: column;
+    }
+    p{
+      font-size: 16px;
+    }
+    label{
+      font-size: 16px;
+    }
+    h6{
+      margin-bottom: 10px;
+    }
+  }
 }
 .login-container{
   display: flex;

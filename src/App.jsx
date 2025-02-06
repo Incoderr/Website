@@ -16,7 +16,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/search" element={<Search />} />
-        <Route path="/player" element={<Player />} />
+        <Route path="/player:title" element={<Player />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

@@ -1,3 +1,19 @@
-body{
-    background-color: black;
+@import "tailwindcss";
+body {
+  background-color: black;
+  color: white;
+
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.h-title{
+  font-size: 30px;
+}
+
+.anime-slide{
+  swiper-wraper{
+    
+  }
 }

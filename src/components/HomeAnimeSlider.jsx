@@ -56,7 +56,7 @@ const HomeAnimeSwiper = ({ slidesCount = 3 }) => {
                   </Link>
                   <div className="play-bookmark">
                     <button type="button">
-                      <i className="bi bi-bookmark fs-3"></i>
+                      <i className="bi bi-bookmark fs-3  text-amber-50"></i>
                     </button>
                   </div>
                 </div>

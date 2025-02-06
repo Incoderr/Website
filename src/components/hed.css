@@ -8,10 +8,12 @@ header{
     justify-content: center;
     align-items: center;
     position: fixed;
+
+    button{
+        background-color: #00000000;
+    }
 }
-button{
-    background-color: #00000000;
-}
+
 .header-container{
     display: flex;
     margin: 0px 90px 0px 90px;

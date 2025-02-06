@@ -17,18 +17,8 @@ function Home() {
       <HeaderEl />
       <main>
         <HomeAnimeSlider />
-        <div className="home-container">
-          <div className="label">
-            <h1>В топе</h1>
-          </div>
+        <div className="anime-slide p-5">
           <AnimeSlider />
-          <div className="label">
-            <h1>Популярно</h1>
-          </div>
-  
-          <div className="label">
-            <h1>Топ-10</h1>
-          </div>
           <AnimeTop/>
         </div>
       </main>

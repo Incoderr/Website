@@ -24,12 +24,6 @@ a{
   width: 80%;
   height: 100%;
 }
-button{
-  border: none;
-  cursor: pointer;
-  color: #ffffff;
-  padding: 0;
-}
 .video-info{
   display: flex;
   width: 100%;
