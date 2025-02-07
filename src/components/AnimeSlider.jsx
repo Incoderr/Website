@@ -83,7 +83,7 @@ const CategorySlider = ({ category }) => {
   const { data: animeList, isLoading, error } = useCachedData(cacheKey, fetcher);
 
   return (
-    <div className="mb-12">
+    <div className="mb-12 custom-bt-swiper">
       {/* Заголовок категории */}
       <h2 className="text-3xl font-bold mb-6">{category.label}</h2>
 

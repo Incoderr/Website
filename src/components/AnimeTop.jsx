@@ -1,108 +1,117 @@
-import React, { useState, useEffect } from 'react';
-
+import React from 'react';
+import { useCachedData } from './Cache';
 
 const TopAnimeList = () => {
-  const [topAnime, setTopAnime] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-
-
-
-  useEffect(() => {
-    const fetchTopAnime = async () => {
-      const query = `
-        query {
-          Page(page: 1, perPage: 10) {
-            media(type: ANIME, sort: SCORE_DESC) {
-              id
-              title {
-                romaji
-                native
-              }
-              coverImage {
-                large
-                medium
-              }
-              averageScore
-              popularity
-            }
-          }
-        }
-      `;
-
+  const { data, isLoading, error } = useCachedData(
+    'top-anime-graphql',
+    async () => {
       try {
-        const response = await fetch('https://graphql.anilist.co', {
+        // Сначала получаем токен
+        const tokenResponse = await fetch('https://shikimori.one/oauth/token', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
           },
-          body: JSON.stringify({ query })
+          body: JSON.stringify({
+            grant_type: 'client_credentials',
+            client_id: 'YOUR_CLIENT_ID', // Нужно заменить на ваш client_id
+            client_secret: 'YOUR_CLIENT_SECRET', // Нужно заменить на ваш client_secret
+          }),
         });
 
-        const result = await response.json();
-        const animeList = result.data.Page.media;
+        if (!tokenResponse.ok) {
+          throw new Error('Ошибка получения токена');
+        }
 
-        // Запрашиваем русские названия с Shikimori
-        const updatedAnimeList = await Promise.all(
-          animeList.map(async (anime) => {
-            const ruTitle = await fetchShikimoriTitle(anime.title.romaji);
-            return { ...anime, title: { ...anime.title, russian: ruTitle || anime.title.romaji } };
-          })
-        );
+        const { access_token } = await tokenResponse.json();
 
-        setTopAnime(updatedAnimeList);
-        setLoading(false);
-      } catch (err) {
-        setError('Не удалось загрузить аниме');
-        setLoading(false);
+        // Теперь делаем запрос к API
+        const response = await fetch('https://shikimori.one/api/animes', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          params: {
+            limit: 10,
+            order: 'popularity',
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Ошибка получения данных от API');
+        }
+
+        const animes = await response.json();
+        console.log('Полученные данные:', animes);
+        return animes;
+      } catch (error) {
+        console.error('Ошибка при запросе:', error);
+        throw error;
       }
-    };
+    },
+    12 * 60 * 60 * 1000 // кэш на 12 часов
+  );
 
-    fetchTopAnime();
-  }, []);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-xl">Загрузка...</div>
+      </div>
+    );
+  }
 
-  // Функция поиска названия в Shikimori
-  const fetchShikimoriTitle = async (romajiTitle) => {
-    try {
-      const response = await fetch(`https://shikimori.one/api/animes?search=${encodeURIComponent(romajiTitle)}`);
-      const data = await response.json();
-      if (data.length > 0) {
-        return data[0].russian; // Берем первое совпадение
-      }
-    } catch (error) {
-      console.error(`Ошибка при запросе Shikimori для ${romajiTitle}:`, error);
-    }
-    return null;
-  };
-
-  if (loading) return <div className="text-center p-4">Загрузка...</div>;
-  if (error) return <div className="text-red-500 p-4">{error}</div>;
+  if (error) {
+    return (
+      <div className="text-red-500 p-4">
+        Ошибка: {error.toString()}
+      </div>
+    );
+  }
 
   return (
-    <div className="">
-      <h2 className="text-2xl font-bold mb-4 text-center">Топ-10 Аниме</h2>
-      <div className="space-y-4">
-        {topAnime.map((anime, index) => (
-          <div 
-            key={anime.id} 
-            className="flex items-center shadow-md rounded-lg overflow-hidden"
-          >
-            <h1 className='text-2xl w-12'>#{index + 1}</h1>
-            <img 
-              src={anime.coverImage.large} 
-              alt={anime.title.romaji} 
-              className="w-24 h-36 object-cover"
-            />
-            <div className="ml-4 flex-grow">
-              <h3 className="text-lg font-semibold">
-                {anime.title.russian} {/* Показываем русское название */}
-              </h3>
-              <div className="text-gray-300">
-                Рейтинг: <span className="text-yellow-500 font-bold">
-                  ★ {(anime.averageScore / 10).toFixed(1)}
-                </span>
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Топ 10 Аниме</h1>
+      <div className="flex flex-col gap-6">
+        {data?.map((anime) => (
+          <div key={anime.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="flex">
+              <img
+                src={`https://shikimori.one${anime.image.preview}`}
+                alt={anime.name}
+                className="w-32 h-44 object-cover"
+              />
+              <div className="flex-1 p-4">
+                <div className="mb-4">
+                  <h2 className="text-xl font-semibold">
+                    {anime.russian || anime.name}
+                  </h2>
+                  <div className="text-sm text-gray-500">
+                    {anime.name}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <span className="font-medium">Рейтинг:</span>
+                    <span className="ml-2 px-2 py-1 bg-blue-100 rounded-full text-sm">
+                      {anime.score || 'Нет оценки'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Жанры:</span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {anime.genres?.map((genre) => (
+                        <span
+                          key={genre.id}
+                          className="px-2 py-1 bg-gray-100 rounded-full text-sm"
+                        >
+                          {genre.russian || genre.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

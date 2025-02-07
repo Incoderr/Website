@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react"; // Импортируем Sw
 import { Mousewheel } from 'swiper/modules';
 import axios from "axios";
 
-import "../components/hed.css";
+
 
 function HeaderEl() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -36,9 +36,9 @@ function HeaderEl() {
   }, []);
 
   return (
-    <header>
-      <div className="header-container">
-        <div className="left">
+    <header className="z-30 backdrop-blur-[4px] w-full h-14 flex justify-center items-center fixed">
+      <div className="flex w-full ml-[90px] mr-[90px] justify-between ">
+        <div className="">
           {/*<NavLink
             to={"/"}
             className={({ isActive }) => (isActive ? "active-link" : "")}
@@ -53,10 +53,10 @@ function HeaderEl() {
           </NavLink>*/}
           
         </div>
-        <div className="right">
-          <div className="search-box">
+        <div className="flex items-center gap-4">
+          <div className="">
             <Link to={"/search"}>
-              <i className="bi bi-search fs-4"></i>
+              <i className="bi bi-search text-[22px]"></i>
             </Link>
           </div>
           <div className="notification-box">
@@ -65,11 +65,11 @@ function HeaderEl() {
               onClick={toggleNotifications}
               style={{ background: "none", border: "none", cursor: "pointer" }}
             >
-              <i className="bi bi-bell-slash fs-4"></i>
+              <i className="bi bi-bell-slash text-[22px]"></i>
             </button>
           </div>
-          <div className="login">
-            <Link className="login" to={"/auth"}>
+          <div className="">
+            <Link className="" to={"/auth"}>
               Войти
             </Link>
           </div>
@@ -77,8 +77,8 @@ function HeaderEl() {
       </div>
       {/* Дропдаун уведы */}
       {isNotificationOpen && (
-        <div ref={notificationRef} className="notification-dropdown">
-          <div className="notification-container">
+        <div ref={notificationRef} className="absolute top-14 right-22 z-10">
+          <div className="bg-gray-500 p-5 rounded-md">
             <p>hello</p>
             <p>good morning</p>
             <p>void</p>

@@ -11,9 +11,10 @@ body {
 .h-title{
   font-size: 30px;
 }
-
-.anime-slide{
-  swiper-wraper{
-    
+.custom-bt-swiper{
+  .swiper-button-next,
+  .swiper-button-prev{
+    color: #ffffff;
+    top: 42%;
   }
 }
