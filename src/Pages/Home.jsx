@@ -8,6 +8,7 @@ import FooterEl from "../components/FooterEl";
 import AnimeSlider from "../components/AnimeSlider";
 import HomeAnimeSlider from "../components/HomeAnimeSlider";
 import AnimeTop from "../components/AnimeTop";
+import CatiegorieSlide from "../components/CatiegorieSlide";
 /*свайпер*/
 
 function Home() {

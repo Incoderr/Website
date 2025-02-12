@@ -55,7 +55,7 @@ const HomeAnimeSwiper = ({ slidesCount = 3 }) => {
                     </div>
                   </Link>
                   <div className="justify-center items-center flex rounded-full w-12 h-12 bg-[#A78BFA] hover:scale-95 transition delay-15 ease-in-out">
-                    <button type="button">
+                    <button type="button" className="cursor-pointer">
                       <i className="bi bi-bookmark text-[24px] text-amber-50"></i>
                     </button>
                   </div>

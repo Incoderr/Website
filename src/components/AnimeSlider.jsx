@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { Link } from "react-router-dom";
 import { useCachedData } from "./Cache";
+import CatiegorieSlide from "./CatiegorieSlide";
 
 // Компонент слайдера для одной категории
 const CategorySlider = ({ category }) => {
@@ -86,7 +87,6 @@ const CategorySlider = ({ category }) => {
     <div className="flex flex-col mb-12 custom-bt-swiper">
       {/* Заголовок категории */}
       <h2 className="text-3xl font-bold mb-6 flex justify-center sm:justify-normal">{category.label}</h2>
-
       {/* Состояния загрузки и ошибки */}
       {isLoading ? (
         <div className="w-full h-[400px] flex items-center justify-center">
@@ -126,7 +126,7 @@ const CategorySlider = ({ category }) => {
                         <div className="flex items-center gap-2">
                           <Link
                             to={`/search`}
-                            className="flex items-center gap-2 bg-[#A78BFA] hover:bg-[#8771ca] text-white px-4 py-2 rounded"
+                            className="flex items-center gap-2 bg-[#A78BFA] hover:bg-[#8771ca] text-white px-4 py-2 rounded transition delay-15 ease-in-out"
                           >
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                               <path d="M4 4l12 6-12 6V4z" />
@@ -161,8 +161,10 @@ const categories = [
 const AnimeSliders = () => {
   return (
     <div className="">
-      {categories.map((category) => (
-        <CategorySlider  key={category.sort} category={category} />
+      <CategorySlider category={categories[0]} />
+      <CatiegorieSlide />
+      {categories.slice(1).map((category) => (
+        <CategorySlider key={category.sort} category={category} />
       ))}
     </div>
   );
