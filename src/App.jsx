@@ -7,6 +7,9 @@ import Auth from "./Pages/Auth";
 import Search from "./Pages/Search";
 import Player from './Pages/Player';
 
+//Film
+import Film from '../Film/FilmHome';
+
 
 function App() {
   return (
@@ -17,6 +20,7 @@ function App() {
         <Route path="/auth" element={<Auth />} />
         <Route path="/search" element={<Search />} />
         <Route path="/player:id" element={<Player />} />
+        <Route path="/film" element={<Film />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

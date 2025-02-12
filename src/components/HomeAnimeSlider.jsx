@@ -19,7 +19,7 @@ const HomeAnimeSwiper = ({ slidesCount = 3 }) => {
   }));
 
   return (
-    <div className="image-box">
+    <div className="image-box select-none">
       <Swiper
         spaceBetween={30}
         effect={"fade"}
@@ -27,42 +27,42 @@ const HomeAnimeSwiper = ({ slidesCount = 3 }) => {
         loop={true}
         navigation={true}
         modules={[Navigation, EffectFade]}
-        className="mySwiper"
+        className="h-130 sm:h-190"
       >
         {slides.map((slide) => (
           <SwiperSlide key={slide.id}>
-            <div className="Slide-container">
+            <div className="flex flex-col justify-center mt-auto mb-10 sm:mt-0 sm:mb-0 sm:mr-auto sm:ml-25">
               <div className="Slider-name">
                 <div className="image-name">
                   <img className="anime-logo" src={slide.imageUrl} alt={slide.name} />
                   <h1>{slide.name}</h1>
                 </div>
-                <div className="anime-info">
-                  <p className="score">Рейтинг: {slide.rating}</p>
+                <div className="flex gap-2 mb-5">
+                  <p className="bg-green-600 rounded-full pl-1 pr-1">Рейтинг: {slide.rating}</p>
                   <p>Серий: {slide.episodes}</p>
                   <p>Релиз: {slide.releaseDate}</p>
                 </div>
               </div>
-              <div className="Slider-description">
+              <div className="hidden sm:block  mb-5">
                 <p>{slide.description}</p>
               </div>
-              <div className="play-button-container">
-                <div className="play-button">
-                  <Link to={"/player"}>
-                    <div className="play">
-                      <i className="bi bi-play fs-1"></i>
-                      <h1>Смотреть</h1>
+              <div className="">
+                <div className="flex items-center justify-center gap-3">
+                  <Link to={"/search"}>
+                    <div className="flex items-center bg-white text-black rounded-full h-12 hover:scale-95 transition delay-15 ease-in-out pl-2 pr-2">
+                      <i className="bi bi-play text-[35px]"></i>
+                      <h1 className="text-[20px]">Смотреть</h1>
                     </div>
                   </Link>
-                  <div className="play-bookmark">
+                  <div className="justify-center items-center flex rounded-full w-12 h-12 bg-[#A78BFA] hover:scale-95 transition delay-15 ease-in-out">
                     <button type="button">
-                      <i className="bi bi-bookmark fs-3  text-amber-50"></i>
+                      <i className="bi bi-bookmark text-[24px] text-amber-50"></i>
                     </button>
                   </div>
                 </div>
               </div>
             </div>
-            <img src={slide.imageUrl} alt={slide.name} />
+            {/*<img className="absolute" src={slide.imageUrl} alt={slide.name} />*/}
           </SwiperSlide>
         ))}
       </Swiper>

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react"; // Импортируем Swiper
 import { Mousewheel } from 'swiper/modules';
+import { BsSearch,BsBellSlash, } from "react-icons/bs";
 import axios from "axios";
 
 
@@ -37,38 +38,38 @@ function HeaderEl() {
 
   return (
     <header className="z-30 backdrop-blur-[4px] w-full h-14 flex justify-center items-center fixed">
-      <div className="flex w-full ml-[90px] mr-[90px] justify-between ">
-        <div className="">
-          {/*<NavLink
+      <div className="flex w-full ml-8 mr-8 justify-between lg:mr-23 lg:ml-23">
+        <div className="flex gap-5 text-lg">
+          <NavLink
             to={"/"}
             className={({ isActive }) => (isActive ? "active-link" : "")}
           >
-            Главная
+            Аниме
           </NavLink>
           <NavLink
-            to={"/categories"}
+            to={"/film"}
             className={({ isActive }) => (isActive ? "active-link" : "")}
           >
-            Категории
-          </NavLink>*/}
+            Фильмы
+          </NavLink>
           
         </div>
         <div className="flex items-center gap-4">
-          <div className="">
+          <div className="hover:scale-95 transition delay-15 ease-in-out">
             <Link to={"/search"}>
-              <i className="bi bi-search text-[22px]"></i>
+              <BsSearch className="text-[23px]" />
             </Link>
           </div>
-          <div className="notification-box">
+          <div className="hover:scale-95 transition delay-15 ease-in-out">
             <button
               type="button"
               onClick={toggleNotifications}
               style={{ background: "none", border: "none", cursor: "pointer" }}
             >
-              <i className="bi bi-bell-slash text-[22px]"></i>
+              <BsBellSlash className="text-[23px]" />
             </button>
           </div>
-          <div className="">
+          <div className="text-lg">
             <Link className="" to={"/auth"}>
               Войти
             </Link>

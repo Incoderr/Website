@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 
 export const MovieSearchPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [movieTitle, setMovieTitle] = useState('');
   const navigate = useNavigate();
 
-  // Загружаем скрипт только один раз при монтировании компонента
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://kinobox.tv/kinobox.min.js';
@@ -25,17 +25,26 @@ export const MovieSearchPage = () => {
     };
   }, []);
 
-  // Обработчик изменения поля ввода
   const handleInputChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
-  // Обработчик нажатия кнопки поиска
   const handleSearch = () => {
     if (window.kbox && searchQuery) {
       window.kbox('.search_player', {
         search: {
           query: searchQuery
+        },
+        players: {
+          alloha: {enable: true, position: 1, domain: 'https://sansa.newplayjj.com:9443'}
+        },
+        onSearchComplete: (result) => {
+          console.log('Результаты поиска:', result);
+          if (result && result.length > 0) {
+            setMovieTitle(result[0].title);
+          } else {
+            setMovieTitle('');
+          }
         }
       });
     }
@@ -58,9 +67,13 @@ export const MovieSearchPage = () => {
           onClick={handleSearch}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
-          Найти фильм
+          Найти
         </button>
       </div>
+
+      {movieTitle && (
+        <div className="mb-6 text-xl font-bold">Найденный фильм: {movieTitle}</div>
+      )}
 
       <div className="aspect-video">
         <div className="search_player w-full h-full"></div>

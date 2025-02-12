@@ -9,7 +9,6 @@ import AnimeSlider from "../components/AnimeSlider";
 import HomeAnimeSlider from "../components/HomeAnimeSlider";
 import AnimeTop from "../components/AnimeTop";
 /*свайпер*/
-import "../css/all-paddding.css";
 
 function Home() {
   return (
@@ -17,7 +16,7 @@ function Home() {
       <HeaderEl />
       <main>
         <HomeAnimeSlider />
-        <div className="anime-slide p-5">
+        <div className="pl-10 p-5 sm:p-5">
           <AnimeSlider />
           <AnimeTop/>
         </div>

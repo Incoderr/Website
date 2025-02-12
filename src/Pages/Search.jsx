@@ -6,7 +6,7 @@ function Search() {
   return (
     <div>
       <HeaderEl/>
-      <div className='all-padding'>
+      <div className='pt-[56px]'>
         <div className='search-container'>
           <SearchEl/>
         </div>

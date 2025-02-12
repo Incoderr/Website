@@ -83,9 +83,9 @@ const CategorySlider = ({ category }) => {
   const { data: animeList, isLoading, error } = useCachedData(cacheKey, fetcher);
 
   return (
-    <div className="mb-12 custom-bt-swiper">
+    <div className="flex flex-col mb-12 custom-bt-swiper">
       {/* Заголовок категории */}
-      <h2 className="text-3xl font-bold mb-6">{category.label}</h2>
+      <h2 className="text-3xl font-bold mb-6 flex justify-center sm:justify-normal">{category.label}</h2>
 
       {/* Состояния загрузки и ошибки */}
       {isLoading ? (
@@ -110,7 +110,7 @@ const CategorySlider = ({ category }) => {
                 <div className="group select-none w-[296px]" >
                   <div className="relative h-[400px] w-[296px] rounded-lg overflow-hidden">
                     <img
-                      className="w-[296px] h-[400px] object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="w-[296px] h-[400px] sm:w-[296px] sm:h-[400px] object-cover transition-transform duration-300 group-hover:scale-105"
                       src={anime.coverImage}
                       alt={anime.titleRomaji}
                       onError={(e) => {
@@ -125,8 +125,8 @@ const CategorySlider = ({ category }) => {
                         </p>
                         <div className="flex items-center gap-2">
                           <Link
-                            to={`/player/${anime.id}`}
-                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                            to={`/search`}
+                            className="flex items-center gap-2 bg-[#A78BFA] hover:bg-[#8771ca] text-white px-4 py-2 rounded"
                           >
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                               <path d="M4 4l12 6-12 6V4z" />
@@ -162,7 +162,7 @@ const AnimeSliders = () => {
   return (
     <div className="">
       {categories.map((category) => (
-        <CategorySlider key={category.sort} category={category} />
+        <CategorySlider  key={category.sort} category={category} />
       ))}
     </div>
   );

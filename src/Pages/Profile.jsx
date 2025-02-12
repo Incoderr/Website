@@ -1,14 +1,13 @@
 import React from 'react'
 import HeaderEl from "../components/HeaderEl";
 import "../css/Profile.css";
-import "../css/all-paddding.css";
 
 function Profile() {
   return (
     <div>
       <HeaderEl/>
-      <div className='all-padding'>
-        
+      <div className='pt-[56px]'>
+        profile
       </div>
     </div>
   )

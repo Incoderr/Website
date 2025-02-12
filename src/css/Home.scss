@@ -10,7 +10,7 @@
       max-width: 100%; /* Ограничение по ширине */
       max-height: 100%; /* Ограничение по высоте */
     }
-    .swiper {
+    .swiperвв {
       display: flex;
       width: 100%;
       height: 800px; /*высота*/
@@ -73,10 +73,7 @@
 .play-bookmark:hover{
   transform: scale(0.95);
 }
-.play-button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+
   .play{
     display: flex;
     justify-content: center;
@@ -88,7 +85,7 @@
     padding-left: 10px;
     padding-right: 10px;
     border-radius: 50px;
-  }
+    
   .play-bookmark{
     display: flex;
     justify-content: center;
@@ -127,34 +124,4 @@ video{
   display: flex;
   align-items: center;
   justify-content: center;
-}
-/*adaptive*/
-@media (max-width: 768px) { 
-  /* tablet */
-  .image-box{
-    .swiper{
-      height: 570px;
-    }
-    .swiper-pagination{
-      display: none;
-    }
-  }
-  .Slide-container{
-    margin-left: 0;
-    bottom: 0;
-    margin-bottom: 25px;
-  }
-  .image-name{
-    display: none;
-  }
-  .anime-info{
-    
-  }
-  .Slider-description{
-    display: none;
-  }
-  .poster-container{
-    width: 200px;
-    height: auto;
-  }
 }
