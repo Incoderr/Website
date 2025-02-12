@@ -24,13 +24,9 @@ const PopularMoviesSwiper = () => {
 
   return (
     <div>
-      <HeaderEl/>
-      <main className="pt-[56px]">
-        <div className="w-full max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            Популярные фильмы
-          </h2>
-
+      <HeaderEl />
+      <main className="">
+        <div className="">
           <Swiper
             modules={[Navigation, Autoplay]}
             spaceBetween={10}
@@ -38,18 +34,18 @@ const PopularMoviesSwiper = () => {
             loop
             autoplay={{ delay: 5000 }}
             navigation
-            className="rounded-lg overflow-hidden"
+            className="h-170"
           >
             {movies.map((movie) => (
               <SwiperSlide key={movie.id}>
-                <div className="relative w-full h-64 sm:h-80 md:h-96">
+                <div className="flex flex-col">
                   <img
                     src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
                     alt={movie.title}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="flex w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-4">
-                    <h3 className="text-lg sm:text-xl font-semibold text-white">
+                  <div className="absolute bottom-5 left-10">
+                    <h3 className="flex text-3xl text-white">
                       {movie.title}
                     </h3>
                   </div>
