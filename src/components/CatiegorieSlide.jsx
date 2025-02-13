@@ -43,7 +43,7 @@ function CategorieSlide() {
       </div>
 
       {/* Мобильная версия: горизонтальный свайпер */}
-      <div className="sm:hidden pt-2 pb-2 flex gap-4 mb-7 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
+      <div className="sm:hidden pt-2 pb-2 pl-2 pr-2 flex gap-4 mb-7 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
         <div className="flex gap-4">
           {categories.slice(0, maxVisibleMobile).map((category) => (
             <div
