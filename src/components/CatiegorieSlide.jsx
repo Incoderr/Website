@@ -1,43 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 function CategorieSlide() {
-  const animeCategories = [
-    "Экшен", "Приключения", "Комедия", "Драма", "Фэнтези", "Магия", "Сверхъестественное",
-    "Хоррор", "Психологическое", "Детектив", "Триллер", "Киберпанк", "Военное", "Историческое",
-    "Меха", "Романтика", "Школа", "Спорт", "Музыка", "Повседневность", "Сёнэн", "Сёдзё",
-    "Сёнэн-ай", "Сёдзё-ай", "Яой", "Юри", "Этти", "Гарем", "Обратный гарем", "Демоны",
-    "Вампиры", "Боевые искусства", "Самураи", "Полиция", "Научная фантастика", "Космос",
-    "Постапокалипсис", "Игры", "Путешествия во времени", "Дети", "Суперсила", "Школьная жизнь",
-    "Пародия", "Юмор", "Трагедия", "Ангелы", "Зомби", "Животные", "Кулинария", "Мифология",
-    "ЛГБТ", "Гендерная интрига", "Работа", "Шпионы", "Выживание", "Боевик", "Стимпанк",
-    "Антиутопия", "Джосэй", "Сейнен", "Комедия повседневности", "Исэкай", "Ранобэ",
-    "Фурри", "Темное фэнтези", "Криминал", "Гангстеры", "Мафия", "Дзёсэй", "Споккон",
-    "Детское", "Философское", "Сверхспособности", "Юмор и пародия", "Психоделика"
-  ];
+  const [categories, setCategories] = useState([]);
+  const maxVisibleDesktop = 6; // Количество категорий на ПК
+  const maxVisibleMobile = 15; // Количество категорий на телефоне
 
-  const ITEMS_PER_PAGE = 13; // Количество жанров на экране
-  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("https://shikimori.one/api/genres");
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Ошибка загрузки категорий:", error);
+      }
+    };
 
+    fetchCategories();
+  }, []);
 
   return (
-    <div className="flex gap-4 mb-7">
-      <div className="flex gap-4">
-        {animeCategories.slice(0, visibleCount).map((category, index) => (
+    <div>
+      {/* ПК-версия: просто список категорий */}
+      <div className="hidden sm:flex gap-4 mb-7">
+        {categories.slice(0, maxVisibleDesktop).map((category) => (
           <div
-            key={index}
-            className="cursor-pointer rounded-full outline-amber-50/70 outline-1 pl-3 pr-3 pt-2 pb-2 text-[20px] hover:scale-95 transition delay-15 ease-in-out"
+            key={category.id}
+            className="select-none outline-1 text-white rounded-full px-4 py-2 text-[16px] cursor-pointer hover:scale-95 transition duration-200"
           >
-            {category}
+            {category.russian || category.name}
           </div>
         ))}
-      </div>
-        <Link
+        {categories.length > maxVisibleDesktop && (
+          <Link
             to={"/search"}
-          className="rounded-full outline-amber-50/70 outline-1 pl-3 pr-3 pt-2 pb-2 text-[20px] cursor-pointer hover:scale-95 transition delay-15 ease-in-out"
-        >
-          Ещё
-        </Link>
+            className="rounded-full bg-white text-black px-4 py-2 text-[16px] cursor-pointer hover:scale-95 transition duration-200"
+          >
+            Ещё
+          </Link>
+        )}
+      </div>
+
+      {/* Мобильная версия: горизонтальный свайпер */}
+      <div className="sm:hidden flex gap-4 mb-7 mt-5 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
+        <div className="flex gap-4">
+          {categories.slice(0, maxVisibleMobile).map((category) => (
+            <div
+              key={category.id}
+              className="select-none flex justify-center items-center outline-1 text-white rounded-full pl-3 pr-3 text-[16px] cursor-pointer hover:scale-95 transition duration-200"
+            >
+              {category.russian || category.name}
+            </div>
+          ))}
+        </div>
+        {categories.length > maxVisibleMobile && (
+          <Link
+            to={"/search"}
+            className="rounded-full bg-white text-black px-4 py-2 text-[16px] cursor-pointer hover:scale-95 transition duration-200"
+          >
+            Ещё
+          </Link>
+        )}
+      </div>
     </div>
   );
 }

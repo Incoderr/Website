@@ -32,9 +32,9 @@ const PopularMoviesSwiper = () => {
             spaceBetween={10}
             slidesPerView={1}
             loop
-            autoplay={{ delay: 5000 }}
+            autoplay={{ delay: 5500 }}
             navigation
-            className="h-170"
+            className="h-auto"
           >
             {movies.map((movie) => (
               <SwiperSlide key={movie.id}>
@@ -42,7 +42,7 @@ const PopularMoviesSwiper = () => {
                   <img
                     src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
                     alt={movie.title}
-                    className="flex w-full h-full object-cover"
+                    className="flex w-full h-full"
                   />
                   <div className="absolute bottom-5 left-10">
                     <h3 className="flex text-3xl text-white">
