@@ -14,7 +14,7 @@ import CatiegorieSlide from "../components/CatiegorieSlide";
 function Home() {
   return (
     <div>
-      
+      <HeaderEl/>
       <main>
         <HomeAnimeSlider />
         <div className="pl-10 p-5 sm:p-5">
