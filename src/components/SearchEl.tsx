@@ -33,10 +33,7 @@ export const MovieSearchPage = () => {
     if (window.kbox && searchQuery) {
       window.kbox('.search_player', {
         search: {
-          query: searchQuery
-        },
-        players: {
-          alloha: {enable: true, position: 1, domain: 'https://sansa.newplayjj.com:9443'}
+          tmdb: searchQuery
         },
         onSearchComplete: (result) => {
           console.log('Результаты поиска:', result);

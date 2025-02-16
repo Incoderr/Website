@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, } from "react";
 import { Link } from "react-router-dom";
 
 function CategorieSlide() {
   const [categories, setCategories] = useState([]);
-  const maxVisibleDesktop = 6; // Количество категорий на ПК
+  const [maxVisibleDesktop, setMaxVisibleDesktop] = useState(6); // Динамическое кол-во на ПК
   const maxVisibleMobile = 15; // Количество категорий на телефоне
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -20,10 +21,26 @@ function CategorieSlide() {
     fetchCategories();
   }, []);
 
+  // Функция для определения количества элементов на экране
+  useEffect(() => {
+    const updateMaxVisible = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const categoryWidth = 114; // Примерная ширина одной категории (px)
+        const newMax = Math.floor(containerWidth / categoryWidth);
+        setMaxVisibleDesktop(newMax);
+      }
+    };
+
+    updateMaxVisible();
+    window.addEventListener("resize", updateMaxVisible);
+    return () => window.removeEventListener("resize", updateMaxVisible);
+  }, []);
+
   return (
-    <div>
+    <div className="">
       {/* ПК-версия: просто список категорий */}
-      <div className="hidden sm:flex gap-4 mb-7">
+      <div ref={containerRef} className="hidden sm:flex gap-4 mb-7">
         {categories.slice(0, maxVisibleDesktop).map((category) => (
           <div
             key={category.id}

@@ -19,7 +19,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/search" element={<Search />} />
-        <Route path="/player:id" element={<Player />} />
+        <Route path="/anime:id" element={<Player />} />
         <Route path="/film" element={<Film />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

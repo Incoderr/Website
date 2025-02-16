@@ -21,6 +21,7 @@ body {
 .active-link{
   color: #75e753;
 }
+
 @media screen and (max-width: 640px) {
   .swiper-button-next,
   .swiper-button-prev {

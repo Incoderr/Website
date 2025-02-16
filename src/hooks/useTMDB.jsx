@@ -1,56 +1,136 @@
 import { useState, useEffect } from "react";
 
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-const BASE_URL = "https://api.themoviedb.org/3";
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
-// Время жизни кеша (1 час)
-const CACHE_TIME = 60 * 60 * 1000;
+const API_BASE_URLS = {
+  tmdb: "https://api.themoviedb.org/3",
+  shikimori: "https://shikimori.one/api",
+};
 
-const useTMDB = (endpoint, params = {}) => {
-  const [data, setData] = useState([]);
+const CACHE_KEY = "animeListCache";
+const CACHE_TIME = 60 * 60 * 1000; // 1 час
+
+const useAnimeData = () => {
+  const [animeList, setAnimeList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const cacheKey = `${endpoint}_${JSON.stringify(params)}`;
-    const cachedData = localStorage.getItem(cacheKey);
-    const cachedTimestamp = localStorage.getItem(`${cacheKey}_timestamp`);
-
-    // Проверяем, есть ли кеш и не устарел ли он
-    if (cachedData && cachedTimestamp && Date.now() - cachedTimestamp < CACHE_TIME) {
-      setData(JSON.parse(cachedData));
-      setLoading(false);
-      return;
-    }
-
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      const queryString = new URLSearchParams({ api_key: API_KEY, ...params }).toString();
-      const url = `${BASE_URL}/${endpoint}?${queryString}`;
-
+    const fetchAnimeData = async () => {
       try {
-        const response = await fetch(url);
-        const result = await response.json();
-
-        if (response.ok) {
-          setData(result.results || []);
-          localStorage.setItem(cacheKey, JSON.stringify(result.results));
-          localStorage.setItem(`${cacheKey}_timestamp`, Date.now().toString());
-        } else {
-          setError(result.status_message || "Ошибка загрузки данных");
+        // Проверяем кэш
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+          const { data, timestamp } = JSON.parse(cachedData);
+          if (Date.now() - timestamp < CACHE_TIME) {
+            setAnimeList(data);
+            setLoading(false);
+            return;
+          }
         }
-      } catch (err) {
-        setError("Ошибка загрузки данных");
-      }
 
-      setLoading(false);
+        setLoading(true);
+
+        // Получаем топ аниме с Shikimori
+        const shikimoriRes = await fetch(
+          `${API_BASE_URLS.shikimori}/animes?order=ranked_shiki&limit=7`,
+          {
+            headers: {
+              "User-Agent": "AniHome/1.0.0",
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+          }
+        );
+
+        if (!shikimoriRes.ok) {
+          throw new Error(`Shikimori API error: ${shikimoriRes.status}`);
+        }
+
+        const shikimoriAnime = await shikimoriRes.json();
+
+        // Получаем описание и детали для каждого аниме
+        const detailedAnimeList = await Promise.all(
+          shikimoriAnime.map(async (anime) => {
+            try {
+              // Получаем детальную информацию с Shikimori
+              const detailsRes = await fetch(
+                `${API_BASE_URLS.shikimori}/animes/${anime.id}`,
+                {
+                  headers: {
+                    "User-Agent": "AniHome/1.0.0",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                  },
+                }
+              );
+
+              if (!detailsRes.ok) {
+                throw new Error(`Anime details error: ${detailsRes.status}`);
+              }
+
+              const details = await detailsRes.json();
+
+              // Ищем аниме в TMDB
+              const tmdbRes = await fetch(
+                `${API_BASE_URLS.tmdb}/search/tv?api_key=${TMDB_API_KEY}&query=${
+                  encodeURIComponent(anime.russian || anime.name)
+                }&language=ru-RU`
+              );
+
+              if (!tmdbRes.ok) {
+                throw new Error(`TMDB API error: ${tmdbRes.status}`);
+              }
+
+              const tmdbData = await tmdbRes.json();
+              const tmdbAnime = tmdbData.results?.[0] || {};
+
+              return {
+                ...anime,
+                ...details,
+                description: tmdbAnime.overview || details.description,
+                backdrop: tmdbAnime.backdrop_path
+                  ? `https://image.tmdb.org/t/p/original${tmdbAnime.backdrop_path}`
+                  : null,
+                poster: tmdbAnime.poster_path
+                  ? `https://image.tmdb.org/t/p/w500${tmdbAnime.poster_path}`
+                  : `https://shikimori.one${anime.image.original}`,
+                rating: details.score,
+                episodes: details.episodes,
+                status: details.status,
+                aired_on: details.aired_on,
+              };
+            } catch (err) {
+              console.error(`Error processing anime ${anime.id}:`, err);
+              return null;
+            }
+          })
+        );
+
+        // Фильтруем null значения и сохраняем в состояние
+        const filteredAnimeList = detailedAnimeList.filter(Boolean);
+        setAnimeList(filteredAnimeList);
+
+        // Сохраняем в кэш
+        localStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({
+            data: filteredAnimeList,
+            timestamp: Date.now(),
+          })
+        );
+      } catch (err) {
+        console.error("Ошибка загрузки данных:", err);
+        setError(err.message || "Ошибка загрузки данных.");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchData();
-  }, [endpoint, JSON.stringify(params)]);
+    fetchAnimeData();
+  }, []);
 
-  return { data, loading, error };
+  return { animeList, loading, error };
 };
 
-export default useTMDB;
+export default useAnimeData;

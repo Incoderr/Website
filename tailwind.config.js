@@ -3,6 +3,6 @@ module.exports = {
       "./src/**/*.{js,jsx,ts,tsx}",
       // другие пути при необходимости
     ],
-    // остальные настройки
+    plugins: [require('@tailwindcss/line-clamp')],
   }
   

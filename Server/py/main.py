@@ -1,157 +1,148 @@
-import requests
+import aiohttp
+import asyncio
 import json
-import time
-import os
-from pymongo import MongoClient
-from dotenv import load_dotenv
-from urllib.parse import quote_plus
-
-load_dotenv()
-
-TMDB_API_KEY = os.getenv("TMDB_API_KEY")
-KINOPOSK_API_KEY = os.getenv("KINOPOSK_API_KEY")
-IMDB_API_KEY = os.getenv("IMDB_API_KEY")
-MONGO_URI = os.getenv("MONGO_URI")
-
-# Ограничение на количество аниме для парсинга
-MAX_ANIME_COUNT = int(os.getenv("MAX_ANIME_COUNT", 2))
-
-client = MongoClient(MONGO_URI)
-db = client.anime_database
-collection = db.anime_data
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
+import logging
 
 
-def get_anilibria_data(title):
-    time.sleep(1)
-    url = f"https://api.anilibria.tv/v3/title/search?search={title}&limit=1"
-    response = requests.get(url)
-    json_data = response.json()
-    if response.status_code == 200 and json_data and isinstance(json_data, list) and len(json_data) > 0:
-        data = json_data[0]
+class AnimeParser:
+    def __init__(self):
+        self.session = None
+        # API keys should be stored in environment variables or config file
+        self.tmdb_api_key = "e547e17d4e91f3e62a571655cd1ccaff"
+        self.delays = {
+            "shikimori": 1,  # 1 second between requests
+            "anilist": 1,
+            "tmdb": 0.25,  # TMDB allows 4 requests per second
+            "imdb": 1
+        }
+        self.last_request = {
+            "shikimori": datetime.min,
+            "anilist": datetime.min,
+            "tmdb": datetime.min,
+            "imdb": datetime.min
+        }
+        self.logger = logging.getLogger(__name__)
+
+    async def __aenter__(self):
+        self.session = aiohttp.ClientSession()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self.session:
+            await self.session.close()
+
+    async def _wait_for_rate_limit(self, source: str):
+        """Implements rate limiting for different APIs"""
+        elapsed = datetime.now() - self.last_request[source]
+        if elapsed.total_seconds() < self.delays[source]:
+            await asyncio.sleep(self.delays[source] - elapsed.total_seconds())
+        self.last_request[source] = datetime.now()
+
+    async def get_shikimori_data(self, anime_id: int) -> Dict:
+        """Fetch anime data from Shikimori"""
+        await self._wait_for_rate_limit("shikimori")
+        url = f"https://shikimori.one/api/animes/{anime_id}"
+        async with self.session.get(url) as response:
+            if response.status == 200:
+                data = await response.json()
+                return {
+                    "title_ru": data.get("russian"),
+                    "title_en": data.get("name"),
+                    "shikimori_id": data.get("id"),
+                    "shikimori_rating": data.get("score"),
+                    "kinopoisk_id": data.get("kinopoisk_id")
+                }
+            return {}
+
+    async def get_tmdb_data(self, title: str) -> Dict:
+        """Fetch anime data from TMDB"""
+        await self._wait_for_rate_limit("tmdb")
+        url = f"https://api.themoviedb.org/3/search/tv"
+        params = {
+            "api_key": self.tmdb_api_key,
+            "query": title,
+            "language": "ru-RU"
+        }
+        async with self.session.get(url, params=params) as response:
+            if response.status == 200:
+                data = await response.json()
+                if data["results"]:
+                    result = data["results"][0]
+                    return {
+                        "tmdb_id": result.get("id"),
+                        "backdrop_path": f"https://image.tmdb.org/t/p/original{result.get('backdrop_path')}",
+                        "poster_path": f"https://image.tmdb.org/t/p/original{result.get('poster_path')}",
+                        "overview_ru": result.get("overview"),
+                        "first_air_date": result.get("first_air_date"),
+                        "status": result.get("status")
+                    }
+            return {}
+
+    async def get_anime_data(self, anime_id: int) -> Dict:
+        """Combine data from all sources"""
+        shikimori_data = await self.get_shikimori_data(anime_id)
+        if not shikimori_data:
+            return {}
+
+        tmdb_data = await self.get_tmdb_data(shikimori_data["title_en"])
+
         return {
-            "title": data.get("names", {}).get("ru", "Unknown"),
-            "description": data.get("description", {}).get("ru", "No description"),
-            "genres": data.get("genres", []),
-        }
-    return None
-
-
-def get_anilist_data(title):
-    time.sleep(1)
-    query = """
-    query ($search: String) {
-        Media(search: $search, type: ANIME) {
-            title {
-                romaji
-                english
-                native
+            "id": anime_id,
+            "titles": {
+                "ru": shikimori_data.get("title_ru"),
+                "en": shikimori_data.get("title_en")
+            },
+            "images": {
+                "poster": tmdb_data.get("poster_path"),
+                "backdrop": tmdb_data.get("backdrop_path")
+            },
+            "ratings": {
+                "shikimori": shikimori_data.get("shikimori_rating"),
+                "tmdb": tmdb_data.get("vote_average")
+            },
+            "dates": {
+                "first_air_date": tmdb_data.get("first_air_date")
+            },
+            "status": tmdb_data.get("status"),
+            "overview": tmdb_data.get("overview_ru"),
+            "external_ids": {
+                "shikimori": shikimori_data.get("shikimori_id"),
+                "tmdb": tmdb_data.get("tmdb_id"),
+                "kinopoisk": shikimori_data.get("kinopoisk_id")
             }
-            coverImage {
-                large
-            }
-            averageScore
         }
-    }
-    """
-    variables = {"search": title}
-    url = "https://graphql.anilist.co"
-    response = requests.post(url, json={"query": query, "variables": variables})
-    if response.status_code == 200:
-        data = response.json().get("data", {}).get("Media")
-        if data:
-            return {
-                "rating": data.get("averageScore", 0),
-                "poster": data.get("coverImage", {}).get("large", "")
-            }
-    return None
 
-
-def get_backdrop(title):
-    time.sleep(1)
-    url = f"https://api.themoviedb.org/3/search/tv?query={title}&api_key={TMDB_API_KEY}"
-    response = requests.get(url)
-    if response.status_code == 200 and response.json().get("results"):
-        show_id = response.json()["results"][0]["id"]
-        backdrop_url = f"https://api.themoviedb.org/3/tv/{show_id}/images?api_key={TMDB_API_KEY}"
-        backdrop_response = requests.get(backdrop_url)
-        if backdrop_response.status_code == 200 and backdrop_response.json().get("backdrops"):
-            return "https://image.tmdb.org/t/p/original" + backdrop_response.json()["backdrops"][0]["file_path"]
-    return None
-
-
-def get_kinopoisk_id(title):
-    time.sleep(1)
-    url = f"https://api.kinopoisk.dev/v1.3/movie/search?page=1&limit=1&query={title}"
-    headers = {"X-API-KEY": KINOPOSK_API_KEY}
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200 and response.json().get("docs"):
-        return response.json()["docs"][0].get("id")
-    return None
-
-
-def get_imdb_id(title):
-    time.sleep(1)
-    url = f"https://www.omdbapi.com/?t={title}&apikey={IMDB_API_KEY}"
-    response = requests.get(url)
-    if response.status_code == 200 and response.json().get("imdbID"):
-        return response.json()["imdbID"]
-    return None
-
-
-def get_ids(title):
-    return {
-        "kinopoisk": get_kinopoisk_id(title),
-        "imdb": get_imdb_id(title),
-        "tmdb": None  # Уже получено в get_backdrop
-    }
-
-
-def get_categories(title):
-    return {
-        "new_releases": False,  # Логика определения
-        "popular": False,  # Логика определения
-        "trending": False,  # Логика определения
-        "top_rated": False  # Логика определения
-    }
-
-
-def get_franchise(title):
-    return "Naruto Franchise" if "Naruto" in title else None  # Примерная логика
-
-
-def parse_anime(title):
-    anilibria = get_anilibria_data(title)
-    anilist = get_anilist_data(title)
-    backdrop = get_backdrop(title)
-    ids = get_ids(title)
-    categories = get_categories(title)
-    franchise = get_franchise(title)
-
-    if anilibria and anilist:
-        anime_data = {
-            "title": anilibria["title"],
-            "description": anilibria["description"],
-            "genres": anilibria["genres"],
-            "rating": anilist["rating"],
-            "poster": anilist["poster"],
-            "backdrop": backdrop,
-            "ids": ids,
-            "franchise": franchise,
-            "categories": categories
+    async def get_anime_collection(self, category: str, limit: int = 20) -> List[Dict]:
+        """Get collection of anime based on category"""
+        base_url = "https://shikimori.one/api/animes"
+        params = {
+            "limit": limit,
+            "order": "popularity" if category == "popular" else "id",
+            "status": "ongoing" if category == "airing" else None,
+            "season": datetime.now().year if category == "current" else None
         }
-        collection.insert_one(anime_data)
-        return anime_data
-    return None
+
+        await self._wait_for_rate_limit("shikimori")
+        async with self.session.get(base_url, params=params) as response:
+            if response.status == 200:
+                anime_list = await response.json()
+                results = []
+                for anime in anime_list:
+                    data = await self.get_anime_data(anime["id"])
+                    if data:
+                        results.append(data)
+                return results
+            return []
+
+
+async def main():
+    async with AnimeParser() as parser:
+        # Example usage
+        popular_anime = await parser.get_anime_collection("popular", limit=10)
+        print(json.dumps(popular_anime, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
-    anime_titles = ["Naruto", "One Piece", "Attack on Titan", "Demon Slayer", "Jujutsu Kaisen"]
-    parsed_count = 0
-    for title in anime_titles:
-        if parsed_count >= MAX_ANIME_COUNT:
-            print("Достигнут лимит парсинга.")
-            break
-        parsed_data = parse_anime(title)
-        if parsed_data:
-            print(json.dumps(parsed_data, indent=4, ensure_ascii=False))
-            parsed_count += 1
+    asyncio.run(main())
