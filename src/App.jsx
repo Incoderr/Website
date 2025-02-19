@@ -9,7 +9,9 @@ import Player from './Pages/Player';
 
 //Film
 import Film from './Film/FilmHome';
-
+//test
+import SearchPage from "./Pages/SearchPage";
+import PlayerPage from "./Pages/WatchPage";
 
 function App() {
   return (
@@ -19,9 +21,12 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/search" element={<Search />} />
-        <Route path="/anime:id" element={<Player />} />
+        <Route path="/player/" element={<Player />} />
         <Route path="/film" element={<Film />} />
         <Route path="*" element={<NotFound />} />
+        {/*test*/}
+        <Route path="/se" element={<SearchPage />} />
+        <Route path="/player/:id" element={<PlayerPage />} />
       </Routes>
     </BrowserRouter>
   );

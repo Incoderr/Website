@@ -1,10 +1,10 @@
+// MovieSearchPage.jsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 export const MovieSearchPage = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const { tmdbId } = useParams();
   const [movieTitle, setMovieTitle] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -13,6 +13,18 @@ export const MovieSearchPage = () => {
     
     script.onload = () => {
       console.log('Kinobox script загружен');
+      if (window.kbox && tmdbId) {
+        window.kbox('.player', {
+          search: {
+            tmdb: tmdbId
+          },
+          onChange: (data) => {
+            if (data && data.title) {
+              setMovieTitle(data.title);
+            }
+          }
+        });
+      }
     };
     
     document.body.appendChild(script);
@@ -23,57 +35,18 @@ export const MovieSearchPage = () => {
         document.body.removeChild(scriptElement);
       }
     };
-  }, []);
-
-  const handleInputChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handleSearch = () => {
-    if (window.kbox && searchQuery) {
-      window.kbox('.search_player', {
-        search: {
-          tmdb: searchQuery
-        },
-        onSearchComplete: (result) => {
-          console.log('Результаты поиска:', result);
-          if (result && result.length > 0) {
-            setMovieTitle(result[0].title);
-          } else {
-            setMovieTitle('');
-          }
-        }
-      });
-    }
-  };
+  }, [tmdbId]);
 
   return (
     <div className="max-w-6xl mx-auto p-4">
-      <div className="mb-6">
-        <input
-          type="text"
-          className="w-full p-2 border rounded"
-          placeholder="Введите название фильма для поиска..."
-          value={searchQuery}
-          onChange={handleInputChange}
-        />
-      </div>
-
-      <div className="mb-6">
-        <button
-          onClick={handleSearch}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Найти
-        </button>
-      </div>
-
       {movieTitle && (
-        <div className="mb-6 text-xl font-bold">Найденный фильм: {movieTitle}</div>
+        <div className="mb-6 text-xl font-bold">
+          Сейчас смотрите: {movieTitle}
+        </div>
       )}
 
       <div className="aspect-video">
-        <div className="search_player w-full h-full"></div>
+        <div className="player w-full h-full"></div>
       </div>
     </div>
   );

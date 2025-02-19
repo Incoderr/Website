@@ -1,3 +1,4 @@
+// useAnimeData.js
 import { useState, useEffect } from "react";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -18,7 +19,6 @@ const useAnimeData = () => {
   useEffect(() => {
     const fetchAnimeData = async () => {
       try {
-        // Проверяем кэш
         const cachedData = localStorage.getItem(CACHE_KEY);
         if (cachedData) {
           const { data, timestamp } = JSON.parse(cachedData);
@@ -31,7 +31,6 @@ const useAnimeData = () => {
 
         setLoading(true);
 
-        // Получаем топ аниме с Shikimori
         const shikimoriRes = await fetch(
           `${API_BASE_URLS.shikimori}/animes?order=ranked_shiki&limit=7`,
           {
@@ -49,11 +48,9 @@ const useAnimeData = () => {
 
         const shikimoriAnime = await shikimoriRes.json();
 
-        // Получаем описание и детали для каждого аниме
         const detailedAnimeList = await Promise.all(
           shikimoriAnime.map(async (anime) => {
             try {
-              // Получаем детальную информацию с Shikimori
               const detailsRes = await fetch(
                 `${API_BASE_URLS.shikimori}/animes/${anime.id}`,
                 {
@@ -71,7 +68,9 @@ const useAnimeData = () => {
 
               const details = await detailsRes.json();
 
-              // Ищем аниме в TMDB
+              // Логируем название аниме перед поиском в TMDB
+              console.log(`Searching TMDB for anime: ${anime.russian || anime.name}`);
+
               const tmdbRes = await fetch(
                 `${API_BASE_URLS.tmdb}/search/tv?api_key=${TMDB_API_KEY}&query=${
                   encodeURIComponent(anime.russian || anime.name)
@@ -83,11 +82,19 @@ const useAnimeData = () => {
               }
 
               const tmdbData = await tmdbRes.json();
+              
+              // Логируем результаты поиска TMDB
+              console.log('TMDB search results:', tmdbData.results);
+              
               const tmdbAnime = tmdbData.results?.[0] || {};
+              
+              // Логируем найденный ID
+              console.log('Found TMDB ID:', tmdbAnime.id);
 
-              return {
+              const animeData = {
                 ...anime,
                 ...details,
+                tmdb_id: tmdbAnime.id || null,
                 description: tmdbAnime.overview || details.description,
                 backdrop: tmdbAnime.backdrop_path
                   ? `https://image.tmdb.org/t/p/original${tmdbAnime.backdrop_path}`
@@ -100,6 +107,11 @@ const useAnimeData = () => {
                 status: details.status,
                 aired_on: details.aired_on,
               };
+
+              // Логируем финальный объект аниме
+              console.log('Final anime object:', animeData);
+
+              return animeData;
             } catch (err) {
               console.error(`Error processing anime ${anime.id}:`, err);
               return null;
@@ -107,11 +119,13 @@ const useAnimeData = () => {
           })
         );
 
-        // Фильтруем null значения и сохраняем в состояние
         const filteredAnimeList = detailedAnimeList.filter(Boolean);
+        
+        // Логируем финальный список аниме
+        console.log('Final anime list:', filteredAnimeList);
+        
         setAnimeList(filteredAnimeList);
 
-        // Сохраняем в кэш
         localStorage.setItem(
           CACHE_KEY,
           JSON.stringify({

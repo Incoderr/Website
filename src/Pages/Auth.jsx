@@ -46,14 +46,14 @@ const Auth = () => {
 
   return (
     <div className="bg">
-      <Link className="close" to={"/"}>Выйти</Link>
+      <Link className="absolute top-10 left-10 bg-[#A78BFA] rounded-md p-1" to={"/"}>Выйти</Link>
       <div className="form-box">
         <form>
           {isLogin ? (
-            <div className="login-container">
-              <h1>Войти</h1>
+            <div className="flex gap-3 flex-col items-center">
+              <h1 className="text-2xl">Войти</h1>
               <label>
-                <h6>Логин или почта:</h6>
+                <h6 className="mb-2">Логин или почта:</h6>
                 <div className="span-icon">
                   <span>
                     <i className="bi bi-person-fill fs-5 icon"></i>
@@ -69,7 +69,7 @@ const Auth = () => {
                 {errors.login && <p className="error">{errors.login.message}</p>}
               </label>
               <label>
-                <h6>Пароль:</h6>
+                <h6 className="mb-2">Пароль:</h6>
                 <div className="form-icon">
                   <span>
                     <i className="bi bi-lock-fill fs-5 icon"></i>
@@ -92,9 +92,10 @@ const Auth = () => {
                 </div>
                 {errors.password && <p className="error">{errors.password.message}</p>}
               </label>
-              <p className="no-account" onClick={toggleForm}>
+              <p className="" onClick={toggleForm}>
                 Нет аккаунта?
               </p>
+              <p className="">Забыли пароль?</p>
               <button className="form-but" type="submit">
                 Войти
               </button>
