@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from "react";
 
-interface KinoboxPlayerProps {
+interface Props {
   kpId: number;
-  searchTitle: string;
 }
 
-export function KinoboxPlayer({ kpId, searchTitle }: KinoboxPlayerProps) {
+function KinoboxPlayer({ kpId }: Props) {
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -17,9 +16,7 @@ export function KinoboxPlayer({ kpId, searchTitle }: KinoboxPlayerProps) {
     script.onload = () => {
       if (containerRef.current) {
         (window as any).kbox(containerRef.current, {
-          search: {
-            title: searchTitle
-          },
+          search: { kinopoisk: kpId },
           menu: {
             enabled: false,
           }
@@ -32,7 +29,7 @@ export function KinoboxPlayer({ kpId, searchTitle }: KinoboxPlayerProps) {
         document.body.removeChild(script);
       } catch (e) {}
     };
-  }, [kpId, searchTitle]);
+  }, [kpId]);
 
   return <div ref={containerRef} className="kinobox_player"></div>;
 }

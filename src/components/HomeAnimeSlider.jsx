@@ -82,7 +82,7 @@ const HomeAnimeSwiper = () => {
               
               <div className="flex  sm:w-130 justify-center sm:justify-normal gap-2 mb-5 flex-wrap">
                 <p className="bg-green-600 rounded-full px-3 py-1 text-sm sm:text-base">
-                  Рейтинг:⭐ {anime.score}
+                  Рейтинг: {anime.score}
                 </p>
                 <p className="bg-gray-700 rounded-full px-3 py-1 text-sm sm:text-base">
                   Серий: {anime.episodes ?? "?"}
