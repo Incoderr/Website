@@ -1,6 +1,6 @@
 import React from 'react'
 import HeaderEl from "../components/HeaderEl";
-import SearchEl from "../components/SearchEl.tsx";
+import SearchEl from "../components/SearchEl";
 
 function Search() {
   return (
