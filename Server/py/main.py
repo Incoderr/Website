@@ -1,89 +1,101 @@
-import requests
-from bs4 import BeautifulSoup
 import json
+import re
 import time
-from typing import List, Dict
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.firefox import GeckoDriverManager
+from bs4 import BeautifulSoup
 
 
-class AnimeParser:
-    def __init__(self):
-        self.base_url = "https://kinohost.web.app"
-        self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        }
+def get_anime_list(limit=100, delay=2):
+    url = "https://m.imdb.com/search/title/?title_type=feature,tv_movie,tv_special,video,tv_series,tv_miniseries&interests=in0000027"
 
-    def get_page(self, url: str) -> BeautifulSoup:
-        """Получает и парсит страницу"""
-        response = requests.get(url, headers=self.headers)
-        response.raise_for_status()
-        return BeautifulSoup(response.text, 'html.parser')
+    # Настройки Chrome
+    options = Options()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
-    def get_anime_list(self, page: int = 1) -> List[Dict]:
-        """Получает список аниме с указанной страницы"""
-        url = f"{self.base_url}/anime/page/{page}"
-        soup = self.get_page(url)
+    # Запуск браузера
+    service = Service(GeckoDriverManager().install())
+    driver = webdriver.Firefox(service=service, options=options)
 
-        anime_list = []
-        anime_cards = soup.find_all('div', class_='anime-card')
+    driver.get(url)
+    anime_list = []  # Используем список вместо set()
 
-        for card in anime_cards:
-            anime_data = {
-                'title': card.find('h2', class_='title').text.strip(),
-                'url': self.base_url + card.find('a')['href'],
-                'image': card.find('img')['src'],
-                'rating': card.find('div', class_='rating').text.strip(),
-                'year': card.find('div', class_='year').text.strip()
-            }
-            anime_list.append(anime_data)
+    while len(anime_list) < limit:
+        # Ждём загрузки страницы
+        time.sleep(delay)
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
-        return anime_list
+        # Парсим HTML через BeautifulSoup
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        anime_items = soup.find_all("li", class_="ipc-metadata-list-summary-item")
 
-    def get_anime_details(self, url: str) -> Dict:
-        """Получает детальную информацию об аниме"""
-        soup = self.get_page(url)
+        for item in anime_items:
+            if len(anime_list) >= limit:
+                break
 
-        details = {
-            'title': soup.find('h1', class_='anime-title').text.strip(),
-            'description': soup.find('div', class_='description').text.strip(),
-            'genres': [genre.text.strip() for genre in soup.find_all('span', class_='genre')],
-            'episodes': soup.find('div', class_='episodes').text.strip(),
-            'status': soup.find('div', class_='status').text.strip()
-        }
+            title_link = item.find("a", class_="ipc-title-link-wrapper")
+            if not title_link:
+                continue
 
-        return details
+            title_en = title_link.text.strip()
+            title_url = "https://m.imdb.com" + title_link["href"]
+            ttid_match = re.search(r"/title/(tt\d+)/", title_url)
+            ttid = ttid_match.group(1) if ttid_match else ""
 
-    def collect_data(self, pages: int = 5) -> None:
-        """Собирает данные с указанного количества страниц"""
-        all_anime = []
+            # Русское название
+            title_ru = ""
+            alt_title_tag = item.find("div", class_="sc-73d0305e-2")
+            if alt_title_tag:
+                title_ru = alt_title_tag.text.strip()
 
-        for page in range(1, pages + 1):
-            print(f"Обработка страницы {page}...")
-            anime_list = self.get_anime_list(page)
+            if title_ru == title_en:
+                title_ru = ""
 
-            for anime in anime_list:
-                # Получаем детальную информацию
-                details = self.get_anime_details(anime['url'])
-                anime.update(details)
-                all_anime.append(anime)
+            # IMDb рейтинг
+            rating_tag = item.find("span", class_="ipc-rating-star--rating")
+            rating = rating_tag.text.strip() if rating_tag else "N/A"
 
-                # Делаем паузу между запросами
-                time.sleep(2)
+            # Постер
+            poster_tag = item.find("img", class_="ipc-image")
+            poster_url = poster_tag["src"] if poster_tag else ""
 
-            # Сохраняем промежуточные результаты
-            with open(f'anime_data_page_{page}.json', 'w', encoding='utf-8') as f:
-                json.dump(all_anime, f, ensure_ascii=False, indent=2)
+            anime_list.append({
+                "ID": len(anime_list) + 1,  # Добавляем порядковый номер
+                "TitleEN": title_en,
+                "TitleRU": title_ru,
+                "URL": title_url,
+                "TTID": ttid,
+                "IMDbRating": rating,
+                "Poster": poster_url
+            })
 
-            print(f"Страница {page} обработана. Собрано: {len(all_anime)}")
-            time.sleep(3)  # Пауза между страницами
+        # Пытаемся найти кнопку "50 more"
+        try:
+            see_more_span = WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, "//span[contains(@class, 'ipc-see-more__text') and text()='50 more']"))
+            )
+            button = see_more_span.find_element(By.XPATH, "./ancestor::button")
+            ActionChains(driver).move_to_element(button).click().perform()
+            time.sleep(delay)  # Ждём загрузку новых данных
+        except:
+            print("Кнопка '50 more' не найдена или больше нет страниц.")
+            break  # Если кнопки нет — выходим
 
-        # Сохраняем финальный результат
-        with open('anime_data_full.json', 'w', encoding='utf-8') as f:
-            json.dump(all_anime, f, ensure_ascii=False, indent=2)
+    driver.quit()
 
-        print("Сбор данных завершен!")
+    return anime_list[:limit]  # Обрезаем список по лимиту
 
 
-# Пример использования
 if __name__ == "__main__":
-    parser = AnimeParser()
-    parser.collect_data(pages=5)  # Собираем данные с 5 страниц
+    anime_data = get_anime_list(limit=100, delay=2)
+    with open("anime_list.json", "w", encoding="utf-8") as f:
+        json.dump(anime_data, f, ensure_ascii=False, indent=4)
+    print(f"Данные сохранены в anime_list.json ({len(anime_data)} записей)")

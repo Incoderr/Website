@@ -1,4 +1,4 @@
-import React from "react";
+import {useState, useEffect} from "react";
 import "../css/style.scss";
 import "../css/Home.scss";
 import { Link } from "react-router-dom";
@@ -14,7 +14,7 @@ import CatiegorieSlide from "../components/CatiegorieSlide";
 function Home() {
   return (
     <div>
-      <HeaderEl/>
+      <HeaderEl />
       <main>
         <HomeAnimeSlider />
         <div className="pl-10 p-5 sm:p-5">

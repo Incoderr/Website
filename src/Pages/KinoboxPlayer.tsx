@@ -1,37 +1,47 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from 'react';
 
-interface Props {
-  kpId: number;
+interface KinoboxProps {
+  search: {
+    query: string;
+  }
 }
 
-function KinoboxPlayer({ kpId }: Props) {
-  const containerRef = useRef(null);
+declare global {
+  interface Window {
+    kbox: (selector: string, options: KinoboxProps) => void;
+  }
+}
 
+interface VideoPlayerProps {
+  query: string;
+}
+
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ query }) => {
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://kinobox.tv/kinobox.min.js";
+    // Create script element for Kinobox
+    const script = document.createElement('script');
+    script.src = 'https://kinobox.tv/kinobox.min.js';
     script.async = true;
+    
+    // Add script to document
     document.body.appendChild(script);
 
+    // Initialize player after script loads
     script.onload = () => {
-      if (containerRef.current) {
-        (window as any).kbox(containerRef.current, {
-          search: { kinopoisk: kpId },
-          menu: {
-            enabled: false,
-          }
+      if (window.kbox) {
+        window.kbox('.kinobox_player', {
+          search: { query }
         });
       }
     };
 
+    // Cleanup on unmount
     return () => {
-      try {
-        document.body.removeChild(script);
-      } catch (e) {}
+      document.body.removeChild(script);
     };
-  }, [kpId]);
+  }, [query]);
 
-  return <div ref={containerRef} className="kinobox_player"></div>;
-}
+  return <div className="kinobox_player"></div>;
+};
 
-export default KinoboxPlayer;
+export default VideoPlayer;

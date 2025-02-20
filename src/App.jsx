@@ -8,7 +8,7 @@ import Search from "./Pages/Search";
 import Player from './Pages/Player';
 
 //Film
-import Film from './Film/FilmHome';
+import Film from './Film/Pages/FilmHome';
 //test
 import SearchPage from "./Pages/SearchPage";
 import PlayerPage from "./Pages/WatchPage";

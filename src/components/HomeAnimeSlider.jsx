@@ -1,16 +1,15 @@
-
-// HomeAnimeSwiper.jsx
-import React from "react";
+import { useRef, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, EffectFade, Autoplay } from "swiper/modules";
 import { Link, useNavigate } from "react-router-dom";
 import { BsBookmark, BsFillPlayFill } from "react-icons/bs";
 import useAnimeData from "../hooks/useTMDB";
 
+import "swiper/css";
+import "swiper/css/navigation";
 import "swiper/css/effect-fade";
 
-
-const HomeAnimeSwiper = () => {
+const HomeAnimeSwiper = ({ onBackgroundChange }) => {
   const { animeList, loading, error } = useAnimeData();
   const navigate = useNavigate();
 
@@ -45,13 +44,14 @@ const HomeAnimeSwiper = () => {
         effect="fade"
         centeredSlides={true}
         autoplay={{
-          delay: 10000,
+          delay: 9000,
           disableOnInteraction: false,
         }}
         navigation={true}
         loop
+        speed={"500"}
         modules={[Navigation, EffectFade, Autoplay]}
-        className="h-130 sm:h-195"
+        className="h-130 sm:h-195 duration-75"
       >
         {animeList.map((anime) => (
           <SwiperSlide key={anime.id}>
@@ -66,7 +66,7 @@ const HomeAnimeSwiper = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent" />
               </div>
             )}
-            
+
             <div className="absolute left-0 top-17 items-center sm:items-baseline z-10 flex w-full flex-col mb-10 sm:mt-0 sm:mb-0 sm:mr-auto sm:ml-25">
               <div className="w-130 flex flex-col">
                 <img
@@ -79,7 +79,7 @@ const HomeAnimeSwiper = () => {
                   {anime.russian}
                 </h1>
               </div>
-              
+
               <div className="flex  sm:w-130 justify-center sm:justify-normal gap-2 mb-5 flex-wrap">
                 <p className="bg-green-600 rounded-full px-3 py-1 text-sm sm:text-base">
                   Рейтинг: {anime.score}
@@ -94,20 +94,20 @@ const HomeAnimeSwiper = () => {
                   Год: {anime.aired_on?.split("-")[0]}
                 </p>
               </div>
-              
+
               <p className="hidden sm:overflow-hidden sm:w-130 sm:mb-2 sm:line-clamp-5 sm:text-gray-200">
                 {anime.description || "Описание отсутствует"}
               </p>
-              
+
               <div className="flex w-130 items-center justify-center gap-3">
-                <button 
+                <button
                   onClick={() => handleWatchClick(anime.tmdb_id)}
                   className="flex items-center bg-white text-black rounded-full h-12 px-4 hover:scale-95 transition duration-150 ease-in-out"
                 >
                   <BsFillPlayFill className="text-[35px]" />
                   <span className="text-[20px] ml-1">Смотреть</span>
                 </button>
-                
+
                 <button
                   type="button"
                   className="flex justify-center items-center rounded-full w-12 h-12 bg-[#A78BFA] hover:scale-95 transition duration-150 ease-in-out"

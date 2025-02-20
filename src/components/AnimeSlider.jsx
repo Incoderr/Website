@@ -162,7 +162,7 @@ const AnimeSliders = () => {
   return (
     <div className="">
       <CategorySlider category={categories[0]} />
-      <CatiegorieSlide />
+      {/*<CatiegorieSlide />*/}
       {categories.slice(1).map((category) => (
         <CategorySlider key={category.sort} category={category} />
       ))}
