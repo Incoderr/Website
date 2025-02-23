@@ -11,7 +11,7 @@ import Player from './Pages/Player';
 import Film from './Film/Pages/FilmHome';
 //test
 import SearchPage from "./Pages/SearchPage";
-import PlayerPage from "./Pages/WatchPage";
+import PlayerPage from "./Pages/WatchPage.tsx";
 
 function App() {
   return (
@@ -21,12 +21,12 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/search" element={<Search />} />
-        <Route path="/player/" element={<Player />} />
+        <Route path="/playe" element={<Player />} />
         <Route path="/film" element={<Film />} />
         <Route path="*" element={<NotFound />} />
         {/*test*/}
         <Route path="/se" element={<SearchPage />} />
-        <Route path="/player/:id" element={<PlayerPage />} />
+        <Route path="/player/:ttid" element={<PlayerPage />} />
       </Routes>
     </BrowserRouter>
   );
