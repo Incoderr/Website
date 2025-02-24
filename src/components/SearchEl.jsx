@@ -48,7 +48,7 @@ function SearchEl() {
   const filterByGenre = (genreValue) => {
     setSelectedGenre(genreValue);
     setSearchQuery('');
-    setVisibleCount(12);
+    setVisibleCount(10);
     setShowGenres(false);
     loadAnime({ genre: genreValue }, true);
   };
@@ -71,7 +71,7 @@ function SearchEl() {
     const query = e.target.value;
     setSearchQuery(query);
     setSelectedGenre(null);
-    setVisibleCount(10);
+    setVisibleCount(12);
     debouncedSearch(query);
   };
 
@@ -86,7 +86,7 @@ function SearchEl() {
 
   const handleLoadMore = () => {
     if (selectedGenre) {
-      const newCount = visibleCount + 10;
+      const newCount = visibleCount + 12;
       setVisibleCount(newCount);
       setVisibleAnime(anime.slice(0, newCount));
     }
