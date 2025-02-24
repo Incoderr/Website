@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Для перенаправления
 import genresData from '../assets/available_genres.json';
 
-const API_URL = "https://serverr-eight.vercel.app/api/anime";
+const API_URL = "http://localhost:5000/api/anime";
 
 const debounce = (func, delay) => {
   let timeoutId;

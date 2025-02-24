@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_URL = "https://serverr-eight.vercel.app/api/anime";
+const API_URL = "http://localhost:5000/api/anime";
 
 interface AnimeData {
   PosterRu: string;
