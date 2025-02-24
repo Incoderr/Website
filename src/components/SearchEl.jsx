@@ -81,7 +81,7 @@ function SearchEl() {
     setSearchQuery('');
     setAnime([]);
     setVisibleAnime([]);
-    setVisibleCount(10);
+    setVisibleCount(12);
   };
 
   const handleLoadMore = () => {
