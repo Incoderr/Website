@@ -1,7 +1,9 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { BsBookmark } from "react-icons/bs";
 import { API_URL } from '../assets/config';
+import KinoboxPlayer from '../components/Kinobox'; // Импортируем новый компонент
 
 interface AnimeData {
   PosterRu: string;
@@ -11,6 +13,7 @@ interface AnimeData {
   Status: string;
   IMDbRating: number;
   TMDbRating: number;
+  Episodes: number;
   Genres: string[];
   Tags: string[];
   OverviewRu: string;
@@ -21,7 +24,6 @@ function PlayerPage() {
   const navigate = useNavigate();
   const [animeData, setAnimeData] = useState<AnimeData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     axios
@@ -33,25 +35,6 @@ function PlayerPage() {
         console.error("Ошибка при загрузке данных аниме:", error);
       })
       .finally(() => setLoading(false));
-  }, [ttid]);
-
-  useEffect(() => {
-    const scriptId = "kinobox-script";
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement("script");
-      script.id = scriptId;
-      script.src = "https://kinobox.tv/kinobox.min.js";
-      script.async = true;
-      document.body.appendChild(script);
-
-      script.onload = () => {
-        if (containerRef.current && (window as any).kbox) {
-          (window as any).kbox(containerRef.current, { search: { query: ttid } });
-        }
-      };
-    } else if (containerRef.current && (window as any).kbox) {
-      (window as any).kbox(containerRef.current, { search: { query: ttid } });
-    }
   }, [ttid]);
 
   if (loading) return <div className="p-3 text-white text-lg">Загрузка...</div>;
@@ -67,14 +50,25 @@ function PlayerPage() {
       </button>
       <div className="flex justify-center">
         <div className="flex w-320 gap-5">
-          <img src={animeData.PosterRu} alt={animeData.TitleRu} className="w-64 h-96 object-cover rounded-md" />
+          <div className="flex flex-col items-center">
+            <img
+              src={animeData.PosterRu}
+              alt={animeData.TitleRu}
+              className="w-64 h-96 object-cover rounded-md"
+            />
+            <div className="mt-4 p-3 text-lg flex items-center gap-2 bg-gray-700 rounded-full cursor-pointer sm:duration-300 sm:hover:scale-105">
+              Добавить в избранное
+              <BsBookmark className="text-2xl" />
+            </div>
+          </div>
           <div className="flex-1">
             <h1 className="text-3xl font-bold">{animeData.TitleRu}</h1>
             <p className="text-lg text-gray-300">{animeData.TitleEng}</p>
             <p>Год: {animeData.Year}</p>
             <p>Статус: {animeData.Status}</p>
-            <p>Рейтинг imdb: {animeData.IMDbRating}</p>
-            <p>Рейтинг tmdb: {animeData.TMDbRating}</p>
+            <p>Серий: {animeData.Episodes}</p>
+            <p>Рейтинг IMDb: {animeData.IMDbRating}</p>
+            <p>Рейтинг TMDb: {animeData.TMDbRating}</p>
             <p>Жанры: {animeData.Genres.join(", ")}</p>
             <p>Теги: {animeData.Tags.join(", ")}</p>
             <h1 className="mt-2 text-lg">Описание:</h1>
@@ -83,7 +77,7 @@ function PlayerPage() {
         </div>
       </div>
       <div className="mt-55 mb-30 flex justify-center">
-        <div ref={containerRef} className="kinobox_player w-320 h-180 bg-gray-950 rounded-md"></div>
+        <KinoboxPlayer ttid={ttid!} /> {/* Передаём TTID в компонент */}
       </div>
     </div>
   );
