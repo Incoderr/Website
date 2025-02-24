@@ -48,7 +48,7 @@ function SearchEl() {
   const filterByGenre = (genreValue) => {
     setSelectedGenre(genreValue);
     setSearchQuery('');
-    setVisibleCount(10);
+    setVisibleCount(12);
     setShowGenres(false);
     loadAnime({ genre: genreValue }, true);
   };
