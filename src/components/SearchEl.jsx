@@ -3,8 +3,8 @@ import { BsFilter, BsSearch } from "react-icons/bs";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Для перенаправления
 import genresData from '../assets/available_genres.json';
+import { API_URL } from '../assets/config';
 
-const API_URL = "http://localhost:5000/api/anime";
 
 const debounce = (func, delay) => {
   let timeoutId;

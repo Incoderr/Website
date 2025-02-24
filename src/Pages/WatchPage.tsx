@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-
-const API_URL = "http://localhost:5000/api/anime";
+import { API_URL } from '../assets/config';
 
 interface AnimeData {
   PosterRu: string;
