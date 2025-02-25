@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BsBookmark } from "react-icons/bs";
 import { API_URL } from '../assets/config';
-import LoadingEl from '../components/ui/loading';
+import LoadingEl from '../components/ui/Loading';
 import KinoboxPlayer from '../components/Kinobox'; // Импортируем новый компонент
 
 interface AnimeData {
