@@ -5,22 +5,30 @@ import { Link } from "react-router-dom";
 /*кампоненты*/
 import HeaderEl from "../components/HeaderEl";
 import FooterEl from "../components/FooterEl";
-import AnimeSlider from "../components/AnimeSlider";
 import HomeAnimeSlider from "../components/HomeAnimeSlider";
-import AnimeTop from "../components/AnimeTop";
-import CatiegorieSlide from "../components/CatiegorieSlide";
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 /*свайпер*/
 
-function Home() {
+const Home = () => {
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 12 * 60 * 60 * 1000, // 12 часов кеширования
+        cacheTime: 12 * 60 * 60 * 1000, // Время хранения в кеше
+        retry: 1, // Повтор запроса при ошибке
+      },
+    },
+  });
+
   return (
     <div>
       <HeaderEl />
       <main>
-        <HomeAnimeSlider />
-        <div className="pl-10 p-5 sm:p-5">
-          <AnimeSlider />
-          <AnimeTop/>
-        </div>
+        <QueryClientProvider client={queryClient}>
+          <HomeAnimeSlider />
+        </QueryClientProvider>
       </main>
       <FooterEl />
     </div>

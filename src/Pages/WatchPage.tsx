@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BsBookmark } from "react-icons/bs";
 import { API_URL } from '../assets/config';
+import LoadingEl from '../components/ui/loading';
 import KinoboxPlayer from '../components/Kinobox'; // Импортируем новый компонент
 
 interface AnimeData {
@@ -37,7 +38,7 @@ function PlayerPage() {
       .finally(() => setLoading(false));
   }, [ttid]);
 
-  if (loading) return <div className="p-3 text-white text-lg">Загрузка...</div>;
+  if (loading) return <div className="p-3 text-white text-lg"><LoadingEl/></div>;
   if (!animeData) return <div className="p-3 text-white text-lg">Аниме не найдено</div>;
 
   return (

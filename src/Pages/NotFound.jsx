@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import HeaderEl from "../components/HeaderEl.jsx";
+import LoadingEl from '../components/ui/loading';
 
 const NotFound = () => {
   return (

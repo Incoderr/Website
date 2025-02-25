@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import { BsFilter, BsSearch } from "react-icons/bs";
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Для перенаправления
+import { useNavigate } from 'react-router-dom';
 import genresData from '../assets/available_genres.json';
 import { API_URL } from '../assets/config';
-
+import LoadingEl from '../components/ui/loading';
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -22,21 +22,17 @@ function SearchEl() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [showGenres, setShowGenres] = useState(true);
-  const navigate = useNavigate(); // Хук для навигации
+  const navigate = useNavigate();
 
   const loadAnime = (params, reset = false) => {
     setLoading(true);
-    axios.get(API_URL, {
-      params: {
-        genre: params.genre || '',
-        search: params.search || ''
-      }
-    })
+    axios.get(API_URL, { params: { genre: params.genre || '', search: params.search || '' } })
       .then(response => {
-        const newAnime = response.data;
+        const newAnime = Array.from(new Set(response.data.map(a => a._id))) // Убираем дубликаты по _id
+          .map(id => response.data.find(a => a._id === id));
         console.log('📌 Ответ от сервера:', newAnime);
         setAnime(newAnime);
-        setVisibleAnime(newAnime.slice(0, visibleCount));
+        setVisibleAnime(newAnime.slice(0, reset ? 12 : visibleCount));
         setLoading(false);
       })
       .catch(error => {
@@ -45,13 +41,13 @@ function SearchEl() {
       });
   };
 
-  const filterByGenre = (genreValue) => {
+  const filterByGenre = useCallback((genreValue) => {
     setSelectedGenre(genreValue);
     setSearchQuery('');
-    setVisibleCount(10);
+    setVisibleCount(12);
     setShowGenres(false);
     loadAnime({ genre: genreValue }, true);
-  };
+  }, []);
 
   const debouncedSearch = useCallback(
     debounce((query) => {
@@ -85,7 +81,7 @@ function SearchEl() {
   };
 
   const handleLoadMore = () => {
-    if (selectedGenre) {
+    if (selectedGenre && visibleCount < anime.length) {
       const newCount = visibleCount + 12;
       setVisibleCount(newCount);
       setVisibleAnime(anime.slice(0, newCount));
@@ -93,16 +89,14 @@ function SearchEl() {
   };
 
   const handleCardClick = (ttid) => {
-    navigate(`/player/${ttid}`); // Перенаправление на страницу плеера с TTID
+    navigate(`/player/${ttid}`);
   };
 
   return (
     <div className="p-3">
       <div className="flex flex-row justify-center mt-15 mb-5 sm:mb-8 gap-2">
-        <div className="flex items-center sm:duration-300 hover:scale-101 relative">
-          <span className="absolute ml-3">
-            <BsSearch className="text-2xl" />
-          </span>
+        <div className="relative flex items-center sm:duration-300 hover:scale-101">
+          <BsSearch className="absolute ml-3 text-2xl" />
           <input
             type="text"
             value={searchQuery}
@@ -139,12 +133,12 @@ function SearchEl() {
 
           <div className="flex gap-5 justify-center max-w-500 sm:max-w-500 flex-wrap mt-5">
             {loading ? (
-              <p className="text-white text-lg">Загрузка...</p>
+              <LoadingEl />
             ) : visibleAnime.length > 0 ? (
               visibleAnime.map((item) => (
                 <div
                   key={item._id}
-                  onClick={() => handleCardClick(item.TTID)} // Обработчик клика
+                  onClick={() => handleCardClick(item.TTID)}
                   className="bg-transparent w-64 h-auto duration-300 cursor-pointer hover:scale-105 flex flex-col justify-center items-center rounded-md"
                 >
                   <img src={item.PosterRu} alt={item.TitleRu} className="w-64 h-96 object-cover rounded-md" />
@@ -160,7 +154,7 @@ function SearchEl() {
             )}
           </div>
 
-          {selectedGenre && visibleAnime.length > 0 && visibleAnime.length < anime.length && (
+          {selectedGenre && visibleAnime.length > 0 && visibleCount < anime.length && (
             <div className="flex justify-center">
               <button
                 onClick={handleLoadMore}
