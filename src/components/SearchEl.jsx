@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import genresData from '../assets/available_genres.json';
 import { API_URL } from '../assets/config';
-import LoadingEl from '../components/ui/loading';
+import LoadingEl from '../components/ui/Loading';
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -161,7 +161,7 @@ function SearchEl() {
                 className="mt-5 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 duration-300"
                 disabled={loading}
               >
-                {loading ? 'Загрузка...' : 'Показать ещё'}
+                {loading ? '<Загрузка...>' : 'Показать ещё'}
               </button>
             </div>
           )}
