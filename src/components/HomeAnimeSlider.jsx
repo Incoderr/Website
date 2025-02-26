@@ -231,7 +231,7 @@ const CategorySlider = ({ category }) => {
   return (
     <div className="flex flex-col mb-12 p-5">
       <h2 className="text-3xl font-bold mb-6 flex justify-center sm:justify-normal">{category.label}</h2>
-      <Swiper spaceBetween={30} slidesPerView="auto" navigation={true} modules={[Navigation]} className="w-full">
+      <Swiper spaceBetween={30} slidesPerView="auto" navigation={true} modules={[Navigation]} className="w-full custom-bt-swiper">
         {animeList.map((anime) => (
           <SwiperSlide key={anime.id} className="max-w-[296px]">
             <div className="group select-none w-[296px]">
@@ -284,24 +284,49 @@ const Top10Anime = () => {
   if (error) return <div className="w-full h-[200px] flex items-center justify-center"><div className="text-xl text-red-600">{error.message}</div></div>;
   if (!animeList.length) return <div className="w-full h-[200px] flex items-center justify-center"><div className="text-xl">Нет данных для отображения</div></div>;
 
+  // Разделяем список на две части
+  const leftColumnAnime = animeList.slice(0, 5); // Элементы с 1 по 5
+  const rightColumnAnime = animeList.slice(5, 10); // Элементы с 6 по 10
+
   return (
     <div className="mb-12 p-5">
       <h2 className="text-3xl font-bold mb-6 text-center sm:text-left">Топ 10 аниме</h2>
-      <div className="flex flex-wrap gap-4 h-140 flex-col">
-        {animeList.map((anime, index) => (
-          <div key={anime.id} className="flex items-center max-w-104 p-4 bg-gray-800 rounded-lg">
-            <div className="mr-5">
-            <span className="text-2xl  font-bold text-[#A78BFA] text-center">{index + 1}</span>
+      <div className="flex flex-col sm:flex-row gap-4">
+        {/* Левая колонка (1-5) */}
+        <div className="flex flex-col gap-4 w-full sm:w-1/2">
+          {leftColumnAnime.map((anime, index) => (
+            <div key={anime.id} className="flex items-center p-4 bg-gray-800 rounded-lg">
+              <div className="w-10">
+                <span className=" text-2xl font-bold text-[#A78BFA] text-center">{index + 1}</span>
+              </div>
+              <img src={anime.poster} alt={anime.titleRu} className="w-26 h-34 object-cover rounded" />
+              <div className="">
+                <h3 className="text-lg font-semibold text-white">{anime.titleRu}</h3>
+                <p className="text-sm text-gray-300">Рейтинг: {anime.rating}</p>
+                <p className="text-sm text-gray-400">Серий: {anime.episodes}</p>
+                <p className="text-sm text-gray-400">Год: {anime.year}</p>
+              </div>
             </div>
-            <img src={anime.poster} alt={anime.titleRu} className="w-26 h-34 object-cover rounded" />
-            <div className="ml-3">
-              <h3 className="text-lg font-semibold text-white">{anime.titleRu}</h3>
-              <p className="text-sm text-gray-300">Рейтинг: {anime.rating}</p>
-              <p className="text-sm text-gray-400">Серий: {anime.episodes}</p>
-              <p className="text-sm text-gray-400">Год: {anime.year}</p>
+          ))}
+        </div>
+        
+        {/* Правая колонка (6-10) */}
+        <div className="flex flex-col gap-4 w-full sm:w-1/2">
+          {rightColumnAnime.map((anime, index) => (
+            <div key={anime.id} className="flex items-center p-4 bg-gray-800 rounded-lg">
+              <div className="w-10">
+                <span className=" text-2xl font-bold text-[#A78BFA] text-center">{index + 6}</span>
+              </div>
+              <img src={anime.poster} alt={anime.titleRu} className="w-26 h-34 object-cover rounded" />
+              <div className="ml-3">
+                <h3 className="text-lg font-semibold text-white">{anime.titleRu}</h3>
+                <p className="text-sm text-gray-300">Рейтинг: {anime.rating}</p>
+                <p className="text-sm text-gray-400">Серий: {anime.episodes}</p>
+                <p className="text-sm text-gray-400">Год: {anime.year}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
