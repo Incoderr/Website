@@ -38,7 +38,7 @@ function PlayerPage() {
       .finally(() => setLoading(false));
   }, [ttid]);
 
-  if (loading) return <div className="p-3 text-white text-lg"><LoadingEl/></div>;
+  if (loading) return <div className="p-3 h-full  text-lg flex items-center justify-center"><LoadingEl/></div>;
   if (!animeData) return <div className="p-3 text-white text-lg">Аниме не найдено</div>;
 
   return (
@@ -49,8 +49,8 @@ function PlayerPage() {
       >
         Назад
       </button>
-      <div className="flex justify-center">
-        <div className="flex w-320 gap-5">
+      <div className="flex justify-center ">
+        <div className="flex w-320 gap-5 flex-col sm:flex-row">
           <div className="flex flex-col items-center">
             <img
               src={animeData.PosterRu}
@@ -62,8 +62,8 @@ function PlayerPage() {
               <BsBookmark className="text-2xl" />
             </div>
           </div>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold">{animeData.TitleRu}</h1>
+          <div className="flex-1 flex flex-col text-center sm:text-left">
+            <h1 className="text-3xl font-bold break-words whitespace-normal">{animeData.TitleRu}</h1>
             <p className="text-lg text-gray-300">{animeData.TitleEng}</p>
             <p>Год: {animeData.Year}</p>
             <p>Статус: {animeData.Status}</p>
@@ -78,7 +78,7 @@ function PlayerPage() {
         </div>
       </div>
       <div className="mt-55 mb-30 flex justify-center">
-        <KinoboxPlayer ttid={ttid!} /> {/* Передаём TTID в компонент */}
+        <KinoboxPlayer ttid={ttid!} />
       </div>
     </div>
   );

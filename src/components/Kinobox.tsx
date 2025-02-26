@@ -45,10 +45,13 @@ function KinoboxPlayer({ ttid }: KinoboxPlayerProps) {
   }, [ttid]);
 
   return (
-    <div
-      ref={containerRef}
-      className="kinobox_player w-320 h-180 bg-gray-950 rounded-md"
-    />
+    <div className="p-3">
+      <div
+        ref={containerRef}
+        className="className=kinobox_player w-90 h-60 md:w-180 md:h-84  lg:w-320 lg:h-180 bg-gray-950 rounded-md"
+      />
+    </div>
+    
   );
 }
 

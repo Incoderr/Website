@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { BsFilter, BsSearch } from "react-icons/bs";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import genresData from '../assets/available_genres.json';
+import genresData from '../assets/json/available_genres.json';
 import { API_URL } from '../assets/config';
 import LoadingEl from '../components/ui/Loading';
 
