@@ -300,7 +300,7 @@ const Top10Anime = () => {
                 <span className=" text-2xl font-bold text-[#A78BFA] text-center">{index + 1}</span>
               </div>
               <img src={anime.poster} alt={anime.titleRu} className="w-26 h-34 object-cover rounded" />
-              <div className="">
+              <div className="ml-5">
                 <h3 className="text-lg font-semibold text-white">{anime.titleRu}</h3>
                 <p className="text-sm text-gray-300">Рейтинг: {anime.rating}</p>
                 <p className="text-sm text-gray-400">Серий: {anime.episodes}</p>
@@ -318,7 +318,7 @@ const Top10Anime = () => {
                 <span className=" text-2xl font-bold text-[#A78BFA] text-center">{index + 6}</span>
               </div>
               <img src={anime.poster} alt={anime.titleRu} className="w-26 h-34 object-cover rounded" />
-              <div className="ml-3">
+              <div className="ml-5">
                 <h3 className="text-lg font-semibold text-white">{anime.titleRu}</h3>
                 <p className="text-sm text-gray-300">Рейтинг: {anime.rating}</p>
                 <p className="text-sm text-gray-400">Серий: {anime.episodes}</p>
