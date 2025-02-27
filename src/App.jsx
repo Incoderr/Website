@@ -21,7 +21,7 @@ function App() {
         <Route path="/search" element={<Search />} />
         <Route path="/film" element={<Film />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/player/:ttid" element={<PlayerPage />} />
+        <Route path="/player/:imdbID" element={<PlayerPage />} />
       </Routes>
     </BrowserRouter>
   );

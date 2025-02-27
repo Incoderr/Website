@@ -30,7 +30,6 @@ const Home = () => {
           <HomeAnimeSlider />
         </QueryClientProvider>
       </main>
-      <FooterEl />
     </div>
   );
 }

@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from "react";
 
 interface KinoboxPlayerProps {
-  ttid: string; // Используем TTID вместо kpId
+  imdbID: string; // Используем TTID вместо kpId
 }
 
-function KinoboxPlayer({ ttid }: KinoboxPlayerProps) {
+function KinoboxPlayer({ imdbID }: KinoboxPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ function KinoboxPlayer({ ttid }: KinoboxPlayerProps) {
     const initializePlayer = () => {
       if ((window as any).kbox && containerRef.current) {
         (window as any).kbox(containerRef.current, {
-          search: { query: ttid }, // Используем TTID как query
+          search: { query: imdbID }, // Используем TTID как query
           menu: { enabled: false }, // Отключаем меню, если не нужно
         });
       }
@@ -42,7 +42,7 @@ function KinoboxPlayer({ ttid }: KinoboxPlayerProps) {
         containerRef.current.innerHTML = ''; // Очищаем содержимое плеера
       }
     };
-  }, [ttid]);
+  }, [imdbID]);
 
   return (
     <div className="p-3">

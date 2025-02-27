@@ -93,7 +93,7 @@ const filterAndUseMongoData = (anilistData, myDatabase) => {
   return myDatabase
     .map(dbAnime => {
       const anilistEntry = anilistData.find(anime => 
-        (dbAnime.TitleRu && anime.title.romaji && dbAnime.TitleRu.toLowerCase() === anime.title.romaji.toLowerCase()) ||
+        (dbAnime.Title && anime.title.romaji && dbAnime.Title.toLowerCase() === anime.title.romaji.toLowerCase()) ||
         (dbAnime.TitleEng && anime.title.english && dbAnime.TitleEng.toLowerCase() === anime.title.english.toLowerCase())
       );
       const uniqueId = anilistEntry?.id || dbAnime.TTID || Date.now() + Math.random();
@@ -102,16 +102,16 @@ const filterAndUseMongoData = (anilistData, myDatabase) => {
 
       return {
         id: uniqueId,
-        titleRu: dbAnime.TitleRu || "Название отсутствует",
+        title: dbAnime.Title || "Название отсутствует",
         titleEng: dbAnime.TitleEng || null,
         episodes: dbAnime.Episodes || "??",
         year: dbAnime.Year || null,
-        rating: dbAnime.TMDbRating || dbAnime.IMDbRating || "N/A",
+        rating: dbAnime.imdbRating || dbAnime.IMDbRating || "N/A",
         description: dbAnime.OverviewRu || "Описание отсутствует",
-        poster: dbAnime.PosterRu || "https://via.placeholder.com/500x750?text=Нет+постера",
+        poster: dbAnime.Poster || "https://via.placeholder.com/500x750?text=Нет+постера",
         backdrop: dbAnime.Backdrop || "https://via.placeholder.com/1920x1080?text=Нет+фона",
-        ttid: dbAnime.TTID || null,
-        genres: dbAnime.Genres || [],
+        imdbID: dbAnime.imdbID || null,
+        genres: dbAnime.Genre || [],
         status: dbAnime.Status || null,
       };
     })
@@ -129,7 +129,7 @@ const MainSwiper = () => {
 
   const { data: dbData = [], isLoading: dbLoading, error: dbError } = useQuery({
     queryKey: ["database", { 
-      fields: "TitleRu,TitleEng,Episodes,Year,TMDbRating,IMDbRating,OverviewRu,PosterRu,Backdrop,TTID,Genres,Status",
+      fields: "Title,TitleEng,Episodes,Year,TMDbRating,imdbRating,OverviewRu,Poster,Backdrop,imdbID,Genre,Status",
       limit: 5
     }],
     queryFn: fetchMyDatabase,
@@ -143,8 +143,8 @@ const MainSwiper = () => {
   if (error) return <div className="flex items-center justify-center h-130 sm:h-190"><p className="text-xl text-red-500">{error.message}</p></div>;
   if (!animeList.length) return <div className="flex items-center justify-center h-130 sm:h-190"><p className="text-xl">Нет данных для отображения</p></div>;
 
-  const handleWatchClick = (ttid) => {
-    if (ttid) navigate(`/player/${ttid}`);
+  const handleWatchClick = (imdbID) => {
+    if (imdbID) navigate(`/player/${imdbID}`);
   };
 
   return (
@@ -165,7 +165,7 @@ const MainSwiper = () => {
             <div className="w-full h-full">
               <img
                 src={anime.backdrop}
-                alt={anime.titleRu}
+                alt={anime.title}
                 className="absolute top-0 left-0 w-full h-full object-cover"
                 loading="lazy"
               />
@@ -173,8 +173,8 @@ const MainSwiper = () => {
             </div>
             <div className="absolute left-0 top-17 items-center sm:items-baseline z-10 flex w-full flex-col mb-10 sm:mt-0 sm:mb-0 sm:mr-auto sm:ml-25">
               <div className="w-130 flex flex-col">
-                <img className="h-60 sm:h-100 object-contain" src={anime.poster} alt={anime.titleRu} loading="lazy" />
-                <h1 className="text-[20px] mb-2 mt-2 font-bold text-white">{anime.titleRu}</h1>
+                <img className="h-60 sm:h-100 object-contain" src={anime.poster} alt={anime.title} loading="lazy" />
+                <h1 className="text-[20px] mb-2 mt-2 font-bold text-white">{anime.title}</h1>
               </div>
               <div className="flex sm:w-130 justify-center sm:justify-normal gap-2 mb-5 flex-wrap">
                 <p className="bg-green-600 rounded-full px-3 py-1 text-sm sm:text-base">Рейтинг: {anime.rating}</p>
@@ -184,7 +184,7 @@ const MainSwiper = () => {
               </div>
               <div className="hidden sm:overflow-hidden sm:w-130 sm:mb-2 sm:line-clamp-5 sm:text-gray-200">{anime.description}</div>
               <div className="flex w-130 items-center justify-center gap-3">
-                <button onClick={() => handleWatchClick(anime.ttid)} className="flex cursor-pointer items-center bg-white text-black rounded-full h-12 px-4 hover:scale-95 transition duration-150 ease-in-out">
+                <button onClick={() => handleWatchClick(anime.imdbID)} className="flex cursor-pointer items-center bg-white text-black rounded-full h-12 px-4 hover:scale-95 transition duration-150 ease-in-out">
                   <BsFillPlayFill className="text-[35px]" />
                   <span className="text-[20px] ml-1">Смотреть</span>
                 </button>
@@ -210,7 +210,7 @@ const CategorySlider = ({ category }) => {
 
   const { data: dbData = [], isLoading: dbLoading, error: dbError } = useQuery({
     queryKey: ["database", { 
-      fields: "TitleRu,TitleEng,Episodes,Year,TMDbRating,IMDbRating,OverviewRu,PosterRu,Backdrop,TTID,Genres,Status",
+      fields: "Title,TitleEng,Episodes,Year,TMDbRating,IMDbRating,OverviewRu,Poster,Backdrop,imdbID,Genres,Status",
       limit: 20
     }],
     queryFn: fetchMyDatabase,
@@ -224,8 +224,8 @@ const CategorySlider = ({ category }) => {
   if (error) return <div className="w-full h-[400px] flex items-center justify-center"><div className="text-xl text-red-600">{error.message}</div></div>;
   if (!animeList.length) return <div className="w-full h-[400px] flex items-center justify-center"><div className="text-xl">Нет данных для отображения</div></div>;
 
-  const handleWatchClick = (ttid) => {
-    if (ttid) navigate(`/player/${ttid}`);
+  const handleWatchClick = (imdbID) => {
+    if (imdbID) navigate(`/player/${imdbID}`);
   };
 
   return (
@@ -239,19 +239,19 @@ const CategorySlider = ({ category }) => {
                 <img
                   className="w-[296px] h-[400px] object-cover transition-transform duration-300 group-hover:scale-105"
                   src={anime.poster}
-                  alt={anime.titleRu}
+                  alt={anime.title}
                 />
                 <div className="absolute w-[296px] inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="absolute bottom-0 p-4 w-full">
                     <div className="text-gray-300 text-sm line-clamp-3 mb-4">{anime.description}</div>
-                    <div onClick={() => handleWatchClick(anime.ttid)} className="flex items-center gap-2 bg-[#A78BFA] hover:bg-[#8771ca] text-white px-4 py-2 rounded transition delay-15 ease-in-out">
+                    <div onClick={() => handleWatchClick(anime.imdbID)} className="flex items-center gap-2 bg-[#A78BFA] hover:bg-[#8771ca] text-white px-4 py-2 rounded transition delay-15 ease-in-out">
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z" /></svg>
                       Смотреть
                     </div>
                   </div>
                 </div>
               </div>
-              <h3 className="mt-2 text-xl font-bold text-gray-50">{anime.titleRu}</h3>
+              <h3 className="mt-2 text-xl font-bold text-gray-50">{anime.title}</h3>
             </div>
           </SwiperSlide>
         ))}
@@ -269,7 +269,7 @@ const Top10Anime = () => {
 
   const { data: dbData = [], isLoading: dbLoading, error: dbError } = useQuery({
     queryKey: ["database", { 
-      fields: "TitleRu,TitleEng,Episodes,Year,TMDbRating,IMDbRating,OverviewRu,PosterRu,Backdrop,TTID,Genres,Status",
+      fields: "Title,TitleEng,Episodes,Year,TMDbRating,IMDbRating,OverviewRu,Poster,Backdrop,TTID,Genres,Status",
       limit: 10,
       sort: "-TMDbRating"
     }],
@@ -299,9 +299,9 @@ const Top10Anime = () => {
               <div className="w-10">
                 <span className=" text-2xl font-bold text-[#A78BFA] text-center">{index + 1}</span>
               </div>
-              <img src={anime.poster} alt={anime.titleRu} className="w-26 h-34 object-cover rounded" />
+              <img src={anime.poster} alt={anime.title} className="w-26 h-34 object-cover rounded" />
               <div className="ml-5">
-                <h3 className="text-lg font-semibold text-white">{anime.titleRu}</h3>
+                <h3 className="text-lg font-semibold text-white">{anime.title}</h3>
                 <p className="text-sm text-gray-300">Рейтинг: {anime.rating}</p>
                 <p className="text-sm text-gray-400">Серий: {anime.episodes}</p>
                 <p className="text-sm text-gray-400">Год: {anime.year}</p>
@@ -317,9 +317,9 @@ const Top10Anime = () => {
               <div className="w-10">
                 <span className=" text-2xl font-bold text-[#A78BFA] text-center">{index + 6}</span>
               </div>
-              <img src={anime.poster} alt={anime.titleRu} className="w-26 h-34 object-cover rounded" />
+              <img src={anime.poster} alt={anime.title} className="w-26 h-34 object-cover rounded" />
               <div className="ml-5">
-                <h3 className="text-lg font-semibold text-white">{anime.titleRu}</h3>
+                <h3 className="text-lg font-semibold text-white">{anime.title}</h3>
                 <p className="text-sm text-gray-300">Рейтинг: {anime.rating}</p>
                 <p className="text-sm text-gray-400">Серий: {anime.episodes}</p>
                 <p className="text-sm text-gray-400">Год: {anime.year}</p>

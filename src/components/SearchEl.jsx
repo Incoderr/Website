@@ -17,29 +17,35 @@ const debounce = (func, delay) => {
 function SearchEl() {
   const [anime, setAnime] = useState([]);
   const [visibleAnime, setVisibleAnime] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [visibleCount, setVisibleCount] = useState(12); // Установлено 12 по умолчанию
   const [selectedGenre, setSelectedGenre] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [showGenres, setShowGenres] = useState(true);
   const navigate = useNavigate();
 
-  const loadAnime = (params, reset = false) => {
+  const loadAnime = useCallback((params, reset = false) => {
     setLoading(true);
-    axios.get(API_URL, { params: { genre: params.genre || '', search: params.search || '' } })
+    // Уточняем путь к API
+    axios.get(`${API_URL}`, { 
+      params: { 
+        genre: params.genre || '', 
+        search: params.search || '' 
+      } 
+    })
       .then(response => {
-        const newAnime = Array.from(new Set(response.data.map(a => a._id))) // Убираем дубликаты по _id
-          .map(id => response.data.find(a => a._id === id));
-        console.log('📌 Ответ от сервера:', newAnime);
-        setAnime(newAnime);
-        setVisibleAnime(newAnime.slice(0, reset ? 12 : visibleCount));
+        // Убираем дубликаты по _id
+        const uniqueAnime = Array.from(new Map(response.data.map(item => [item._id, item])).values());
+        console.log('📌 Ответ от сервера:', uniqueAnime);
+        setAnime(uniqueAnime);
+        setVisibleAnime(uniqueAnime.slice(0, reset ? 12 : visibleCount));
         setLoading(false);
       })
       .catch(error => {
         console.error("❌ Ошибка при загрузке данных:", error);
         setLoading(false);
       });
-  };
+  }, [visibleCount]);
 
   const filterByGenre = useCallback((genreValue) => {
     setSelectedGenre(genreValue);
@@ -47,7 +53,7 @@ function SearchEl() {
     setVisibleCount(12);
     setShowGenres(false);
     loadAnime({ genre: genreValue }, true);
-  }, []);
+  }, [loadAnime]);
 
   const debouncedSearch = useCallback(
     debounce((query) => {
@@ -60,7 +66,7 @@ function SearchEl() {
         setVisibleAnime([]);
       }
     }, 1000),
-    []
+    [loadAnime]
   );
 
   const handleSearch = (e) => {
@@ -81,15 +87,15 @@ function SearchEl() {
   };
 
   const handleLoadMore = () => {
-    if (selectedGenre && visibleCount < anime.length) {
+    if (visibleCount < anime.length) { // Убрано условие selectedGenre
       const newCount = visibleCount + 12;
       setVisibleCount(newCount);
       setVisibleAnime(anime.slice(0, newCount));
     }
   };
 
-  const handleCardClick = (ttid) => {
-    navigate(`/player/${ttid}`);
+  const handleCardClick = (imdbID) => {
+    navigate(`/player/${imdbID}`);
   };
 
   return (
@@ -138,11 +144,15 @@ function SearchEl() {
               visibleAnime.map((item) => (
                 <div
                   key={item._id}
-                  onClick={() => handleCardClick(item.TTID)}
+                  onClick={() => handleCardClick(item.imdbID)}
                   className="bg-transparent w-64 h-auto duration-300 cursor-pointer hover:scale-105 flex flex-col justify-center items-center rounded-md"
                 >
-                  <img src={item.PosterRu} alt={item.TitleRu} className="w-64 h-96 object-cover rounded-md" />
-                  <span className="h-15 w-auto flex justify-center m-4 text-white text-lg font-bold">{item.TitleRu}</span>
+                  <img 
+                    src={item.Poster || 'https://via.placeholder.com/500x750?text=Нет+постера'} 
+                    alt={item.Title} 
+                    className="w-64 h-96 object-cover rounded-md" 
+                  />
+                  <span className="h-15 w-auto flex justify-center m-4 text-white text-lg font-bold">{item.Title || 'Без названия'}</span>
                 </div>
               ))
             ) : (
@@ -154,14 +164,14 @@ function SearchEl() {
             )}
           </div>
 
-          {selectedGenre && visibleAnime.length > 0 && visibleCount < anime.length && (
+          {visibleAnime.length > 0 && visibleCount < anime.length && (
             <div className="flex justify-center">
               <button
                 onClick={handleLoadMore}
                 className="mt-5 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 duration-300"
                 disabled={loading}
               >
-                {loading ? '<Загрузка...>' : 'Показать ещё'}
+                {loading ? 'Загрузка...' : 'Показать ещё'}
               </button>
             </div>
           )}
