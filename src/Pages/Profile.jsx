@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import HeaderEl from "../components/HeaderEl";
+import LoadingEl from "../components/ui/Loading";
 
 const API_URL = "https://serverr-eight.vercel.app"; // Базовый URL сервера
 
@@ -53,13 +54,13 @@ function Profile() {
     navigate(`/player/${imdbID}`);
   };
 
-  if (loading) return <div className="p-5 text-white">Загрузка...</div>;
+  if (loading) return <div className="p-5 text-white flex justify-center"><LoadingEl/></div>;
 
   return (
     <div>
       <HeaderEl />
       <main className="pt-[56px]">
-        <div className="p-5 text-white bg-gray-500">
+        <div className="p-5 text-white">
           <div className="flex flex-col items-center">
             <img
               src={userData.avatar}
