@@ -26,7 +26,7 @@ function Profile() {
         const favorites = response.data.favorites || [];
         if (favorites.length > 0) {
           const favoritesPromises = favorites.map((imdbID) =>
-            axios.get(`https://serverr-eight.vercel.app/api/anime/${imdbID}`).catch((error) => {
+            axios.get(`${API_URL}/api/anime/${imdbID}`).catch((error) => {
               console.error(`Ошибка при загрузке аниме ${imdbID}:`, error);
               return null; // Возвращаем null для пропуска ошибочных записей
             })
@@ -68,6 +68,9 @@ function Profile() {
               className="w-32 h-32 rounded-full object-cover mb-4"
             />
             <h1 className="text-2xl font-bold">{userData.username}</h1>
+            {userData.role && (
+              <p className="text-sm text-gray-400">Роль: {userData.role}</p>
+            )}
             <div className="mt-6 w-full max-w-md">
               <h2 className="text-xl mb-2">Избранное:</h2>
               {favoritesData.length > 0 ? (

@@ -12,7 +12,7 @@ interface AnimeData {
   TitleEng: string;
   Year: number;
   Status: string;
-  IMDbRating: number;
+  imdbRating: number;
   TMDbRating: number;
   Episodes: number;
   Genre: string;
@@ -112,7 +112,7 @@ function WatchPage() {
             <p>Год: {animeData.Year}</p>
             <p>Статус: {animeData.Status}</p>
             <p>Серий: {animeData.Episodes}</p>
-            <p>Рейтинг IMDb: {animeData.IMDbRating}</p>
+            <p>Рейтинг IMDb: {animeData.imdbRating}</p>
             <p>Рейтинг TMDb: {animeData.TMDbRating}</p>
             <p>Жанры: {animeData.Genre}</p>
             <p>Теги: {animeData.Tags.join(", ")}</p>

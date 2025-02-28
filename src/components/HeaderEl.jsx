@@ -98,7 +98,7 @@ function HeaderEl() {
       {isFavoritesOpen && (
         <div
           ref={favoritesRef}
-          className="absolute right-0 mr-5 lg:mr-19 flex gap-3 flex-col top-20 z-10 bg-gray-700 p-2 rounded-md max-h-64 overflow-y-auto shadow-lg"
+          className=" absolute right-0 mr-5 lg:mr-19 flex gap-3 flex-col top-20 z-10 bg-gray-700 p-2 rounded-md max-w-100 max-h-100 overflow-y-auto shadow-lg"
           onClick={(e) => e.stopPropagation()}
         >
           {token && favoritesData.length > 0 ? (
@@ -106,16 +106,22 @@ function HeaderEl() {
               <Link
                 key={anime.imdbID}
                 to={`/player/${anime.imdbID}`}
-                className="flex items-center gap-2 p-2 bg-gray-800 rounded-md w-64 hover:scale-104 duration-300"
+                className="flex items-center gap-2 p-2 bg-gray-800 rounded-md h-30 hover:scale-104 duration-300"
                 onClick={
                   () => setIsFavoritesOpen(false)}
               >
-                <img
-                  src={anime.Poster}
-                  alt={anime.Title}
-                  className="w-10 h-14 object-cover rounded-md"
-                />
-                <span className="text-sm truncate">{anime.Title}</span>
+                <div className="flex">
+                  <div className="">
+                    <img
+                      src={anime.Poster}
+                      alt={anime.Title}
+                      className="w-18 h-23 object-cover rounded-md"
+                    />
+                  </div>
+                    <div className="ml-4 w-55">
+                      <span className="text-lg break-after-all">{anime.Title}</span>
+                    </div>
+                </div>
               </Link>
             ))
           ) : token ? (

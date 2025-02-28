@@ -5,6 +5,7 @@ import NotFound from "./Pages/NotFound";
 import Profile from "./Pages/Profile";
 import Auth from "./Pages/Auth";
 import Search from "./Pages/Search";
+import Admin from "./Pages/Admin";
 
 //Film
 import Film from './Film/Pages/FilmHome';
@@ -22,6 +23,7 @@ function App() {
         <Route path="/film" element={<Film />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/player/:imdbID" element={<PlayerPage />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );
