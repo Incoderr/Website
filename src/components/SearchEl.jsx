@@ -1,10 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from "react";
 import { BsFilter, BsSearch } from "react-icons/bs";
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import genresData from '../assets/json/available_genres.json';
-import { API_URL } from '../assets/config';
-import LoadingEl from '../components/ui/Loading';
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import genresData from "../assets/json/available_genres.json";
+import { API_URL } from "../assets/config";
+import LoadingEl from "../components/ui/Loading";
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -19,42 +19,86 @@ function SearchEl() {
   const [visibleAnime, setVisibleAnime] = useState([]);
   const [visibleCount, setVisibleCount] = useState(12); // Установлено 12 по умолчанию
   const [selectedGenre, setSelectedGenre] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [showGenres, setShowGenres] = useState(true);
   const navigate = useNavigate();
 
-  const loadAnime = useCallback((params, reset = false) => {
-    setLoading(true);
-    // Уточняем путь к API
-    axios.get(`${API_URL}`, { 
-      params: { 
-        genre: params.genre || '', 
-        search: params.search || '' 
-      } 
-    })
-      .then(response => {
-        // Убираем дубликаты по _id
-        const uniqueAnime = Array.from(new Map(response.data.map(item => [item._id, item])).values());
-        console.log('📌 Ответ от сервера:', uniqueAnime);
-        setAnime(uniqueAnime);
-        setVisibleAnime(uniqueAnime.slice(0, reset ? 12 : visibleCount));
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error("❌ Ошибка при загрузке данных:", error);
-        setLoading(false);
-      });
-  }, [visibleCount]);
+  // Маппинг русских жанров в английские для запросов к серверу
+  const genreMapping = {
+    Экшен: "Action",
+    Приключения: "Adventure",
+    Комедия: "Comedy",
+    Драма: "Drama",
+    Этти: "Ecchi",
+    Фэнтези: "Fantasy",
+    Хоррор: "Horror",
+    Меха: "Mecha",
+    Музыка: "Music",
+    Детектив: "Mystery",
+    Психологическое: "Psychological",
+    Романтика: "Romance",
+    Научная_фантастика: "Sci-Fi",
+    Повседневность: "Slice of Life",
+    Спорт: "Sports",
+    Сверхъестественное: "Supernatural",
+    Триллер: "Thriller",
+    // Добавьте другие маппинги по необходимости
+  };
 
-  const filterByGenre = useCallback((genreValue) => {
-    setSelectedGenre(genreValue);
-    setSearchQuery('');
-    setVisibleCount(12);
-    setShowGenres(false);
-    loadAnime({ genre: genreValue }, true);
-  }, [loadAnime]);
+  // Загружаем аниме с сервера
+  const loadAnime = useCallback(
+    (params, reset = false) => {
+      setLoading(true);
+      axios
+        .get(`${API_URL}`, {
+          params: {
+            genre: params.genre ? genreMapping[params.genre] || params.genre : "",
+            search: params.search || "",
+          },
+        })
+        .then((response) => {
+          // Убираем дубликаты по _id
+          const uniqueAnime = Array.from(
+            new Map(response.data.map((item) => [item._id, item])).values()
+          ).map((item) => ({
+            ...item,
+            Genre: Array.isArray(item.Genre)
+              ? item.Genre.map((g) => {
+                  // Преобразуем английские жанры в русские для отображения
+                  const russianGenre = Object.entries(genreMapping).find(
+                    ([_, eng]) => eng === g
+                  )?.[0];
+                  return russianGenre || g; // Возвращаем русский жанр или английский, если маппинга нет
+                })
+              : [],
+          }));
+          console.log("📌 Ответ от сервера:", uniqueAnime);
+          setAnime(uniqueAnime);
+          setVisibleAnime(uniqueAnime.slice(0, reset ? 12 : visibleCount));
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("❌ Ошибка при загрузке данных:", error);
+          setLoading(false);
+        });
+    },
+    [visibleCount]
+  );
 
+  // Фильтрация по жанру
+  const filterByGenre = useCallback(
+    (genreValue) => {
+      setSelectedGenre(genreValue);
+      setSearchQuery("");
+      setVisibleCount(12);
+      setShowGenres(false);
+      loadAnime({ genre: genreValue }, true); // Передаём русский жанр, сервер преобразует в английский
+    },
+    [loadAnime]
+  );
+
+  // Задержанный поиск
   const debouncedSearch = useCallback(
     debounce((query) => {
       if (query.trim()) {
@@ -69,6 +113,7 @@ function SearchEl() {
     [loadAnime]
   );
 
+  // Обработчик поиска
   const handleSearch = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -77,23 +122,26 @@ function SearchEl() {
     debouncedSearch(query);
   };
 
+  // Возврат к жанрам
   const handleBackToGenres = () => {
     setShowGenres(true);
     setSelectedGenre(null);
-    setSearchQuery('');
+    setSearchQuery("");
     setAnime([]);
     setVisibleAnime([]);
     setVisibleCount(12);
   };
 
+  // Загрузка большего количества аниме
   const handleLoadMore = () => {
-    if (visibleCount < anime.length) { // Убрано условие selectedGenre
+    if (visibleCount < anime.length) {
       const newCount = visibleCount + 12;
       setVisibleCount(newCount);
       setVisibleAnime(anime.slice(0, newCount));
     }
   };
 
+  // Переход к странице плеера
   const handleCardClick = (imdbID) => {
     navigate(`/player/${imdbID}`);
   };
@@ -147,12 +195,22 @@ function SearchEl() {
                   onClick={() => handleCardClick(item.imdbID)}
                   className="bg-transparent w-64 h-auto duration-300 cursor-pointer hover:scale-105 flex flex-col justify-center items-center rounded-md"
                 >
-                  <img 
-                    src={item.Poster || 'https://via.placeholder.com/500x750?text=Нет+постера'} 
-                    alt={item.Title} 
-                    className="w-64 h-96 object-cover rounded-md" 
+                  <img
+                    src={
+                      item.Poster || "https://dummyimage.com/500x750/gray/white?text=Нет+постера"
+                    }
+                    alt={item.Title}
+                    className="w-64 h-96 object-cover rounded-md"
+                    onError={(e) => {
+                      e.target.src =
+                        "https://dummyimage.com/500x750/gray/white?text=Нет+постера";
+                      e.target.onerror = null; // Предотвращаем бесконечные ошибки
+                    }}
                   />
-                  <span className="h-15 w-auto flex justify-center m-4 text-white text-lg font-bold">{item.Title || 'Без названия'}</span>
+                  <span className="h-15 w-auto flex justify-center m-4 text-white text-lg font-bold">
+                    {item.Title || "Без названия"}
+                  </span>
+                  {/* Отображение жанров как списка на русском для фильтрации */}
                 </div>
               ))
             ) : (
@@ -171,7 +229,7 @@ function SearchEl() {
                 className="mt-5 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 duration-300"
                 disabled={loading}
               >
-                {loading ? 'Загрузка...' : 'Показать ещё'}
+                {loading ? "Загрузка..." : "Показать ещё"}
               </button>
             </div>
           )}

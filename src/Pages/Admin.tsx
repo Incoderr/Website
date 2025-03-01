@@ -1,30 +1,69 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
-import {jwtDecode} from "jwt-decode"; // Убедитесь, что установлено: npm install jwt-decode
+import { jwtDecode } from "jwt-decode"; // Исправленный импорт
+import HeaderEl from "../components/HeaderEl";
 
 const API_URL = "https://serverr-eight.vercel.app";
 
+// Определение интерфейсов
+interface Anime {
+  imdbID: string;
+  Title: string;
+  TitleEng: string;
+  Poster: string;
+  Backdrop?: string;
+  Year: string;
+  Released: string;
+  imdbRating?: string;
+  Episodes?: number;
+  Genre: string[];
+  Tags: string[]; // Убедились, что это массив строк
+  OverviewRu: string;
+}
+
+interface AnimeFormData {
+  imdbID: string;
+  Title: string;
+  TitleEng: string;
+  Poster: string;
+  Backdrop: string;
+  Year: string;
+  Released: string;
+  imdbRating: string;
+  Episodes: string;
+  Genre: string; // Строка для ввода через запятую
+  Tags: string; // Строка для ввода через запятую
+  OverviewRu: string;
+}
+
+interface CustomJwtPayload {
+  role: "user" | "admin";
+  id: string;
+  username: string;
+  iat?: number;
+}
+
 function AdminPage() {
-  const [animeList, setAnimeList] = useState([]);
-  const [filteredAnimeList, setFilteredAnimeList] = useState([]); // Для отфильтрованного списка
-  const [newAnime, setNewAnime] = useState({
+  const [animeList, setAnimeList] = useState<Anime[]>([]);
+  const [filteredAnimeList, setFilteredAnimeList] = useState<Anime[]>([]); // Для отфильтрованного списка
+  const [newAnime, setNewAnime] = useState<AnimeFormData>({
     imdbID: "",
     Title: "",
     TitleEng: "",
     Poster: "",
-    Backdrop: "", // Сделали необязательным
+    Backdrop: "",
     Year: "",
     Released: "",
-    imdbRating: "", // Сделали необязательным
-    Episodes: "", // Сделали необязательным
-    Genre: "", // Строка для ввода жанров через запятую
+    imdbRating: "",
+    Episodes: "",
+    Genre: "",
     Tags: "",
     OverviewRu: "",
   });
-  const [editingAnime, setEditingAnime] = useState(null);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(""); // Состояние для поискового запроса
+  const [editingAnime, setEditingAnime] = useState<AnimeFormData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>(""); // Состояние для поискового запроса
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -36,7 +75,7 @@ function AdminPage() {
     }
 
     try {
-      const decodedToken = jwtDecode(token);
+      const decodedToken = jwtDecode<CustomJwtPayload>(token);
       if (decodedToken.role !== "admin") {
         setError("Доступ запрещён: требуется роль администратора");
         navigate("/auth");
@@ -58,26 +97,28 @@ function AdminPage() {
       }
 
       try {
-        const response = await axios.get(`${API_URL}/api/admin/anime`, {
+        const response = await axios.get<Anime[]>(`${API_URL}/api/admin/anime`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Убедимся, что данные уникальны по imdbID
+        // Убедимся, что данные уникальны по imdbID и корректно обрабатываем Tags
         const uniqueAnimeList = Array.from(
           new Map(
             response.data.map((item) => [item.imdbID, item])
           ).values()
         ).map((anime) => ({
           ...anime,
-          Genre: anime.Genre ? anime.Genre.join(", ") : "", // По умолчанию пустая строка, если Genre undefined
+          Genre: anime.Genre ? anime.Genre.join(", ") : "",
+          Tags: Array.isArray(anime.Tags) ? anime.Tags.join(", ") : (anime.Tags || ""), // Преобразуем массив или строку в строку
         }));
         setAnimeList(uniqueAnimeList);
         setFilteredAnimeList(uniqueAnimeList); // Инициализируем отфильтрованный список
         setError(null);
       } catch (error) {
-        console.error("Ошибка при загрузке аниме:", error.response?.data || error.message);
-        if (error.response?.status === 403) {
+        const axiosError = error as AxiosError;
+        console.error("Ошибка при загрузке аниме:", axiosError.response?.data || axiosError.message);
+        if (axiosError.response?.status === 403) {
           setError("Доступ запрещён: требуется роль администратора");
-        } else if (error.response?.status === 401) {
+        } else if (axiosError.response?.status === 401) {
           setError("Неавторизован: требуется вход");
           navigate("/auth");
         } else {
@@ -112,7 +153,7 @@ function AdminPage() {
     }
   }, [searchQuery, animeList]);
 
-  const handleInputChange = (setter) => (e) => {
+  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<AnimeFormData>>) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setter((prev) => ({
       ...prev,
@@ -120,7 +161,7 @@ function AdminPage() {
     }));
   };
 
-  const handleAddAnime = async (e) => {
+  const handleAddAnime = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) {
       setError("Неавторизован: требуется вход");
@@ -128,11 +169,20 @@ function AdminPage() {
       return;
     }
 
-    const animeData = {
+    const animeData: Anime = {
       ...newAnime,
       Tags: newAnime.Tags.split(",").map((tag) => tag.trim()).filter(Boolean),
-      Episodes: parseInt(newAnime.Episodes) || 0, // Преобразуем в число или 0 по умолчанию
-      Genre: newAnime.Genre.split(",").map((genre) => genre.trim()).filter(Boolean), // Преобразуем в массив
+      Episodes: parseInt(newAnime.Episodes) || 0,
+      Genre: newAnime.Genre.split(",").map((genre) => genre.trim()).filter(Boolean),
+      imdbID: newAnime.imdbID,
+      Title: newAnime.Title,
+      TitleEng: newAnime.TitleEng,
+      Poster: newAnime.Poster,
+      Backdrop: newAnime.Backdrop || undefined, // Необязательное поле
+      Year: newAnime.Year,
+      Released: newAnime.Released,
+      imdbRating: newAnime.imdbRating || undefined, // Необязательное поле
+      OverviewRu: newAnime.OverviewRu,
     };
 
     // Валидация обязательных полей
@@ -142,10 +192,10 @@ function AdminPage() {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/api/admin/anime`, animeData, {
+      const response = await axios.post<Anime>(`${API_URL}/api/admin/anime`, animeData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const newAnimeItem = { ...response.data, Genre: response.data.Genre?.join(", ") || "" };
+      const newAnimeItem = { ...response.data, Genre: response.data.Genre?.join(", ") || "", Tags: Array.isArray(response.data.Tags) ? response.data.Tags.join(", ") : (response.data.Tags || "") };
       setAnimeList([...animeList, newAnimeItem]);
       setFilteredAnimeList([...filteredAnimeList, newAnimeItem]); // Обновляем отфильтрованный список
       setNewAnime({
@@ -164,50 +214,71 @@ function AdminPage() {
       });
       setError(null);
     } catch (error) {
-      console.error("Ошибка при добавлении аниме:", error.response?.data || error.message);
-      setError("Ошибка при добавлении аниме: " + (error.response?.data?.message || error.message));
+      const axiosError = error as AxiosError;
+      console.error("Ошибка при добавлении аниме:", axiosError.response?.data || axiosError.message);
+      setError("Ошибка при добавлении аниме: " + (axiosError.response?.data?.message || axiosError.message));
     }
   };
 
-  const handleEditAnime = async (e) => {
+  const handleEditAnime = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) {
       setError("Неавторизован: требуется вход");
       navigate("/auth");
       return;
     }
-
-    const animeData = {
-      ...editingAnime,
-      Tags: editingAnime.Tags.split(",").map((tag) => tag.trim()).filter(Boolean),
-      Episodes: parseInt(editingAnime.Episodes) || 0,
-      Genre: editingAnime.Genre.split(",").map((genre) => genre.trim()).filter(Boolean),
+  
+    const animeData: AnimeFormData = {
+      ...editingAnime!,
+      Tags: Array.isArray(editingAnime?.Tags) ? editingAnime.Tags.join(", ") : (editingAnime?.Tags || ""),
+      Episodes: editingAnime?.Episodes?.toString() || "",
+      Genre: Array.isArray(editingAnime?.Genre) ? editingAnime.Genre.join(", ") : (editingAnime?.Genre || ""),
     };
-
+  
+    const finalAnimeData: Anime = {
+      imdbID: animeData.imdbID,
+      Title: animeData.Title,
+      TitleEng: animeData.TitleEng,
+      Poster: animeData.Poster,
+      Backdrop: animeData.Backdrop || undefined,
+      Year: animeData.Year,
+      Released: animeData.Released,
+      imdbRating: animeData.imdbRating || undefined,
+      Episodes: parseInt(animeData.Episodes) || 0,
+      Genre: animeData.Genre.split(",").map((genre) => genre.trim()).filter(Boolean),
+      Tags: animeData.Tags.split(",").map((tag) => tag.trim()).filter(Boolean),
+      OverviewRu: animeData.OverviewRu,
+    };
+  
+    // Убедимся, что _id не передаётся
+    delete finalAnimeData._id; // Явно удаляем _id, если он случайно оказался в данных
+  
     // Валидация обязательных полей
-    if (!animeData.imdbID || !animeData.Title || !animeData.TitleEng || !animeData.Poster || !animeData.Year || !animeData.Released || !animeData.Genre.length || !animeData.OverviewRu) {
+    if (!finalAnimeData.imdbID || !finalAnimeData.Title || !finalAnimeData.TitleEng || !finalAnimeData.Poster || !finalAnimeData.Year || !finalAnimeData.Released || !finalAnimeData.Genre.length || !finalAnimeData.OverviewRu) {
       setError("Обязательные поля (imdbID, Title, TitleEng, Poster, Year, Released, Genre, OverviewRu) должны быть заполнены");
       return;
     }
-
+  
     try {
-      const response = await axios.put(
-        `${API_URL}/api/admin/anime/${animeData.imdbID}`,
-        animeData,
+      console.log("Sending PUT request with data:", finalAnimeData); // Логирование для отладки
+      const response = await axios.put<Anime>(
+        `${API_URL}/api/admin/anime/${finalAnimeData.imdbID}`,
+        finalAnimeData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const updatedAnimeItem = { ...response.data, Genre: response.data.Genre?.join(", ") || "" };
-      setAnimeList(animeList.map((anime) => (anime.imdbID === animeData.imdbID ? updatedAnimeItem : anime)));
-      setFilteredAnimeList(filteredAnimeList.map((anime) => (anime.imdbID === animeData.imdbID ? updatedAnimeItem : anime))); // Обновляем отфильтрованный список
+      const updatedAnimeItem = { ...response.data, Genre: response.data.Genre?.join(", ") || "", Tags: Array.isArray(response.data.Tags) ? response.data.Tags.join(", ") : (response.data.Tags || "") };
+      setAnimeList(animeList.map((anime) => (anime.imdbID === finalAnimeData.imdbID ? updatedAnimeItem : anime)));
+      setFilteredAnimeList(filteredAnimeList.map((anime) => (anime.imdbID === finalAnimeData.imdbID ? updatedAnimeItem : anime))); // Обновляем отфильтрованный список
       setEditingAnime(null);
       setError(null);
     } catch (error) {
-      console.error("Ошибка при редактировании аниме:", error.response?.data || error.message);
-      setError("Ошибка при редактировании аниме: " + (error.response?.data?.message || error.message));
+      const axiosError = error as AxiosError;
+      console.error("Ошибка при редактировании аниме:", axiosError.response?.data || axiosError.message);
+      setError("Ошибка при редактировании аниме: " + (axiosError.response?.data?.message || axiosError.message));
     }
   };
 
-  const handleDeleteAnime = async (imdbID) => {
+  const handleDeleteAnime = async (imdbID: string) => {
     if (!token) {
       setError("Неавторизован: требуется вход");
       navigate("/auth");
@@ -222,14 +293,16 @@ function AdminPage() {
       setFilteredAnimeList(filteredAnimeList.filter((anime) => anime.imdbID !== imdbID)); // Обновляем отфильтрованный список
       setError(null);
     } catch (error) {
-      console.error("Ошибка при удалении аниме:", error.response?.data || error.message);
-      setError("Ошибка при удалении аниме: " + (error.response?.data?.message || error.message));
+      const axiosError = error as AxiosError;
+      console.error("Ошибка при удалении аниме:", axiosError.response?.data || axiosError.message);
+      setError("Ошибка при удалении аниме: " + (axiosError.response?.data?.message || axiosError.message));
     }
   };
 
   return (
     <div className="p-5 text-white">
-      <h1 className="text-3xl font-bold mb-5">Админ-панель: Управление аниме</h1>
+      <HeaderEl/>
+      <h1 className="text-3xl p-[57px] font-bold mb-5">Админ-панель</h1>
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
       {/* Поле поиска */}
@@ -365,12 +438,15 @@ function AdminPage() {
         {filteredAnimeList.length > 0 ? (
           <ul className="space-y-4">
             {filteredAnimeList.map((anime) => (
-              <li key={anime.imdbID} className="flex items-center gap-4 p-3 bg-gray-700 rounded">
+              <li key={anime.imdbID} className="flex items-center gap-4 p-2 bg-gray-700 rounded">
                 <img
-                  src={anime.Poster || ""} // Заглушка для отсутствующего постера
+                  src={anime.Poster || "https://dummyimage.com/64x96/gray/white?text=No+Image"}
                   alt={anime.Title}
-                  className="w-48 h-64 object-cover rounded"
-                  onError={(e) => (e.target.src = "")}
+                  className="w-48 h-64 rounded"
+                  onError={(e) => {
+                    e.target.src = "https://dummyimage.com/64x96/gray/white?text=No+Image";
+                    e.target.onerror = null; // Предотвращаем бесконечные ошибки
+                  }}
                 />
                 <div className="flex-1">
                   {editingAnime && editingAnime.imdbID === anime.imdbID ? (
@@ -466,7 +542,7 @@ function AdminPage() {
                         type="text"
                         name="Tags"
                         placeholder="Теги (через запятую, например: тег1, тег2, необязательно)"
-                        value={editingAnime.Tags}
+                        value={Array.isArray(editingAnime.Tags) ? editingAnime.Tags.join(", ") : (editingAnime.Tags || "")}
                         onChange={handleInputChange(setEditingAnime)}
                         className="p-1 bg-gray-600 rounded"
                       />
@@ -497,7 +573,11 @@ function AdminPage() {
                       <span className="text-lg">{anime.Title}</span>
                       <div className="mt-1">
                         <button
-                          onClick={() => setEditingAnime(anime)}
+                          onClick={() => setEditingAnime({
+                            ...anime,
+                            Genre: anime.Genre || "",
+                            Tags: Array.isArray(anime.Tags) ? anime.Tags.join(", ") : (anime.Tags || ""), // Проверка типа Tags
+                          })}
                           className="p-1 bg-yellow-600 rounded hover:bg-yellow-700 mr-2"
                         >
                           Редактировать

@@ -1,9 +1,8 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, EffectFade, Autoplay } from "swiper/modules";
 import { Link, useNavigate } from "react-router-dom";
-import { BsBookmark, BsFillPlayFill } from "react-icons/bs";
-import { useQuery } from '@tanstack/react-query';
-import  placeholder  from "../assets/image/placeholder.jpg";
+import { BsBookmark, BsBookmarkFill, BsFillPlayFill } from "react-icons/bs";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -11,13 +10,57 @@ import "swiper/css/effect-fade";
 
 export const API_URL = "https://serverr-eight.vercel.app/api";
 
+// Функция для добавления в избранное
+const addToFavorites = async (imdbID, token) => {
+  const response = await fetch(`${API_URL}/favorites`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`, // Предполагается, что токен хранится где-то в состоянии
+    },
+    body: JSON.stringify({ imdbID }),
+  });
+
+  if (!response.ok) throw new Error("Ошибка при добавлении в избранное");
+  return response.json();
+};
+
+// Функция для удаления из избранного
+const removeFromFavorites = async (imdbID, token) => {
+  const response = await fetch(`${API_URL}/favorites`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify({ imdbID }),
+  });
+
+  if (!response.ok) throw new Error("Ошибка при удалении из избранного");
+  return response.json();
+};
+
+// Функция для получения профиля с избранным
+const fetchUserProfile = async (token) => {
+  const response = await fetch(`${API_URL}/profile`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) throw new Error("Ошибка при получении профиля");
+  return response.json();
+};
+
 // Получение данных с AniList через сервер
 const fetchAnilistData = async ({ queryKey }) => {
-  const [, sort, perPage] = queryKey;
+  const [, sort, perPage, search] = queryKey; // Добавляем search для поиска по названию
   const query = `
-    query ($page: Int, $perPage: Int, $sort: [MediaSort]) {
+    query ($page: Int, $perPage: Int, $sort: [MediaSort], $search: String) {
       Page(page: $page, perPage: $perPage) {
-        media(type: ANIME, sort: $sort) {
+        media(type: ANIME, sort: $sort, search: $search) {
           id
           title {
             romaji
@@ -33,11 +76,12 @@ const fetchAnilistData = async ({ queryKey }) => {
           averageScore
           episodes
           popularity
+          trending
         }
       }
     }
   `;
-  const variables = { page: 1, perPage, sort: [sort] };
+  const variables = { page: 1, perPage, sort: [sort], search: search || null };
 
   const response = await fetch(`${API_URL}/anilist`, {
     method: "POST",
@@ -86,69 +130,104 @@ const fetchMyDatabase = async ({ queryKey }) => {
 
 // Функция использования только данных из MongoDB с опциональным ID из AniList
 const filterAndUseMongoData = (anilistData, myDatabase) => {
-  console.log('Данные из AniList:', anilistData);
-  console.log('Данные из MongoDB:', myDatabase);
+  console.log('Данные из AniList (с сервера):', anilistData);
+  console.log('Данные из MongoDB (локальные):', myDatabase);
 
   const seenIds = new Set();
-  return myDatabase
-    .map(dbAnime => {
-      const anilistEntry = anilistData.find(anime => 
-        (dbAnime.Title && anime.title.romaji && dbAnime.Title.toLowerCase() === anime.title.romaji.toLowerCase()) ||
-        (dbAnime.TitleEng && anime.title.english && dbAnime.TitleEng.toLowerCase() === anime.title.english.toLowerCase())
-      );
-      const uniqueId = anilistEntry?.id || dbAnime.TTID || Date.now() + Math.random();
-      if (seenIds.has(uniqueId)) return null;
-      seenIds.add(uniqueId);
+  return anilistData.map(anime => {
+    const uniqueId = anime.imdbID || anime.id || Date.now() + Math.random();
+    if (seenIds.has(uniqueId)) return null;
+    seenIds.add(uniqueId);
 
-      return {
-        id: uniqueId,
-        title: dbAnime.Title || "Название отсутствует",
-        titleEng: dbAnime.TitleEng || null,
-        episodes: dbAnime.Episodes || "??",
-        year: dbAnime.Year || null,
-        rating: dbAnime.imdbRating || dbAnime.IMDbRating || "N/A",
-        description: dbAnime.OverviewRu || "Описание отсутствует",
-        poster: dbAnime.Poster || "https://via.placeholder.com/500x750?text=Нет+постера",
-        backdrop: dbAnime.Backdrop || "https://via.placeholder.com/1920x1080?text=Нет+фона",
-        imdbID: dbAnime.imdbID || null,
-        genres: dbAnime.Genre || [],
-        status: dbAnime.Status || null,
-      };
-    })
-    .filter(Boolean);
+    return {
+      id: uniqueId,
+      title: anime.title.ru || "Название отсутствует",
+      titleEng: anime.title.english || null,
+      episodes: anime.episodes || "??",
+      year: anime.year || null,
+      rating: anime.rating || "N/A",
+      description: anime.description || "Описание отсутствует",
+      poster: anime.poster || "нет постера",
+      backdrop: anime.backdrop || "нет бекдропа",
+      imdbID: anime.imdbID || null,
+      genres: anime.genres || [],
+      status: anime.status || null,
+      popularity: anime.popularity || 0,
+      trendingScore: anime.trending || 0,
+    };
+  }).filter(Boolean)
+    .sort((a, b) => b.trendingScore - a.trendingScore || b.popularity - a.popularity);
 };
 
-// Компонент главного свайпера
+// Компонент MainSwiper с закладками
 const MainSwiper = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
+  // Предполагаем, что токен хранится в localStorage или контексте
+  const token = localStorage.getItem("token"); // Замените на ваш способ получения токена
+
+  // Получение данных AniList
   const { data: anilistData = [], isLoading: anilistLoading, error: anilistError } = useQuery({
     queryKey: ["anilist", "TRENDING_DESC", 5],
     queryFn: fetchAnilistData,
   });
 
+  // Получение данных MongoDB
   const { data: dbData = [], isLoading: dbLoading, error: dbError } = useQuery({
     queryKey: ["database", { 
       fields: "Title,TitleEng,Episodes,Year,TMDbRating,imdbRating,OverviewRu,Poster,Backdrop,imdbID,Genre,Status",
-      limit: 5
+      limit: 50,
     }],
     queryFn: fetchMyDatabase,
   });
 
+  // Получение профиля пользователя с избранным
+  const { data: userProfile, isLoading: profileLoading } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: () => fetchUserProfile(token),
+    enabled: !!token, // Выполняется только если токен есть
+  });
+
+  const favorites = userProfile?.favorites || []; // Список избранного из профиля
+
   const animeList = filterAndUseMongoData(anilistData, dbData).slice(0, 5);
-  const loading = anilistLoading || dbLoading;
+  const loading = anilistLoading || dbLoading || profileLoading;
   const error = anilistError || dbError;
 
-  if (loading) return <div className="flex items-center justify-center h-130 sm:h-190"><p className="text-xl">Загрузка...</p></div>;
-  if (error) return <div className="flex items-center justify-center h-130 sm:h-190"><p className="text-xl text-red-500">{error.message}</p></div>;
-  if (!animeList.length) return <div className="flex items-center justify-center h-130 sm:h-190"><p className="text-xl">Нет данных для отображения</p></div>;
+  // Мутации для добавления и удаления из избранного
+  const addFavoriteMutation = useMutation({
+    mutationFn: (imdbID) => addToFavorites(imdbID, token),
+    onSuccess: () => queryClient.invalidateQueries(["userProfile"]),
+  });
+
+  const removeFavoriteMutation = useMutation({
+    mutationFn: (imdbID) => removeFromFavorites(imdbID, token),
+    onSuccess: () => queryClient.invalidateQueries(["userProfile"]),
+  });
 
   const handleWatchClick = (imdbID) => {
     if (imdbID) navigate(`/player/${imdbID}`);
   };
 
+  const toggleFavorite = (imdbID) => {
+    if (!token) {
+      alert("Пожалуйста, войдите в аккаунт, чтобы добавить в избранное");
+      return;
+    }
+    if (favorites.includes(imdbID)) {
+      removeFavoriteMutation.mutate(imdbID);
+    } else {
+      addFavoriteMutation.mutate(imdbID);
+    }
+  };
+
+  if (loading) return <div className="flex items-center justify-center h-130 sm:h-190"><p className="text-xl">Загрузка...</p></div>;
+  if (error) return <div className="flex items-center justify-center h-130 sm:h-190"><p className="text-xl text-red-500">{error.message}</p></div>;
+  if (!animeList.length) return <div className="flex items-center justify-center h-130 sm:h-190"><p className="text-xl">Нет данных для отображения</p></div>;
+
   return (
-    <div className="image-box select-none mb-12">
+    <div className="image-box mb-12">
       <Swiper
         spaceBetween={30}
         effect="fade"
@@ -156,7 +235,7 @@ const MainSwiper = () => {
         autoplay={{ delay: 9000, disableOnInteraction: false }}
         navigation={true}
         loop
-        speed={"500"}
+        speed={"800"}
         modules={[Navigation, EffectFade, Autoplay]}
         className="h-130 sm:h-200 duration-75"
       >
@@ -176,22 +255,35 @@ const MainSwiper = () => {
                 <img className="h-60 sm:h-100 object-contain" src={anime.poster} alt={anime.title} loading="lazy" />
                 <h1 className="text-[20px] mb-2 mt-2 font-bold text-white">{anime.title}</h1>
               </div>
-              <div className="flex sm:w-130 justify-center sm:justify-normal gap-2 mb-5 flex-wrap">
-                <p className="bg-green-600 rounded-full px-3 py-1 text-sm sm:text-base">Рейтинг: {anime.rating}</p>
-                <p className="bg-gray-700 rounded-full px-3 py-1 text-sm sm:text-base">Серий: {anime.episodes}</p>
-                <p className="bg-gray-700 rounded-full px-3 py-1 text-sm sm:text-base">Год: {anime.year}</p>
-                <p className="bg-gray-700 rounded-full px-3 py-1 text-sm sm:text-base">Статус: {anime.status}</p>
-              </div>
-              <div className="hidden sm:overflow-hidden sm:w-130 sm:mb-2 sm:line-clamp-5 sm:text-gray-200">{anime.description}</div>
-              <div className="flex w-130 items-center justify-center gap-3">
-                <button onClick={() => handleWatchClick(anime.imdbID)} className="flex cursor-pointer items-center bg-white text-black rounded-full h-12 px-4 hover:scale-95 transition duration-150 ease-in-out">
-                  <BsFillPlayFill className="text-[35px]" />
-                  <span className="text-[20px] ml-1">Смотреть</span>
-                </button>
-                <button className="flex justify-center items-center rounded-full w-12 h-12 bg-[#A78BFA] hover:scale-95 transition duration-150 ease-in-out">
-                  <BsBookmark className="text-[24px]" />
-                </button>
-              </div>
+              {anime.imdbID ? (
+                <>
+                  <div className="flex sm:w-130 justify-center sm:justify-normal gap-2 mb-5 flex-wrap">
+                    <p className="bg-green-600 rounded-full px-3 py-1 text-sm sm:text-base">Рейтинг: {anime.rating}</p>
+                    <p className="bg-gray-700 rounded-full px-3 py-1 text-sm sm:text-base">Серий: {anime.episodes}</p>
+                    <p className="bg-gray-700 rounded-full px-3 py-1 text-sm sm:text-base">Год: {anime.year || "N/A"}</p>
+                    <p className="bg-gray-700 rounded-full px-3 py-1 text-sm sm:text-base">Статус: {anime.status || "N/A"}</p>
+                  </div>
+                  <div className="hidden sm:overflow-hidden sm:w-130 sm:mb-2 sm:line-clamp-5 sm:text-gray-200">{anime.description}</div>
+                  <div className="flex w-130 items-center justify-center gap-3">
+                    <button onClick={() => handleWatchClick(anime.imdbID)} className="flex cursor-pointer items-center bg-white text-black rounded-full h-12 px-4 hover:scale-95 transition duration-150 ease-in-out">
+                      <BsFillPlayFill className="text-[35px]" />
+                      <span className="text-[20px] ml-1">Смотреть</span>
+                    </button>
+                    <button
+                      onClick={() => toggleFavorite(anime.imdbID)}
+                      className="flex justify-center items-center rounded-full w-12 h-12 bg-[#A78BFA] hover:scale-95 transition duration-150 ease-in-out"
+                    >
+                      {favorites.includes(anime.imdbID) ? (
+                        <BsBookmarkFill className="text-[24px]" />
+                      ) : (
+                        <BsBookmark className="text-[24px]" />
+                      )}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <p className="text-gray-400 mt-2">Нет в базе</p>
+              )}
             </div>
           </SwiperSlide>
         ))}
@@ -203,6 +295,9 @@ const MainSwiper = () => {
 // Компонент слайдера категории
 const CategorySlider = ({ category }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const token = localStorage.getItem("token");
+
   const { data: anilistData = [], isLoading: anilistLoading, error: anilistError } = useQuery({
     queryKey: ["anilist", category.sort, 20],
     queryFn: fetchAnilistData,
@@ -210,23 +305,53 @@ const CategorySlider = ({ category }) => {
 
   const { data: dbData = [], isLoading: dbLoading, error: dbError } = useQuery({
     queryKey: ["database", { 
-      fields: "Title,TitleEng,Episodes,Year,TMDbRating,IMDbRating,OverviewRu,Poster,Backdrop,imdbID,Genres,Status",
-      limit: 20
+      fields: "Title,TitleEng,Episodes,Year,TMDbRating,IMDbRating,OverviewRu,Poster,Backdrop,imdbID,Genre,Status",
+      limit: 20,
     }],
     queryFn: fetchMyDatabase,
   });
 
+  const { data: userProfile, isLoading: profileLoading } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: () => fetchUserProfile(token),
+    enabled: !!token,
+  });
+
+  const favorites = userProfile?.favorites || [];
+
   const animeList = filterAndUseMongoData(anilistData, dbData).slice(0, 20);
-  const loading = anilistLoading || dbLoading;
+  const loading = anilistLoading || dbLoading || profileLoading;
   const error = anilistError || dbError;
 
-  if (loading) return <div className="w-full h-[400px] flex items-center justify-center"><div className="text-xl text-gray-600">Загрузка...</div></div>;
-  if (error) return <div className="w-full h-[400px] flex items-center justify-center"><div className="text-xl text-red-600">{error.message}</div></div>;
-  if (!animeList.length) return <div className="w-full h-[400px] flex items-center justify-center"><div className="text-xl">Нет данных для отображения</div></div>;
+  const addFavoriteMutation = useMutation({
+    mutationFn: (imdbID) => addToFavorites(imdbID, token),
+    onSuccess: () => queryClient.invalidateQueries(["userProfile"]),
+  });
+
+  const removeFavoriteMutation = useMutation({
+    mutationFn: (imdbID) => removeFromFavorites(imdbID, token),
+    onSuccess: () => queryClient.invalidateQueries(["userProfile"]),
+  });
 
   const handleWatchClick = (imdbID) => {
     if (imdbID) navigate(`/player/${imdbID}`);
   };
+
+  const toggleFavorite = (imdbID) => {
+    if (!token) {
+      alert("Пожалуйста, войдите в аккаунт, чтобы добавить в избранное");
+      return;
+    }
+    if (favorites.includes(imdbID)) {
+      removeFavoriteMutation.mutate(imdbID);
+    } else {
+      addFavoriteMutation.mutate(imdbID);
+    }
+  };
+
+  if (loading) return <div className="w-full h-[400px] flex items-center justify-center"><div className="text-xl text-gray-600">Загрузка...</div></div>;
+  if (error) return <div className="w-full h-[400px] flex items-center justify-center"><div className="text-xl text-red-600">{error.message}</div></div>;
+  if (!animeList.length) return <div className="w-full h-[400px] flex items-center justify-center"><div className="text-xl">Нет данных для отображения</div></div>;
 
   return (
     <div className="flex flex-col mb-12 p-5">
@@ -241,17 +366,32 @@ const CategorySlider = ({ category }) => {
                   src={anime.poster}
                   alt={anime.title}
                 />
-                <div className="absolute w-[296px] inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute bottom-0 p-4 w-full">
-                    <div className="text-gray-300 text-sm line-clamp-3 mb-4">{anime.description}</div>
-                    <div onClick={() => handleWatchClick(anime.imdbID)} className="flex items-center gap-2 bg-[#A78BFA] hover:bg-[#8771ca] text-white px-4 py-2 rounded transition delay-15 ease-in-out">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z" /></svg>
-                      Смотреть
+                {anime.imdbID && (
+                  <div className="absolute w-[296px] inset-0 bg-gradient-to-t from-black/90 via-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute bottom-0 p-4 w-full">
+                      <div className="text-gray-300 text-sm line-clamp-10 mb-4">{anime.description}</div>
+                      <div className="flex items-center gap-2">
+                        <div onClick={() => handleWatchClick(anime.imdbID)} className="flex items-center gap-2 bg-white hover:scale-104 h-10 w-full text-black p-2 rounded transition delay-15 ease-in-out">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z" /></svg>
+                          Смотреть
+                        </div>
+                        <div
+                          onClick={() => toggleFavorite(anime.imdbID)}
+                          className="p-2 h-10 w-10 bg-[#A78BFA] hover:scale-104 flex justify-center items-center rounded-md"
+                        >
+                          {favorites.includes(anime.imdbID) ? (
+                            <BsBookmarkFill className="text-2xl" />
+                          ) : (
+                            <BsBookmark className="text-2xl" />
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
               <h3 className="mt-2 text-xl font-bold text-gray-50">{anime.title}</h3>
+              {!anime.imdbID && <p className="text-sm text-gray-400">Только название из AniList</p>}
             </div>
           </SwiperSlide>
         ))}
@@ -269,9 +409,9 @@ const Top10Anime = () => {
 
   const { data: dbData = [], isLoading: dbLoading, error: dbError } = useQuery({
     queryKey: ["database", { 
-      fields: "Title,TitleEng,Episodes,Year,TMDbRating,IMDbRating,OverviewRu,Poster,Backdrop,TTID,Genres,Status",
+      fields: "Title,TitleEng,Episodes,Year,TMDbRating,IMDbRating,OverviewRu,Poster,Backdrop,imdbID,Genre,Status",
       limit: 10,
-      sort: "-TMDbRating"
+      sort: "-IMDbRating" // Сортировка по рейтингу из MongoDB
     }],
     queryFn: fetchMyDatabase,
   });

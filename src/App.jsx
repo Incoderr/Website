@@ -5,7 +5,7 @@ import NotFound from "./Pages/NotFound";
 import Profile from "./Pages/Profile";
 import Auth from "./Pages/Auth";
 import Search from "./Pages/Search";
-import Admin from "./Pages/Admin";
+import Admin from "./Pages/Admin.tsx";
 
 //Film
 import Film from './Film/Pages/FilmHome';

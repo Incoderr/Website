@@ -5,6 +5,7 @@ import { BsBookmark, BsBookmarkFill } from "react-icons/bs";
 import { API_URL } from '../assets/config';
 import LoadingEl from '../components/ui/Loading';
 import KinoboxPlayer from '../components/Kinobox';
+import HeaderEl from '../components/HeaderEl';
 
 interface AnimeData {
   Poster: string;
@@ -83,10 +84,12 @@ function WatchPage() {
     
 
   return (
-    <div className="p-3 text-white">
+    <div className="text-white">
+      <HeaderEl/>
+      <div className="p-[56px]">
       <button
         onClick={() => navigate("/search")}
-        className="mb-5 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 duration-300"
+        className="hidden mb-5 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 duration-300"
       >
         Назад
       </button>
@@ -121,8 +124,9 @@ function WatchPage() {
           </div>
         </div>
       </div>
-      <div className="mt-55 mb-30 flex justify-center">
-        <KinoboxPlayer imdbID={imdbID!} />
+        <div className="mt-55 mb-30 flex justify-center">
+          <KinoboxPlayer imdbID={imdbID!} />
+        </div>
       </div>
     </div>
   );
