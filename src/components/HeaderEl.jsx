@@ -1,44 +1,53 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { BsSearch, BsBookmark } from "react-icons/bs";
-import axios from "axios";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const API_URL = "https://serverr-eight.vercel.app";
+
+// Функция для получения данных профиля с избранным
+const fetchFavorites = async (token) => {
+  if (!token) throw new Error("Токен отсутствует");
+  const response = await fetch(`${API_URL}/api/profile`, {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) throw new Error("Ошибка при загрузке избранного");
+  const data = await response.json();
+  return data.favoritesData || [];
+};
 
 function HeaderEl() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
-  const [favoritesData, setFavoritesData] = useState([]);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const token = localStorage.getItem("token");
   const favoritesRef = useRef(null);
-  const bookmarkRef = useRef(null); // Ref для иконки закладок
+  const bookmarkRef = useRef(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      if (!token) return;
-      try {
-        const response = await axios.get(`${API_URL}/api/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setFavoritesData(response.data.favoritesData || []);
-      } catch (error) {
-        console.error("Ошибка при загрузке избранного:", error);
-      }
-    };
-    fetchFavorites();
-  }, [token]);
+  // Используем useQuery для получения избранного
+  const { data: favoritesData = [], isLoading, error } = useQuery({
+    queryKey: ["favorites", token], // Уникальный ключ с токеном
+    queryFn: () => fetchFavorites(token),
+    enabled: !!token, // Запрос выполняется только если есть токен
+    staleTime: 5 * 60 * 1000, // Данные считаются свежими 5 минут
+    cacheTime: 10 * 60 * 1000, // Данные хранятся в кэше 10 минут
+  });
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    queryClient.invalidateQueries(["favorites"]); // Очищаем кэш избранного
     window.location.reload();
   };
 
   const toggleFavorites = (e) => {
-    e.stopPropagation(); // Предотвращаем просачивание события
+    e.stopPropagation();
     if (isSearchOpen) setIsSearchOpen(false);
-    setIsFavoritesOpen((prev) => !prev); // Используем функциональное обновление
+    setIsFavoritesOpen((prev) => !prev);
   };
 
   useEffect(() => {
@@ -46,7 +55,7 @@ function HeaderEl() {
       if (
         favoritesRef.current &&
         !favoritesRef.current.contains(event.target) &&
-        !bookmarkRef.current.contains(event.target) // Исключаем клик по иконке
+        !bookmarkRef.current.contains(event.target)
       ) {
         setIsFavoritesOpen(false);
       }
@@ -71,11 +80,11 @@ function HeaderEl() {
             <BsSearch className="text-[23px]" />
           </Link>
           <button
-            ref={bookmarkRef} // Привязываем ref к кнопке
+            ref={bookmarkRef}
             type="button"
             onClick={toggleFavorites}
             style={{ background: "none", border: "none", cursor: "pointer" }}
-            className="  relative"
+            className="relative"
           >
             <BsBookmark className="text-[23px]" />
           </button>
@@ -98,29 +107,32 @@ function HeaderEl() {
       {isFavoritesOpen && (
         <div
           ref={favoritesRef}
-          className=" absolute right-0 mr-5 lg:mr-19 flex gap-3 flex-col top-20 z-10 bg-gray-700 p-2 rounded-md max-w-100 max-h-100 overflow-y-auto shadow-lg"
+          className="absolute right-0 mr-5 lg:mr-19 flex gap-3 flex-col top-20 z-10 bg-gray-700 p-2 rounded-md max-w-100 max-h-100 overflow-y-auto shadow-lg"
           onClick={(e) => e.stopPropagation()}
         >
-          {token && favoritesData.length > 0 ? (
+          {isLoading ? (
+            <p className="text-sm w-64">Загрузка избранного...</p>
+          ) : error ? (
+            <p className="text-sm w-64 text-red-500">Ошибка загрузки избранного</p>
+          ) : token && favoritesData.length > 0 ? (
             favoritesData.map((anime) => (
               <Link
                 key={anime.imdbID}
                 to={`/player/${anime.imdbID}`}
                 className="flex items-center gap-2 p-2 bg-gray-800 rounded-md h-30 hover:scale-104 duration-300"
-                onClick={
-                  () => setIsFavoritesOpen(false)}
+                onClick={() => setIsFavoritesOpen(false)}
               >
                 <div className="flex">
-                  <div className="">
+                  <div>
                     <img
                       src={anime.Poster}
                       alt={anime.Title}
                       className="w-18 h-23 object-cover rounded-md"
                     />
                   </div>
-                    <div className="ml-4 w-55">
-                      <span className="text-lg break-after-all">{anime.Title}</span>
-                    </div>
+                  <div className="ml-4 w-55">
+                    <span className="text-lg break-after-all">{anime.Title}</span>
+                  </div>
                 </div>
               </Link>
             ))
