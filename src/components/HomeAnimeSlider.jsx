@@ -271,7 +271,7 @@ const MainSwiper = () => {
                     </button>
                     <button
                       onClick={() => toggleFavorite(anime.imdbID)}
-                      className="flex justify-center items-center rounded-full w-12 h-12 bg-[#A78BFA] hover:scale-95 transition duration-150 ease-in-out"
+                      className="flex cursor-pointer justify-center items-center rounded-full w-12 h-12 bg-[#A78BFA] hover:scale-95 transition duration-150 ease-in-out"
                     >
                       {favorites.includes(anime.imdbID) ? (
                         <BsBookmarkFill className="text-[24px]" />
