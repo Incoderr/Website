@@ -8,6 +8,7 @@ import Auth from "./Pages/Auth";
 import Search from "./Pages/Search";
 import Admin from "./Pages/Admin.tsx";
 import Film from './Film/Pages/FilmHome';
+import Au from './Pages/Au';
 import PlayerPage from "./Pages/WatchPage.tsx";
 
 // Создаём экземпляр QueryClient
@@ -33,6 +34,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
           <Route path="/player/:imdbID" element={<PlayerPage />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/au" element={<Au />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

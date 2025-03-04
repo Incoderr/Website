@@ -7,8 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/effect-fade";
-
-export const API_URL = "https://serverr-eight.vercel.app/api";
+import { API_URL } from '../assets/config';
 
 // Функция для добавления в избранное
 const addToFavorites = async (imdbID, token) => {
@@ -263,7 +262,7 @@ const MainSwiper = () => {
                     <p className="bg-gray-700 rounded-full px-3 py-1 text-sm sm:text-base">Год: {anime.year || "N/A"}</p>
                     <p className="bg-gray-700 rounded-full px-3 py-1 text-sm sm:text-base">Статус: {anime.status || "N/A"}</p>
                   </div>
-                  <div className="hidden sm:overflow-hidden sm:w-130 sm:mb-2 sm:line-clamp-5 sm:text-gray-200">{anime.description}</div>
+                  <div className="hidden sm:overflow-hidden sm:w-130 sm:mb-2 sm:line-clamp-4 sm:text-gray-200">{anime.description}</div>
                   <div className="flex w-130 items-center justify-center gap-3">
                     <button onClick={() => handleWatchClick(anime.imdbID)} className="flex cursor-pointer items-center bg-white text-black rounded-full h-12 px-4 hover:scale-95 transition duration-150 ease-in-out">
                       <BsFillPlayFill className="text-[35px]" />
@@ -360,9 +359,9 @@ const CategorySlider = ({ category }) => {
         {animeList.map((anime) => (
           <SwiperSlide key={anime.id} className="max-w-[296px]">
             <div className="group select-none w-[296px]">
-              <div className="relative h-[400px] w-[296px] rounded-lg overflow-hidden">
+              <div className="relative h-[420px] w-[296px] rounded-lg overflow-hidden">
                 <img
-                  className="w-[296px] h-[400px] object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                   src={anime.poster}
                   alt={anime.title}
                 />
@@ -371,13 +370,13 @@ const CategorySlider = ({ category }) => {
                     <div className="absolute bottom-0 p-4 w-full">
                       <div className="text-gray-300 text-sm line-clamp-10 mb-4">{anime.description}</div>
                       <div className="flex items-center gap-2">
-                        <div onClick={() => handleWatchClick(anime.imdbID)} className="flex items-center gap-2 bg-white hover:scale-104 h-10 w-full text-black p-2 rounded transition delay-15 ease-in-out">
+                        <div onClick={() => handleWatchClick(anime.imdbID)} className="flex cursor-pointer items-center gap-2 bg-white hover:scale-104 h-10 w-full text-black p-2 rounded transition delay-15 ease-in-out">
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z" /></svg>
                           Смотреть
                         </div>
                         <div
                           onClick={() => toggleFavorite(anime.imdbID)}
-                          className="p-2 h-10 w-10 bg-[#A78BFA] hover:scale-104 flex justify-center items-center rounded-md"
+                          className="cursor-pointer p-2 h-10 w-10 bg-[#A78BFA] hover:scale-104 flex justify-center items-center rounded-md"
                         >
                           {favorites.includes(anime.imdbID) ? (
                             <BsBookmarkFill className="text-2xl" />
@@ -390,7 +389,9 @@ const CategorySlider = ({ category }) => {
                   </div>
                 )}
               </div>
-              <h3 className="mt-2 text-xl font-bold text-gray-50">{anime.title}</h3>
+              <div className="flex text-center justify-center mt-3 "> 
+                <h3 className="text-xl font-bold text-gray-50">{anime.title}</h3>
+              </div>
               {!anime.imdbID && <p className="text-sm text-gray-400">Только название из AniList</p>}
             </div>
           </SwiperSlide>
@@ -477,7 +478,6 @@ const AnimeCombinedComponent = () => {
   const categories = [
     { label: "Популярное", sort: "POPULARITY_DESC" },
     { label: "Трендовое", sort: "TRENDING_DESC" },
-    { label: "Новые", sort: "START_DATE_DESC" },
   ];
 
   return (

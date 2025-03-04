@@ -51,7 +51,7 @@ function SearchEl() {
     (params, reset = false) => {
       setLoading(true);
       axios
-        .get(`${API_URL}`, {
+        .get(`${API_URL}/anime`, {
           params: {
             genre: params.genre ? genreMapping[params.genre] || params.genre : "",
             search: params.search || "",

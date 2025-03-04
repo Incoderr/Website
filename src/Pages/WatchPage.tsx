@@ -21,7 +21,6 @@ interface AnimeData {
   OverviewRu: string;
 }
 
-const SERVER_URL = 'https://serverr-eight.vercel.app';
 
 function WatchPage() {
   const { imdbID } = useParams<{ imdbID: string }>();
@@ -34,11 +33,11 @@ function WatchPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const animeResponse = await axios.get(`${API_URL}/${imdbID}`);
+        const animeResponse = await axios.get(`${API_URL}/anime/${imdbID}`);
         setAnimeData(animeResponse.data);
 
         if (token) {
-          const profileResponse = await axios.get(`${SERVER_URL}/api/profile`, {
+          const profileResponse = await axios.get(`${API_URL}/profile`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           const userFavorites = profileResponse.data.favorites || [];
@@ -62,13 +61,13 @@ function WatchPage() {
 
     try {
       if (isFavorite) {
-        await axios.delete(`${SERVER_URL}/api/favorites`, {
+        await axios.delete(`${API_URL}/api/favorites`, {
           headers: { Authorization: `Bearer ${token}` },
           data: { imdbID }
         });
         setIsFavorite(false);
       } else {
-        await axios.post(`${SERVER_URL}/api/favorites`, 
+        await axios.post(`${API_URL}/api/favorites`, 
           { imdbID },
           { headers: { Authorization: `Bearer ${token}` } }
         );

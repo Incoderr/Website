@@ -2,13 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { BsSearch, BsBookmark } from "react-icons/bs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-
-const API_URL = "https://serverr-eight.vercel.app";
+import { API_URL } from '../assets/config';
 
 // Функция для получения данных профиля с избранным
 const fetchFavorites = async (token) => {
   if (!token) throw new Error("Токен отсутствует");
-  const response = await fetch(`${API_URL}/api/profile`, {
+  const response = await fetch(`${API_URL}/profile`, {
     headers: {
       "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json",
@@ -65,14 +64,11 @@ function HeaderEl() {
   }, []);
 
   return (
-    <header className="z-30 backdrop-blur-[4px] w-full h-14 flex justify-center items-center fixed">
+    <header className="z-1000 backdrop-blur-[4px] w-full h-14 flex justify-center items-center fixed">
       <div className="flex w-full ml-8 mr-8 justify-between lg:mr-23 lg:ml-23">
         <div className="flex gap-5 text-lg">
           <NavLink to={"/"} className={({ isActive }) => (isActive ? "active-link" : "")}>
-            Аниме
-          </NavLink>
-          <NavLink to={"/film"} className={({ isActive }) => (isActive ? "active-link" : "")}>
-            Фильмы
+            Главная
           </NavLink>
         </div>
         <div className="flex items-center gap-4">
@@ -93,7 +89,7 @@ function HeaderEl() {
               <Link to="/profile">
                 <img src={user.avatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
               </Link>
-              <button onClick={handleLogout} className="text-lg">
+              <button onClick={handleLogout} className="text-lg cursor-pointer">
                 Выйти
               </button>
             </div>
@@ -107,7 +103,7 @@ function HeaderEl() {
       {isFavoritesOpen && (
         <div
           ref={favoritesRef}
-          className="absolute right-0 mr-5 lg:mr-19 flex gap-3 flex-col top-20 z-10 bg-gray-700 p-2 rounded-md max-w-100 max-h-100 overflow-y-auto shadow-lg"
+          className="absolute  right-0 mr-5 lg:mr-19 flex gap-3 flex-col top-20 z-100 bg-gray-700 p-2 rounded-md max-w-100 max-h-100 overflow-y-auto shadow-lg"
           onClick={(e) => e.stopPropagation()}
         >
           {isLoading ? (

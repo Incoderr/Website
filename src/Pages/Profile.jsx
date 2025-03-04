@@ -3,8 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import HeaderEl from "../components/HeaderEl";
 import LoadingEl from "../components/ui/Loading";
-
-const API_URL = "https://serverr-eight.vercel.app"; // Базовый URL сервера
+import { API_URL } from "../assets/config";
 
 function Profile() {
   const [userData, setUserData] = useState(null);
@@ -17,7 +16,7 @@ function Profile() {
     const fetchProfile = async () => {
       try {
         // Получение данных профиля
-        const response = await axios.get(`${API_URL}/api/profile`, {
+        const response = await axios.get(`${API_URL}/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserData(response.data);
@@ -26,7 +25,7 @@ function Profile() {
         const favorites = response.data.favorites || [];
         if (favorites.length > 0) {
           const favoritesPromises = favorites.map((imdbID) =>
-            axios.get(`${API_URL}/api/anime/${imdbID}`).catch((error) => {
+            axios.get(`${API_URL}/anime/${imdbID}`).catch((error) => {
               console.error(`Ошибка при загрузке аниме ${imdbID}:`, error);
               return null; // Возвращаем null для пропуска ошибочных записей
             })
