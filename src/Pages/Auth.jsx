@@ -15,16 +15,17 @@ const Auth = () => {
   const [isLogin, setIsLogin] = React.useState(true);
   const [showPasswordLogin, setShowPasswordLogin] = React.useState(false);
   const [showPasswordSignup, setShowPasswordSignup] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState(""); // Добавлено состояние для сообщения об ошибке
+  const [errorMessage, setErrorMessage] = React.useState("");
   const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset, // Добавлен reset для очистки формы
+    reset,
   } = useForm({
-    mode: "onSubmit", // Валидация при отправке формы
+    mode: "onBlur", // Валидация при потере фокуса
+    reValidateMode: "onChange", // Повторная валидация при изменении
   });
 
   const onLoginSubmit = async (data) => {
@@ -33,7 +34,7 @@ const Auth = () => {
       const response = await axios.post(`${API_URL}/login`, data);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      reset(); // Очищаем форму после успешного входа
+      reset();
       navigate('/profile');
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Неверный логин или пароль';
@@ -48,7 +49,7 @@ const Auth = () => {
       const response = await axios.post(`${API_URL}/register`, data);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      reset(); // Очищаем форму после успешной регистрации
+      reset();
       navigate('/profile');
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Ошибка регистрации';
@@ -63,8 +64,8 @@ const Auth = () => {
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
-    setErrorMessage(""); // Очищаем сообщение об ошибке при переключении формы
-    reset(); // Очищаем форму при переключении
+    setErrorMessage("");
+    reset();
   };
   
   const togglePasswordVisibilityLogin = () => setShowPasswordLogin(!showPasswordLogin);
@@ -150,7 +151,13 @@ const Auth = () => {
                   <div className="flex items-center">
                     <IoPerson className="absolute ml-2 text-lg" />
                     <input
-                      {...register("login", { required: "Поле обязательно" })}
+                      {...register("login", { 
+                        required: "Поле обязательно",
+                        minLength: {
+                          value: 3,
+                          message: "Минимум 3 символа"
+                        }
+                      })}
                       type="text"
                       placeholder="Придумайте никнейм"
                       className="outline-1 w-full h-10 rounded-md pl-8 pr-2 bg-gray-800 outline-none focus:ring-blue-600 focus:ring-1"
@@ -168,7 +175,7 @@ const Auth = () => {
                         pattern: {
                           value: /\S+@\S+\.\S+/,
                           message: "Неверный формат email"
-                        }
+                        },
                       })}
                       type="email"
                       placeholder="Введите почту"
@@ -182,7 +189,13 @@ const Auth = () => {
                   <div className="flex items-center">
                     <IoLockClosed className="absolute ml-2 text-lg" />
                     <input
-                      {...register("password", { required: "Поле обязательно" })}
+                      {...register("password", { 
+                        required: "Поле обязательно",
+                        minLength: {
+                          value: 8,
+                          message: "Минимум 8 символов"
+                        }
+                      })}
                       type={showPasswordSignup ? "text" : "password"}
                       placeholder="Придумайте пароль"
                       className="outline-1 w-full h-10 rounded-md pl-8 pr-8 bg-gray-800 outline-none focus:ring-blue-600 focus:ring-1"
