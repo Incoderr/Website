@@ -61,13 +61,13 @@ function WatchPage() {
 
     try {
       if (isFavorite) {
-        await axios.delete(`${API_URL}/api/favorites`, {
+        await axios.delete(`${API_URL}/favorites`, {
           headers: { Authorization: `Bearer ${token}` },
           data: { imdbID }
         });
         setIsFavorite(false);
       } else {
-        await axios.post(`${API_URL}/api/favorites`, 
+        await axios.post(`${API_URL}/favorites`, 
           { imdbID },
           { headers: { Authorization: `Bearer ${token}` } }
         );
