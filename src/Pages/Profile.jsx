@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import imageCompression from "browser-image-compression";
 import HeaderEl from "../components/HeaderEl";
 import LoadingEl from "../components/ui/Loading";
 import { API_URL } from "../assets/config";
@@ -9,10 +10,14 @@ import { API_URL } from "../assets/config";
 function Profile() {
   const [userData, setUserData] = useState(null);
   const [favoritesData, setFavoritesData] = useState([]);
+  const [friendsData, setFriendsData] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("favorites");
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [friendUsername, setFriendUsername] = useState(""); // Для поиска друзей
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const queryClient = useQueryClient();
@@ -20,11 +25,12 @@ function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`${API_URL}/profile`, {
+        const profileResponse = await axios.get(`${API_URL}/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUserData(response.data);
-        const favorites = response.data.favorites || [];
+        setUserData(profileResponse.data);
+
+        const favorites = profileResponse.data.favorites || [];
         if (favorites.length > 0) {
           const favoritesPromises = favorites.map((imdbID) =>
             axios.get(`${API_URL}/anime/${imdbID}`).catch((error) => {
@@ -38,6 +44,12 @@ function Profile() {
             .map((res) => res.data);
           setFavoritesData(validFavorites);
         }
+
+        const friendsResponse = await axios.get(`${API_URL}/friends`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setFriendsData(friendsResponse.data.friends);
+        setPendingRequests(friendsResponse.data.pendingRequests);
       } catch (error) {
         console.error("Profile fetch error:", error);
         navigate("/auth");
@@ -61,11 +73,24 @@ function Profile() {
     navigate("/auth");
   };
 
-  const handleAvatarChange = (e) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      setAvatarFile(file);
-      setAvatarPreview(URL.createObjectURL(file));
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Файл слишком большой. Максимальный размер: 5 МБ.");
+        return;
+      }
+      try {
+        const compressedFile = await imageCompression(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1024,
+        });
+        setAvatarFile(compressedFile);
+        setAvatarPreview(URL.createObjectURL(compressedFile));
+      } catch (error) {
+        console.error("Ошибка сжатия изображения:", error);
+        alert("Не удалось обработать изображение");
+      }
     }
   };
 
@@ -77,16 +102,22 @@ function Profile() {
 
     try {
       setLoading(true);
-      const apiKey = import.meta.env.VITE_IMGBB_API_KEY; // Получаем ключ из .env
+      const apiKey = import.meta.env.VITE_IMGBB_API_KEY;
       if (!apiKey) {
         throw new Error("API ключ imgBB не найден в переменных окружения");
       }
 
-      const response = await axios.post(
-        `https://api.imgbb.com/1/upload?key=${apiKey}`, // Передаем ключ в URL
-        formData
+      const imgbbResponse = await axios.post(
+        `https://api.imgbb.com/1/upload?key=${apiKey}`,
+        formData,
+        {
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+          },
+        }
       );
-      const avatarUrl = response.data.data.url;
+      const avatarUrl = imgbbResponse.data.data.url;
 
       const updateResponse = await axios.put(
         `${API_URL}/profile/avatar`,
@@ -97,6 +128,7 @@ function Profile() {
       setUserData(updateResponse.data);
       setAvatarFile(null);
       setAvatarPreview(null);
+      setUploadProgress(0);
 
       localStorage.setItem("user", JSON.stringify({
         ...JSON.parse(localStorage.getItem("user") || "{}"),
@@ -110,9 +142,49 @@ function Profile() {
       }));
     } catch (error) {
       console.error("Ошибка при загрузке аватара:", error.response?.data || error.message);
-      alert("Не удалось загрузить аватар: " + (error.response?.data?.error?.message || "Неизвестная ошибка"));
+      alert("Не удалось загрузить аватар: " + (error.response?.data?.error?.message || error.message));
     } finally {
       setLoading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleSendFriendRequest = async () => {
+    try {
+      const userResponse = await axios.get(`${API_URL}/users/search?username=${friendUsername}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const friendId = userResponse.data._id;
+
+      await axios.post(
+        `${API_URL}/friends/request`,
+        { friendId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("Запрос на дружбу отправлен");
+      setFriendUsername("");
+    } catch (error) {
+      console.error("Ошибка при отправке запроса:", error.response?.data || error.message);
+      alert("Не удалось отправить запрос: " + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleAcceptFriendRequest = async (friendshipId) => {
+    try {
+      await axios.put(
+        `${API_URL}/friends/accept/${friendshipId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const friendsResponse = await axios.get(`${API_URL}/friends`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setFriendsData(friendsResponse.data.friends);
+      setPendingRequests(friendsResponse.data.pendingRequests);
+      alert("Друг добавлен");
+    } catch (error) {
+      console.error("Ошибка при принятии запроса:", error.response?.data || error.message);
+      alert("Не удалось принять запрос: " + (error.response?.data?.message || error.message));
     }
   };
 
@@ -140,6 +212,12 @@ function Profile() {
                 onClick={() => setActiveTab("favorites")}
               >
                 Избранное
+              </button>
+              <button
+                className={`px-4 py-2 ${activeTab === "friends" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
+                onClick={() => setActiveTab("friends")}
+              >
+                Друзья
               </button>
               <button
                 className={`px-4 py-2 ${activeTab === "settings" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
@@ -176,6 +254,69 @@ function Profile() {
                 </>
               )}
 
+              {activeTab === "friends" && (
+                <div className="flex flex-col gap-4">
+                  <h2 className="text-xl mb-2">Друзья:</h2>
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      value={friendUsername}
+                      onChange={(e) => setFriendUsername(e.target.value)}
+                      placeholder="Введите имя пользователя"
+                      className="p-2 rounded bg-gray-800 text-white w-full mb-2"
+                    />
+                    <button
+                      onClick={handleSendFriendRequest}
+                      className="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600"
+                    >
+                      Отправить запрос
+                    </button>
+                  </div>
+
+                  <h3 className="text-lg">Ваши друзья:</h3>
+                  {friendsData.length > 0 ? (
+                    <ul className="space-y-2">
+                      {friendsData.map((friend) => (
+                        <li key={friend._id} className="flex items-center gap-2">
+                          <img
+                            src={friend.avatar}
+                            alt={friend.username}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                          <span>{friend.username}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>У вас пока нет друзей</p>
+                  )}
+
+                  <h3 className="text-lg mt-4">Ожидающие запросы:</h3>
+                  {pendingRequests.length > 0 ? (
+                    <ul className="space-y-2">
+                      {pendingRequests.map((request) => (
+                        <li key={request._id} className="flex items-center gap-2">
+                          <img
+                            src={request.userId.avatar}
+                            alt={request.userId.username}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                          <span>{request.userId.username}</span>
+                          <button
+                            onClick={() => handleAcceptFriendRequest(request._id)}
+                            className="bg-green-500 px-2 py-1 rounded hover:bg-green-600"
+                          >
+                            Принять
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>Нет ожидающих запросов</p>
+                  )}
+                </div>
+              )}
+
               {activeTab === "settings" && (
                 <div className="flex flex-col gap-4">
                   <div>
@@ -186,12 +327,21 @@ function Profile() {
                       onChange={handleAvatarChange}
                       className="mb-2 cursor-pointer"
                     />
+                    {uploadProgress > 0 && uploadProgress < 100 && (
+                      <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                        <div
+                          className="bg-blue-600 h-2.5 rounded-full"
+                          style={{ width: `${uploadProgress}%` }}
+                        ></div>
+                      </div>
+                    )}
                     {avatarPreview && (
                       <button
                         onClick={handleAvatarUpload}
                         className="cursor-pointer bg-blue-500 px-4 py-2 rounded hover:bg-blue-600"
+                        disabled={loading}
                       >
-                        Сохранить аватар
+                        {loading ? "Загрузка..." : "Сохранить аватар"}
                       </button>
                     )}
                   </div>
