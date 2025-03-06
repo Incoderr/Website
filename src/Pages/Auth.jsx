@@ -31,21 +31,12 @@ const Auth = () => {
   });
 
   const onLoginSubmit = async (data) => {
-    if (!turnstileToken) {
-      setErrorMessage("Пожалуйста, пройдите проверку капчи");
-      return;
-    }
-
     try {
-      console.log('Login data:', { ...data, turnstileToken });
-      const response = await axios.post(`${API_URL}/login`, {
-        ...data,
-        turnstileToken, // Добавляем токен капчи в запрос
-      });
+      console.log('Login data:', data); // Токен не отправляется
+      const response = await axios.post(`${API_URL}/login`, data); // Отправляем только data
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       reset();
-      setTurnstileToken(null); // Сбрасываем токен после успешной отправки
       navigate('/profile');
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Неверный логин или пароль';
@@ -64,12 +55,12 @@ const Auth = () => {
       console.log('Signup data:', { ...data, turnstileToken });
       const response = await axios.post(`${API_URL}/register`, {
         ...data,
-        turnstileToken, // Добавляем токен капчи в запрос
+        turnstileToken,
       });
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       reset();
-      setTurnstileToken(null); // Сбрасываем токен после успешной отправки
+      setTurnstileToken(null);
       navigate('/profile');
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Ошибка регистрации';
@@ -86,7 +77,7 @@ const Auth = () => {
     setIsLogin(!isLogin);
     setErrorMessage("");
     reset();
-    setTurnstileToken(null); // Сбрасываем токен при переключении формы
+    setTurnstileToken(null);
   };
 
   const togglePasswordVisibilityLogin = () => setShowPasswordLogin(!showPasswordLogin);
@@ -206,7 +197,7 @@ const Auth = () => {
                   {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
                 </label>
                 <label className="flex w-full flex-col">
-                  <h6 className="mb-2">Пароль:</h6>
+                  <h1 className="mb-2">Пароль:</h1>
                   <div className="flex items-center">
                     <IoLockClosed className="absolute ml-2 text-lg" />
                     <input
@@ -238,9 +229,9 @@ const Auth = () => {
                   {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
                 </label>
                 <Turnstile
-                  sitekey="0x4AAAAAAA_sMfxp2Rh9qrbM" // Замените на ваш Site Key из Cloudflare
-                  onVerify={(token) => setTurnstileToken(token)} // Сохраняем токен при успешной верификации
-                  theme="dark" // Опционально: темная тема
+                  sitekey="0x4AAAAAAA_sMfxp2Rh9qrbM" // Ваш Site Key из Cloudflare
+                  onVerify={(token) => setTurnstileToken(token)}
+                  theme="dark"
                 />
                 <p className="cursor-pointer select-none" onClick={toggleForm}>
                   Уже есть аккаунт?
