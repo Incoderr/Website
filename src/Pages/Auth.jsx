@@ -241,7 +241,6 @@ const Auth = () => {
                   sitekey="0x4AAAAAAA_sMfxp2Rh9qrbM" // Замените на ваш Site Key из Cloudflare
                   onVerify={(token) => setTurnstileToken(token)} // Сохраняем токен при успешной верификации
                   theme="dark" // Опционально: темная тема
-                  appearance="interaction-only"
                 />
                 <p className="cursor-pointer select-none" onClick={toggleForm}>
                   Уже есть аккаунт?
