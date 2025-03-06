@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Turnstile from "react-turnstile"; // Импортируем библиотеку Turnstile
 import {
   IoPerson,
   IoLockClosed,
@@ -16,6 +17,7 @@ const Auth = () => {
   const [showPasswordLogin, setShowPasswordLogin] = React.useState(false);
   const [showPasswordSignup, setShowPasswordSignup] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
+  const [turnstileToken, setTurnstileToken] = React.useState(null); // Состояние для токена Turnstile
   const navigate = useNavigate();
 
   const {
@@ -24,17 +26,26 @@ const Auth = () => {
     formState: { errors },
     reset,
   } = useForm({
-    mode: "onBlur", // Валидация при потере фокуса
-    reValidateMode: "onChange", // Повторная валидация при изменении
+    mode: "onBlur",
+    reValidateMode: "onChange",
   });
 
   const onLoginSubmit = async (data) => {
+    if (!turnstileToken) {
+      setErrorMessage("Пожалуйста, пройдите проверку капчи");
+      return;
+    }
+
     try {
-      console.log('Login data:', data);
-      const response = await axios.post(`${API_URL}/login`, data);
+      console.log('Login data:', { ...data, turnstileToken });
+      const response = await axios.post(`${API_URL}/login`, {
+        ...data,
+        turnstileToken, // Добавляем токен капчи в запрос
+      });
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       reset();
+      setTurnstileToken(null); // Сбрасываем токен после успешной отправки
       navigate('/profile');
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Неверный логин или пароль';
@@ -44,12 +55,21 @@ const Auth = () => {
   };
 
   const onSignupSubmit = async (data) => {
+    if (!turnstileToken) {
+      setErrorMessage("Пожалуйста, пройдите проверку капчи");
+      return;
+    }
+
     try {
-      console.log('Signup data:', data);
-      const response = await axios.post(`${API_URL}/register`, data);
+      console.log('Signup data:', { ...data, turnstileToken });
+      const response = await axios.post(`${API_URL}/register`, {
+        ...data,
+        turnstileToken, // Добавляем токен капчи в запрос
+      });
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       reset();
+      setTurnstileToken(null); // Сбрасываем токен после успешной отправки
       navigate('/profile');
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Ошибка регистрации';
@@ -66,8 +86,9 @@ const Auth = () => {
     setIsLogin(!isLogin);
     setErrorMessage("");
     reset();
+    setTurnstileToken(null); // Сбрасываем токен при переключении формы
   };
-  
+
   const togglePasswordVisibilityLogin = () => setShowPasswordLogin(!showPasswordLogin);
   const togglePasswordVisibilitySignup = () => setShowPasswordSignup(!showPasswordSignup);
 
@@ -127,6 +148,11 @@ const Auth = () => {
                   </div>
                   {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
                 </label>
+                <Turnstile
+                  sitekey="0x4AAAAAAA_sMfxp2Rh9qrbM" // Замените на ваш Site Key из Cloudflare
+                  onVerify={(token) => setTurnstileToken(token)} // Сохраняем токен при успешной верификации
+                  theme="dark" // Опционально: темная тема для соответствия дизайну
+                />
                 <div className="flex gap-5 mt-4 text-center flex-col">
                   <p onClick={toggleForm} className="cursor-pointer select-none">
                     Нет аккаунта?
@@ -151,12 +177,12 @@ const Auth = () => {
                   <div className="flex items-center">
                     <IoPerson className="absolute ml-2 text-lg" />
                     <input
-                      {...register("login", { 
+                      {...register("login", {
                         required: "Поле обязательно",
                         minLength: {
                           value: 3,
-                          message: "Минимум 3 символа"
-                        }
+                          message: "Минимум 3 символа",
+                        },
                       })}
                       type="text"
                       placeholder="Придумайте никнейм"
@@ -170,11 +196,11 @@ const Auth = () => {
                   <div className="flex items-center">
                     <IoAtOutline className="absolute ml-2 text-2xl" />
                     <input
-                      {...register("email", { 
+                      {...register("email", {
                         required: "Поле обязательно",
                         pattern: {
                           value: /\S+@\S+\.\S+/,
-                          message: "Неверный формат email"
+                          message: "Неверный формат email",
                         },
                       })}
                       type="email"
@@ -189,12 +215,12 @@ const Auth = () => {
                   <div className="flex items-center">
                     <IoLockClosed className="absolute ml-2 text-lg" />
                     <input
-                      {...register("password", { 
+                      {...register("password", {
                         required: "Поле обязательно",
                         minLength: {
                           value: 8,
-                          message: "Минимум 8 символов"
-                        }
+                          message: "Минимум 8 символов",
+                        },
                       })}
                       type={showPasswordSignup ? "text" : "password"}
                       placeholder="Придумайте пароль"
@@ -216,6 +242,11 @@ const Auth = () => {
                   </div>
                   {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
                 </label>
+                <Turnstile
+                  sitekey="0x4AAAAAAA_sMfxp2Rh9qrbM" // Замените на ваш Site Key из Cloudflare
+                  onVerify={(token) => setTurnstileToken(token)} // Сохраняем токен при успешной верификации
+                  theme="dark" // Опционально: темная тема
+                />
                 <p className="cursor-pointer select-none" onClick={toggleForm}>
                   Уже есть аккаунт?
                 </p>
