@@ -4,8 +4,7 @@ import { BsSearch, BsBookmark } from "react-icons/bs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from '../assets/config';
 
-// Функция для получения данных профиля с избранным
-const fetchFavorites = async (token) => {
+const fetchProfileData = async (token) => {
   if (!token) throw new Error("Токен отсутствует");
   const response = await fetch(`${API_URL}/profile`, {
     headers: {
@@ -13,35 +12,29 @@ const fetchFavorites = async (token) => {
       "Content-Type": "application/json",
     },
   });
-  if (!response.ok) throw new Error("Ошибка при загрузке избранного");
+  if (!response.ok) throw new Error("Ошибка при загрузке профиля");
   const data = await response.json();
-  return data.favoritesData || [];
+  return data; // Возвращаем полные данные профиля, включая favorites и avatar
 };
 
 function HeaderEl() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const token = localStorage.getItem("token");
   const favoritesRef = useRef(null);
   const bookmarkRef = useRef(null);
   const queryClient = useQueryClient();
 
-  // Используем useQuery для получения избранного
-  const { data: favoritesData = [], isLoading, error } = useQuery({
-    queryKey: ["favorites", token], // Уникальный ключ с токеном
-    queryFn: () => fetchFavorites(token),
-    enabled: !!token, // Запрос выполняется только если есть токен
-    staleTime: 5 * 60 * 1000, // Данные считаются свежими 5 минут
-    cacheTime: 10 * 60 * 1000, // Данные хранятся в кэше 10 минут
+  const { data: profileData, isLoading, error } = useQuery({
+    queryKey: ["favorites", token], // Используем тот же ключ, что и в профиле
+    queryFn: () => fetchProfileData(token),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
   });
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    queryClient.invalidateQueries(["favorites"]); // Очищаем кэш избранного
-    window.location.reload();
-  };
+  const user = profileData || JSON.parse(localStorage.getItem("user") || "{}");
+  const favoritesData = profileData?.favoritesData || [];
 
   const toggleFavorites = (e) => {
     e.stopPropagation();
@@ -89,9 +82,6 @@ function HeaderEl() {
               <Link to="/profile">
                 <img src={user.avatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
               </Link>
-              <button onClick={handleLogout} className="text-lg cursor-pointer">
-                Выйти
-              </button>
             </div>
           ) : (
             <Link className="text-lg" to={"/auth"}>
@@ -103,7 +93,7 @@ function HeaderEl() {
       {isFavoritesOpen && (
         <div
           ref={favoritesRef}
-          className="absolute  right-0 mr-5 lg:mr-19 flex gap-3 flex-col top-20 z-100 bg-gray-700 p-2 rounded-md max-w-100 max-h-100 overflow-y-auto shadow-lg"
+          className="absolute right-0 mr-5 lg:mr-19 flex gap-3 flex-col top-20 z-100 bg-gray-700 p-2 rounded-md max-w-100 max-h-100 overflow-y-auto shadow-lg"
           onClick={(e) => e.stopPropagation()}
         >
           {isLoading ? (
