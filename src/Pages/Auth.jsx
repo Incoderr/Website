@@ -32,7 +32,6 @@ const Auth = () => {
 
   const onLoginSubmit = async (data) => {
     try {
-      console.log('Login data:', data); // Токен не отправляется
       const response = await axios.post(`${API_URL}/login`, data); // Отправляем только data
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
