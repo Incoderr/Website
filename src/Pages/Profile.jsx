@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query"; // Импортируем useQueryClient
+import { useQueryClient } from "@tanstack/react-query";
 import HeaderEl from "../components/HeaderEl";
 import LoadingEl from "../components/ui/Loading";
 import { API_URL } from "../assets/config";
@@ -15,7 +15,7 @@ function Profile() {
   const [avatarPreview, setAvatarPreview] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const queryClient = useQueryClient(); // Получаем QueryClient
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -57,7 +57,7 @@ function Profile() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    queryClient.invalidateQueries(["favorites"]); // Инвалидируем кэш избранного
+    queryClient.invalidateQueries(["favorites"]);
     navigate("/auth");
   };
 
@@ -74,11 +74,18 @@ function Profile() {
 
     const formData = new FormData();
     formData.append("image", avatarFile);
-    formData.append("key", "ВАШ_API_КЛЮЧ_IMGBB"); // Замените на ваш ключ imgBB
 
     try {
       setLoading(true);
-      const response = await axios.post("https://api.imgbb.com/1/upload", formData);
+      const apiKey = import.meta.env.VITE_IMGBB_API_KEY; // Получаем ключ из .env
+      if (!apiKey) {
+        throw new Error("API ключ imgBB не найден в переменных окружения");
+      }
+
+      const response = await axios.post(
+        `https://api.imgbb.com/1/upload?key=${apiKey}`, // Передаем ключ в URL
+        formData
+      );
       const avatarUrl = response.data.data.url;
 
       const updateResponse = await axios.put(
@@ -91,28 +98,25 @@ function Profile() {
       setAvatarFile(null);
       setAvatarPreview(null);
 
-      // Обновляем localStorage
       localStorage.setItem("user", JSON.stringify({
         ...JSON.parse(localStorage.getItem("user") || "{}"),
         avatar: avatarUrl
       }));
 
-      // Инвалидируем кэш профиля и избранного, чтобы Header обновился
       queryClient.invalidateQueries(["favorites", token]);
       queryClient.setQueryData(["favorites", token], (oldData) => ({
         ...oldData,
         avatar: avatarUrl,
       }));
-
     } catch (error) {
-      console.error("Ошибка при загрузке аватара:", error);
-      alert("Не удалось загрузить аватар");
+      console.error("Ошибка при загрузке аватара:", error.response?.data || error.message);
+      alert("Не удалось загрузить аватар: " + (error.response?.data?.error?.message || "Неизвестная ошибка"));
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="p-5 text-white flex justify-center"><LoadingEl/></div>;
+  if (loading) return <div className="p-5 text-white flex justify-center"><LoadingEl /></div>;
 
   return (
     <div>
@@ -129,7 +133,7 @@ function Profile() {
             {userData.role && (
               <p className="text-sm text-gray-400">Роль: {userData.role}</p>
             )}
-            
+
             <div className="mt-4 flex gap-4">
               <button
                 className={`px-4 py-2 ${activeTab === "favorites" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
