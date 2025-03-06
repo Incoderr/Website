@@ -51,7 +51,6 @@ const Auth = () => {
     }
 
     try {
-      console.log('Signup data:', { ...data, turnstileToken });
       const response = await axios.post(`${API_URL}/register`, {
         ...data,
         turnstileToken,
