@@ -53,7 +53,9 @@ function SearchEl() {
       axios
         .get(`${API_URL}/anime`, {
           params: {
-            genre: params.genre ? genreMapping[params.genre] || params.genre : "",
+            genre: params.genre
+              ? genreMapping[params.genre] || params.genre
+              : "",
             search: params.search || "",
           },
         })
@@ -170,7 +172,7 @@ function SearchEl() {
             <div
               key={key}
               onClick={() => filterByGenre(value)}
-              className="bg-gray-700 w-47 h-20 sm:w-73 sm:h-30 duration-300 cursor-pointer hover:scale-105 flex justify-center items-center p-2 rounded-md text-white text-lg font-bold"
+              className="bg-[#14222d] w-47 h-20 sm:w-73 sm:h-30 duration-300 cursor-pointer hover:scale-105 flex justify-center items-center p-2 rounded-md text-white text-xl font-bold"
             >
               {value}
             </div>
@@ -196,16 +198,9 @@ function SearchEl() {
                   className="bg-transparent w-64 h-auto duration-300 cursor-pointer hover:scale-105 flex flex-col justify-center items-center rounded-md"
                 >
                   <img
-                    src={
-                      item.Poster || "https://dummyimage.com/500x750/gray/white?text=Нет+постера"
-                    }
+                    src={item.Poster}
                     alt={item.Title}
                     className="w-64 h-96 object-cover rounded-md"
-                    onError={(e) => {
-                      e.target.src =
-                        "https://dummyimage.com/500x750/gray/white?text=Нет+постера";
-                      e.target.onerror = null; // Предотвращаем бесконечные ошибки
-                    }}
                   />
                   <span className="h-15 w-auto flex justify-center m-4 text-white text-lg font-bold">
                     {item.Title || "Без названия"}

@@ -17,7 +17,7 @@ function Profile() {
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [friendUsername, setFriendUsername] = useState(""); // Для поиска друзей
+  const [friendUsername, setFriendUsername] = useState("");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const queryClient = useQueryClient();
@@ -188,6 +188,11 @@ function Profile() {
     }
   };
 
+  const handleCancelAvatar = () => {
+    setAvatarFile(null);
+    setAvatarPreview(null);
+  };
+
   if (loading) return <div className="p-5 text-white flex justify-center"><LoadingEl /></div>;
 
   return (
@@ -321,12 +326,42 @@ function Profile() {
                 <div className="flex flex-col gap-4">
                   <div>
                     <h2 className="text-xl mb-2">Смена аватара:</h2>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleAvatarChange}
-                      className="mb-2 cursor-pointer"
-                    />
+                    <label className="inline-block mb-2">
+                      <span className="bg-blue-500 px-4 py-2 rounded cursor-pointer hover:bg-blue-600">
+                        Выбрать аватар
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="hidden"
+                      />
+                    </label>
+
+                    {avatarPreview && (
+                      <div className="mb-4">
+                        <h3 className="text-lg mb-2">Превью аватара:</h3>
+                        <div className="flex gap-4 items-center">
+                          <div>
+                            <p className="text-sm mb-1">В профиле (128x128):</p>
+                            <img
+                              src={avatarPreview}
+                              alt="Profile Preview"
+                              className="w-32 h-32 rounded-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <p className="text-sm mb-1">В хедере (32x32):</p>
+                            <img
+                              src={avatarPreview}
+                              alt="Header Preview"
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {uploadProgress > 0 && uploadProgress < 100 && (
                       <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
                         <div
@@ -335,14 +370,24 @@ function Profile() {
                         ></div>
                       </div>
                     )}
+
                     {avatarPreview && (
-                      <button
-                        onClick={handleAvatarUpload}
-                        className="cursor-pointer bg-blue-500 px-4 py-2 rounded hover:bg-blue-600"
-                        disabled={loading}
-                      >
-                        {loading ? "Загрузка..." : "Сохранить аватар"}
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleAvatarUpload}
+                          className="bg-green-500 px-4 py-2 rounded hover:bg-green-600"
+                          disabled={loading}
+                        >
+                          {loading ? "Загрузка..." : "Сохранить"}
+                        </button>
+                        <button
+                          onClick={handleCancelAvatar}
+                          className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
+                          disabled={loading}
+                        >
+                          Отмена
+                        </button>
+                      </div>
                     )}
                   </div>
                   <button
