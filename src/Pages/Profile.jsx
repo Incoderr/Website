@@ -39,7 +39,6 @@ function Profile() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserData(profileResponse.data);
-
         setFavoritesData(profileResponse.data.favoritesData || []);
 
         if (!username || username === currentUser.username) {
@@ -238,6 +237,8 @@ function Profile() {
   if (loading) return <div className="p-5 text-white flex justify-center"><LoadingEl /></div>;
   if (!userData) return <div className="p-5 text-white flex justify-center">Профиль не найден</div>;
 
+  const isOwnProfile = !username || username === JSON.parse(localStorage.getItem("user") || "{}").username;
+
   return (
     <div>
       <HeaderEl />
@@ -273,12 +274,14 @@ function Profile() {
               >
                 Статистика
               </button>
-              <button
-                className={`px-4 py-2 ${activeTab === "settings" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
-                onClick={() => setActiveTab("settings")}
-              >
-                Настройки
-              </button>
+              {isOwnProfile && (
+                <button
+                  className={`px-4 py-2 ${activeTab === "settings" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
+                  onClick={() => setActiveTab("settings")}
+                >
+                  Настройки
+                </button>
+              )}
             </div>
 
             <div className="mt-6 w-full max-w-md">
@@ -309,17 +312,21 @@ function Profile() {
                             />
                             <div>
                               <span className="text-lg">{anime.Title}</span>
-                              <select
-                                value={status}
-                                onClick={(e) => e.stopPropagation()}
-                                onChange={(e) => handleStatusChange(anime.imdbID, e.target.value)}
-                                className="mt-1 bg-gray-800 text-white p-1 rounded"
-                              >
-                                <option value="plan_to_watch">Буду смотреть</option>
-                                <option value="watching">Смотрю</option>
-                                <option value="completed">Просмотрено</option>
-                                <option value="dropped">Брошено</option>
-                              </select>
+                              {isOwnProfile ? (
+                                <select
+                                  value={status}
+                                  onClick={(e) => e.stopPropagation()}
+                                  onChange={(e) => handleStatusChange(anime.imdbID, e.target.value)}
+                                  className="mt-1 bg-gray-800 text-white p-1 rounded"
+                                >
+                                  <option value="plan_to_watch">Буду смотреть</option>
+                                  <option value="watching">Смотрю</option>
+                                  <option value="completed">Просмотрено</option>
+                                  <option value="dropped">Брошено</option>
+                                </select>
+                              ) : (
+                                <p className="text-sm text-gray-400">Статус: {statusText}</p>
+                              )}
                             </div>
                           </div>
                         );
@@ -334,7 +341,7 @@ function Profile() {
               {activeTab === "friends" && (
                 <div className="flex flex-col gap-4">
                   <h2 className="text-xl mb-2">Друзья:</h2>
-                  {!username || username === JSON.parse(localStorage.getItem("user") || "{}").username ? (
+                  {isOwnProfile && (
                     <div className="mb-4">
                       <input
                         type="text"
@@ -350,9 +357,9 @@ function Profile() {
                         Отправить запрос
                       </button>
                     </div>
-                  ) : null}
+                  )}
 
-                  <h3 className="text-lg">Ваши друзья:</h3>
+                  <h3 className="text-lg">Друзья:</h3>
                   {friendsData.length > 0 ? (
                     <ul className="space-y-2">
                       {friendsData.map((friend) => (
@@ -375,7 +382,7 @@ function Profile() {
                     <p>У вас пока нет друзей</p>
                   )}
 
-                  {!username || username === JSON.parse(localStorage.getItem("user") || "{}").username ? (
+                  {isOwnProfile && (
                     <>
                       <h3 className="text-lg mt-4">Ожидающие запросы:</h3>
                       {pendingRequests.length > 0 ? (
@@ -401,7 +408,7 @@ function Profile() {
                         <p>Нет ожидающих запросов</p>
                       )}
                     </>
-                  ) : null}
+                  )}
                 </div>
               )}
 
@@ -418,7 +425,7 @@ function Profile() {
                 </div>
               )}
 
-              {activeTab === "settings" && (
+              {activeTab === "settings" && isOwnProfile && (
                 <div className="flex flex-col gap-4">
                   <div>
                     <h2 className="text-xl mb-2">Смена аватара:</h2>
