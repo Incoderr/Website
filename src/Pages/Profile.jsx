@@ -28,7 +28,7 @@ function Profile() {
       try {
         const profileId = userId || JSON.parse(localStorage.getItem("user") || "{}").id;
 
-        const profileResponse = await axios.get(`${API_URL}/users/${profileId}`, {
+        const profileResponse = await axios.get(`${API_URL}/profile/${profileId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserData(profileResponse.data);
