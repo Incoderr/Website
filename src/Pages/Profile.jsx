@@ -12,6 +12,12 @@ function Profile() {
   const [favoritesData, setFavoritesData] = useState([]);
   const [friendsData, setFriendsData] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [stats, setStats] = useState({
+    plan_to_watch: 0,
+    watching: 0,
+    completed: 0,
+    dropped: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("favorites");
   const [avatarFile, setAvatarFile] = useState(null);
@@ -19,49 +25,52 @@ function Profile() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [friendUsername, setFriendUsername] = useState("");
   const navigate = useNavigate();
-  const { userId } = useParams();
+  const { username } = useParams();
   const token = localStorage.getItem("token");
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const profileId = userId || JSON.parse(localStorage.getItem("user") || "{}").id;
+        const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+        const profileUsername = username || currentUser.username;
 
-        const profileResponse = await axios.get(`${API_URL}/profile/${profileId}`, {
+        const profileResponse = await axios.get(`${API_URL}/profile/${profileUsername}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserData(profileResponse.data);
 
-        const favorites = profileResponse.data.favorites || [];
-        if (favorites.length > 0) {
-          const favoritesPromises = favorites.map((imdbID) =>
-            axios.get(`${API_URL}/anime/${imdbID}`).catch((error) => {
-              console.error(`Ошибка при загрузке аниме ${imdbID}:`, error);
-              return null;
-            })
-          );
-          const favoritesResponses = await Promise.all(favoritesPromises);
-          const validFavorites = favoritesResponses
-            .filter((res) => res !== null)
-            .map((res) => res.data);
-          setFavoritesData(validFavorites);
-        }
+        setFavoritesData(profileResponse.data.favoritesData || []);
 
-        if (!userId || userId === JSON.parse(localStorage.getItem("user") || "{}").id) {
+        if (!username || username === currentUser.username) {
           const friendsResponse = await axios.get(`${API_URL}/friends`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          console.log("Friends response:", friendsResponse.data); // Логируем данные для отладки
+          console.log("Friends response:", friendsResponse.data);
           setFriendsData(friendsResponse.data.friends || []);
           setPendingRequests(friendsResponse.data.pendingRequests || []);
+
+          const statsResponse = await axios.get(`${API_URL}/watch-status/stats`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setStats(statsResponse.data);
         } else {
           setFriendsData(profileResponse.data.friends || []);
           setPendingRequests([]);
+          setStats({
+            plan_to_watch: profileResponse.data.watchStatus?.filter(ws => ws.status === "plan_to_watch").length || 0,
+            watching: profileResponse.data.watchStatus?.filter(ws => ws.status === "watching").length || 0,
+            completed: profileResponse.data.watchStatus?.filter(ws => ws.status === "completed").length || 0,
+            dropped: profileResponse.data.watchStatus?.filter(ws => ws.status === "dropped").length || 0,
+          });
         }
       } catch (error) {
-        console.error("Profile fetch error:", error);
-        navigate("/auth");
+        console.error("Profile fetch error:", error.response?.data || error.message);
+        if (error.response?.status === 403 || error.response?.status === 404) {
+          setUserData(null);
+        } else {
+          navigate("/auth");
+        }
       } finally {
         setLoading(false);
       }
@@ -69,7 +78,7 @@ function Profile() {
 
     if (token) fetchProfile();
     else navigate("/auth");
-  }, [token, navigate, userId]);
+  }, [token, navigate, username]);
 
   const handleNavigate = (imdbID) => {
     navigate(`/player/${imdbID}`);
@@ -163,14 +172,9 @@ function Profile() {
 
   const handleSendFriendRequest = async () => {
     try {
-      const userResponse = await axios.get(`${API_URL}/profile/search?username=${friendUsername}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const friendId = userResponse.data._id;
-
       await axios.post(
         `${API_URL}/friends/request`,
-        { friendId },
+        { friendUsername },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -202,6 +206,27 @@ function Profile() {
     } catch (error) {
       console.error("Ошибка при принятии запроса:", error.response?.data || error.message);
       alert("Не удалось принять запрос: " + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleStatusChange = async (imdbID, newStatus) => {
+    try {
+      const response = await axios.put(
+        `${API_URL}/watch-status`,
+        { imdbID, status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setUserData((prev) => ({
+        ...prev,
+        watchStatus: response.data.watchStatus,
+      }));
+      const statsResponse = await axios.get(`${API_URL}/watch-status/stats`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setStats(statsResponse.data);
+    } catch (error) {
+      console.error("Ошибка при обновлении статуса:", error.response?.data || error.message);
+      alert("Не удалось обновить статус: " + (error.response?.data?.message || error.message));
     }
   };
 
@@ -243,6 +268,12 @@ function Profile() {
                 Друзья
               </button>
               <button
+                className={`px-4 py-2 ${activeTab === "stats" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
+                onClick={() => setActiveTab("stats")}
+              >
+                Статистика
+              </button>
+              <button
                 className={`px-4 py-2 ${activeTab === "settings" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
                 onClick={() => setActiveTab("settings")}
               >
@@ -278,7 +309,17 @@ function Profile() {
                             />
                             <div>
                               <span className="text-lg">{anime.Title}</span>
-                              <p className="text-sm text-gray-400">Статус: {statusText}</p>
+                              <select
+                                value={status}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) => handleStatusChange(anime.imdbID, e.target.value)}
+                                className="mt-1 bg-gray-800 text-white p-1 rounded"
+                              >
+                                <option value="plan_to_watch">Буду смотреть</option>
+                                <option value="watching">Смотрю</option>
+                                <option value="completed">Просмотрено</option>
+                                <option value="dropped">Брошено</option>
+                              </select>
                             </div>
                           </div>
                         );
@@ -293,7 +334,7 @@ function Profile() {
               {activeTab === "friends" && (
                 <div className="flex flex-col gap-4">
                   <h2 className="text-xl mb-2">Друзья:</h2>
-                  {!userId || userId === JSON.parse(localStorage.getItem("user") || "{}").id ? (
+                  {!username || username === JSON.parse(localStorage.getItem("user") || "{}").username ? (
                     <div className="mb-4">
                       <input
                         type="text"
@@ -317,12 +358,12 @@ function Profile() {
                       {friendsData.map((friend) => (
                         <li key={friend._id} className="flex items-center gap-2">
                           <img
-                            src={friend.avatar || "https://i.ibb.co.com/Zyn02g6/avatar-default.webp"} // Добавляем значение по умолчанию
+                            src={friend.avatar || "https://i.ibb.co.com/Zyn02g6/avatar-default.webp"}
                             alt={friend.username || "Без имени"}
                             className="w-10 h-10 rounded-full object-cover"
                           />
                           <span
-                            onClick={() => navigate(`/profile/${friend._id}`)}
+                            onClick={() => navigate(`/profile/${friend.username}`)}
                             className="cursor-pointer hover:underline"
                           >
                             {friend.username || "Без имени"}
@@ -334,7 +375,7 @@ function Profile() {
                     <p>У вас пока нет друзей</p>
                   )}
 
-                  {!userId || userId === JSON.parse(localStorage.getItem("user") || "{}").id ? (
+                  {!username || username === JSON.parse(localStorage.getItem("user") || "{}").username ? (
                     <>
                       <h3 className="text-lg mt-4">Ожидающие запросы:</h3>
                       {pendingRequests.length > 0 ? (
@@ -361,6 +402,19 @@ function Profile() {
                       )}
                     </>
                   ) : null}
+                </div>
+              )}
+
+              {activeTab === "stats" && (
+                <div className="flex flex-col gap-4">
+                  <h2 className="text-xl mb-2">Статистика просмотра:</h2>
+                  <ul className="space-y-2">
+                    <li>Буду смотреть: {stats.plan_to_watch}</li>
+                    <li>Смотрю: {stats.watching}</li>
+                    <li>Просмотрено: {stats.completed}</li>
+                    <li>Брошено: {stats.dropped}</li>
+                    <li>Всего: {stats.plan_to_watch + stats.watching + stats.completed + stats.dropped}</li>
+                  </ul>
                 </div>
               )}
 
