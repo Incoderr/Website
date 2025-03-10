@@ -262,12 +262,14 @@ function Profile() {
               >
                 Избранное
               </button>
-              <button
-                className={`px-4 py-2 ${activeTab === "friends" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
-                onClick={() => setActiveTab("friends")}
-              >
-                Друзья
-              </button>
+              {isOwnProfile && (
+                <button
+                  className={`px-4 py-2 ${activeTab === "friends" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
+                  onClick={() => setActiveTab("friends")}
+                >
+                  Друзья
+                </button>
+              )}
               <button
                 className={`px-4 py-2 ${activeTab === "stats" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
                 onClick={() => setActiveTab("stats")}
@@ -284,12 +286,13 @@ function Profile() {
               )}
             </div>
 
-            <div className="mt-6 w-full max-w-md">
+            <div className="min-w-screen p-15 flex flex-col items-center">
               {activeTab === "favorites" && (
                 <>
-                  <h2 className="text-xl mb-2">Избранное:</h2>
+                  <h2 className="text-xl">Избранное:</h2>
+                  <br />
                   {favoritesData.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex gap-3 max-w-400 flex-row flex-wrap">
                       {favoritesData.map((anime) => {
                         const status = userData.watchStatus?.find((ws) => ws.imdbID === anime.imdbID)?.status || "plan_to_watch";
                         const statusText = {
@@ -303,14 +306,14 @@ function Profile() {
                           <div
                             key={anime.imdbID}
                             onClick={() => handleNavigate(anime.imdbID)}
-                            className="flex items-center gap-3 p-2 bg-gray-700 rounded-md cursor-pointer hover:bg-gray-600 transition duration-300"
+                            className="flex w-70 items-center gap-3 p-2 bg-gray-700 rounded-md cursor-pointer hover:bg-gray-600 transition duration-300"
                           >
                             <img
                               src={anime.Poster}
                               alt={anime.Title}
                               className="w-16 h-24 object-cover rounded-md"
                             />
-                            <div>
+                            <div className="flex flex-col">
                               <span className="text-lg">{anime.Title}</span>
                               {isOwnProfile ? (
                                 <select
@@ -338,7 +341,7 @@ function Profile() {
                 </>
               )}
 
-              {activeTab === "friends" && (
+              {activeTab === "friends" && isOwnProfile && (
                 <div className="flex flex-col gap-4">
                   <h2 className="text-xl mb-2">Друзья:</h2>
                   {isOwnProfile && (
@@ -415,13 +418,33 @@ function Profile() {
               {activeTab === "stats" && (
                 <div className="flex flex-col gap-4">
                   <h2 className="text-xl mb-2">Статистика просмотра:</h2>
-                  <ul className="space-y-2">
-                    <li>Буду смотреть: {stats.plan_to_watch}</li>
-                    <li>Смотрю: {stats.watching}</li>
-                    <li>Просмотрено: {stats.completed}</li>
-                    <li>Брошено: {stats.dropped}</li>
-                    <li>Всего: {stats.plan_to_watch + stats.watching + stats.completed + stats.dropped}</li>
-                  </ul>
+                  <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="flex items-center justify-between mb-2 text-sm">
+                      <span>Буду смотреть: {stats.plan_to_watch}</span>
+                      <span>Смотрю: {stats.watching}</span>
+                      <span>Просмотрено: {stats.completed}</span>
+                      <span>Заброшено: {stats.dropped}</span>
+                    </div>
+                    <div className="flex items-end h-10">
+                      <div
+                        className="bg-pink-500 rounded-l"
+                        style={{ width: `${(stats.plan_to_watch / (stats.plan_to_watch + stats.watching + stats.completed + stats.dropped || 1)) * 100}%`, height: "100%" }}
+                      ></div>
+                      <div
+                        className="bg-blue-500"
+                        style={{ width: `${(stats.watching / (stats.plan_to_watch + stats.watching + stats.completed + stats.dropped || 1)) * 100}%`, height: "80%" }}
+                      ></div>
+                      <div
+                        className="bg-green-500"
+                        style={{ width: `${(stats.completed / (stats.plan_to_watch + stats.watching + stats.completed + stats.dropped || 1)) * 100}%`, height: "90%" }}
+                      ></div>
+                      <div
+                        className="bg-red-500 rounded-r"
+                        style={{ width: `${(stats.dropped / (stats.plan_to_watch + stats.watching + stats.completed + stats.dropped || 1)) * 100}%`, height: "70%" }}
+                      ></div>
+                    </div>
+                    <p className="text-right text-sm mt-2">Всего: {stats.plan_to_watch + stats.watching + stats.completed + stats.dropped}</p>
+                  </div>
                 </div>
               )}
 
