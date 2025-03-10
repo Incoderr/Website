@@ -163,7 +163,7 @@ function Profile() {
 
   const handleSendFriendRequest = async () => {
     try {
-      const userResponse = await axios.get(`${API_URL}/users/search?username=${friendUsername}`, {
+      const userResponse = await axios.get(`${API_URL}/profile/search?username=${friendUsername}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const friendId = userResponse.data._id;
