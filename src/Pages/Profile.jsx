@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import imageCompression from "browser-image-compression";
 import HeaderEl from "../components/HeaderEl";
@@ -19,13 +19,17 @@ function Profile() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [friendUsername, setFriendUsername] = useState("");
   const navigate = useNavigate();
+  const { userId } = useParams(); // Получаем userId из URL
   const token = localStorage.getItem("token");
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const profileResponse = await axios.get(`${API_URL}/profile`, {
+        // Определяем ID пользователя: из URL (если есть) или из токена
+        const profileId = userId || JSON.parse(localStorage.getItem("user") || "{}").id;
+
+        const profileResponse = await axios.get(`${API_URL}/users/${profileId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserData(profileResponse.data);
@@ -45,11 +49,8 @@ function Profile() {
           setFavoritesData(validFavorites);
         }
 
-        const friendsResponse = await axios.get(`${API_URL}/friends`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setFriendsData(friendsResponse.data.friends);
-        setPendingRequests(friendsResponse.data.pendingRequests);
+        setFriendsData(profileResponse.data.friends || []);
+        setPendingRequests(profileResponse.data.pendingRequests || []);
       } catch (error) {
         console.error("Profile fetch error:", error);
         navigate("/auth");
@@ -60,7 +61,7 @@ function Profile() {
 
     if (token) fetchProfile();
     else navigate("/auth");
-  }, [token, navigate]);
+  }, [token, navigate, userId]);
 
   const handleNavigate = (imdbID) => {
     navigate(`/player/${imdbID}`);
@@ -130,10 +131,13 @@ function Profile() {
       setAvatarPreview(null);
       setUploadProgress(0);
 
-      localStorage.setItem("user", JSON.stringify({
-        ...JSON.parse(localStorage.getItem("user") || "{}"),
-        avatar: avatarUrl
-      }));
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...JSON.parse(localStorage.getItem("user") || "{}"),
+          avatar: avatarUrl,
+        })
+      );
 
       queryClient.invalidateQueries(["favorites", token]);
       queryClient.setQueryData(["favorites", token], (oldData) => ({
@@ -194,6 +198,7 @@ function Profile() {
   };
 
   if (loading) return <div className="p-5 text-white flex justify-center"><LoadingEl /></div>;
+  if (!userData) return <div className="p-5 text-white flex justify-center">Профиль не найден</div>;
 
   return (
     <div>
@@ -238,20 +243,33 @@ function Profile() {
                   <h2 className="text-xl mb-2">Избранное:</h2>
                   {favoritesData.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {favoritesData.map((anime) => (
-                        <div
-                          key={anime.imdbID}
-                          onClick={() => handleNavigate(anime.imdbID)}
-                          className="flex items-center gap-3 p-2 bg-gray-700 rounded-md cursor-pointer hover:bg-gray-600 transition duration-300"
-                        >
-                          <img
-                            src={anime.Poster}
-                            alt={anime.Title}
-                            className="w-16 h-24 object-cover rounded-md"
-                          />
-                          <span className="text-lg">{anime.Title}</span>
-                        </div>
-                      ))}
+                      {favoritesData.map((anime) => {
+                        const status = userData.watchStatus?.find((ws) => ws.imdbID === anime.imdbID)?.status || "plan_to_watch";
+                        const statusText = {
+                          plan_to_watch: "Буду смотреть",
+                          watching: "Смотрю",
+                          completed: "Просмотрено",
+                          dropped: "Брошено",
+                        }[status];
+
+                        return (
+                          <div
+                            key={anime.imdbID}
+                            onClick={() => handleNavigate(anime.imdbID)}
+                            className="flex items-center gap-3 p-2 bg-gray-700 rounded-md cursor-pointer hover:bg-gray-600 transition duration-300"
+                          >
+                            <img
+                              src={anime.Poster}
+                              alt={anime.Title}
+                              className="w-16 h-24 object-cover rounded-md"
+                            />
+                            <div>
+                              <span className="text-lg">{anime.Title}</span>
+                              <p className="text-sm text-gray-400">Статус: {statusText}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p>У вас пока нет избранного</p>
@@ -288,7 +306,12 @@ function Profile() {
                             alt={friend.username}
                             className="w-10 h-10 rounded-full object-cover"
                           />
-                          <span>{friend.username}</span>
+                          <span
+                            onClick={() => navigate(`/profile/${friend._id}`)}
+                            className="cursor-pointer hover:underline"
+                          >
+                            {friend.username}
+                          </span>
                         </li>
                       ))}
                     </ul>

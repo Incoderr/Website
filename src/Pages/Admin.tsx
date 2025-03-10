@@ -300,9 +300,10 @@ function AdminPage() {
   };
 
   return (
-    <div className="p-5 text-white">
-      <HeaderEl/>
-      <h1 className="text-3xl p-[57px] font-bold mb-5">Админ-панель</h1>
+  <div>
+    <HeaderEl/>
+    <div  className="p-5 text-white">
+    <h1 className="text-3xl p-[57px] font-bold mb-5">Админ-панель</h1>
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
       {/* Поле поиска */}
@@ -600,6 +601,8 @@ function AdminPage() {
         )}
       </div>
     </div>
+  </div>
+
   );
 }
 

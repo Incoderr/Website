@@ -82,18 +82,18 @@ const Auth = () => {
   const togglePasswordVisibilitySignup = () => setShowPasswordSignup(!showPasswordSignup);
 
   return (
-    <div>
+    <div className="bg-gray-800">
       <Link
         className="absolute top-10 left-10 bg-gray-500 rounded-md p-1"
         to={"/"}
       >
         Выйти
       </Link>
-      <div className="flex min-h-screen justify-center items-center">
-        <div className="">
+      <div className=" flex min-h-screen justify-center items-center">
+        <div className="bg-gray-900">
           <form onSubmit={handleSubmit(isLogin ? onLoginSubmit : onSignupSubmit)}>
             {isLogin ? (
-              <div className="p-5 bg- w-79 h-auto gap-2 items-center flex-col flex outline-white/70 outline-1 rounded-md">
+              <div className="p-5 bg- w-79 h-auto gap-2 items-center flex-col flex rounded-md">
                 <h1 className="text-2xl">Войти</h1>
                 {errorMessage && (
                   <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
@@ -151,7 +151,7 @@ const Auth = () => {
                 </button>
               </div>
             ) : (
-              <div className="p-5 bg- w-79 h-auto gap-2 items-center flex-col flex outline-white/70 outline-1 rounded-md">
+              <div className="p-5 bg- w-79 h-auto gap-2 items-center flex-col flex rounded-md">
                 <h1 className="text-2xl">Регистрация</h1>
                 {errorMessage && (
                   <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
