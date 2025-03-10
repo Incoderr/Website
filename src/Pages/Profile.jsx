@@ -255,7 +255,7 @@ function Profile() {
               <p className="text-sm text-gray-400">Роль: {userData.role}</p>
             )}
 
-            <div className="mt-4 flex gap-4">
+            <div className="mt-4 flex items-center gap-4 flex-wrap">
               <button
                 className={`px-4 py-2 ${activeTab === "favorites" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
                 onClick={() => setActiveTab("favorites")}
@@ -286,13 +286,13 @@ function Profile() {
               )}
             </div>
 
-            <div className="min-w-screen p-15 flex flex-col items-center">
+            <div className="flex mt-6 flex-col p-10 items-center">
               {activeTab === "favorites" && (
                 <>
-                  <h2 className="text-xl">Избранное:</h2>
+                  <h2 className="text-xl mb-2">Избранное:</h2>
                   <br />
                   {favoritesData.length > 0 ? (
-                    <div className="flex gap-3 max-w-400 flex-row flex-wrap">
+                    <div className="flex gap-4 flex-wrap items-center">
                       {favoritesData.map((anime) => {
                         const status = userData.watchStatus?.find((ws) => ws.imdbID === anime.imdbID)?.status || "plan_to_watch";
                         const statusText = {
@@ -306,21 +306,21 @@ function Profile() {
                           <div
                             key={anime.imdbID}
                             onClick={() => handleNavigate(anime.imdbID)}
-                            className="flex w-70 items-center gap-3 p-2 bg-gray-700 rounded-md cursor-pointer hover:bg-gray-600 transition duration-300"
+                            className="flex items-center gap-3 w-70 p-3 bg-gray-700 rounded-md cursor-pointer hover:bg-gray-600 transition duration-300"
                           >
                             <img
                               src={anime.Poster}
                               alt={anime.Title}
                               className="w-16 h-24 object-cover rounded-md"
                             />
-                            <div className="flex flex-col">
+                            <div>
                               <span className="text-lg">{anime.Title}</span>
                               {isOwnProfile ? (
                                 <select
                                   value={status}
                                   onClick={(e) => e.stopPropagation()}
                                   onChange={(e) => handleStatusChange(anime.imdbID, e.target.value)}
-                                  className="mt-1 bg-gray-800 text-white p-1 rounded"
+                                  className="mt-2 cursor-pointer bg-gray-800 text-white p-1 rounded"
                                 >
                                   <option value="plan_to_watch">Буду смотреть</option>
                                   <option value="watching">Смотрю</option>
@@ -418,32 +418,56 @@ function Profile() {
               {activeTab === "stats" && (
                 <div className="flex flex-col gap-4">
                   <h2 className="text-xl mb-2">Статистика просмотра:</h2>
-                  <div className="bg-gray-800 p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-2 text-sm">
-                      <span>Буду смотреть: {stats.plan_to_watch}</span>
-                      <span>Смотрю: {stats.watching}</span>
-                      <span>Просмотрено: {stats.completed}</span>
-                      <span>Заброшено: {stats.dropped}</span>
+                  <div className="bg-gray-900 p-4 rounded-lg shadow-lg">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Просмотрено: {stats.completed}</span>
+                        <span className="text-sm w-16 text-right">{stats.completed}</span>
+                      </div>
+                      <div className="w-full bg-gray-700 h-8 rounded-md overflow-hidden">
+                        <div
+                          className="h-full bg-green-600"
+                          style={{ width: `${(stats.completed / (stats.plan_to_watch + stats.watching + stats.completed + stats.dropped || 1)) * 100}%` }}
+                        ></div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Смотрю: {stats.watching}</span>
+                        <span className="text-sm w-16 text-right">{stats.watching}</span>
+                      </div>
+                      <div className="w-full bg-gray-700 h-8 rounded-md overflow-hidden">
+                        <div
+                          className="h-full bg-blue-600"
+                          style={{ width: `${(stats.watching / (stats.plan_to_watch + stats.watching + stats.completed + stats.dropped || 1)) * 100}%` }}
+                        ></div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Буду смотреть: {stats.plan_to_watch}</span>
+                        <span className="text-sm w-16 text-right">{stats.plan_to_watch}</span>
+                      </div>
+                      <div className="w-full bg-gray-700 h-8 rounded-md overflow-hidden">
+                        <div
+                          className="h-full bg-yellow-600"
+                          style={{ width: `${(stats.plan_to_watch / (stats.plan_to_watch + stats.watching + stats.completed + stats.dropped || 1)) * 100}%` }}
+                        ></div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Заброшено: {stats.dropped}</span>
+                        <span className="text-sm w-16 text-right">{stats.dropped}</span>
+                      </div>
+                      <div className="w-full bg-gray-700 h-8 rounded-md overflow-hidden">
+                        <div
+                          className="h-full bg-red-600"
+                          style={{ width: `${(stats.dropped / (stats.plan_to_watch + stats.watching + stats.completed + stats.dropped || 1)) * 100}%` }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="flex items-end h-10">
-                      <div
-                        className="bg-pink-500 rounded-l"
-                        style={{ width: `${(stats.plan_to_watch / (stats.plan_to_watch + stats.watching + stats.completed + stats.dropped || 1)) * 100}%`, height: "100%" }}
-                      ></div>
-                      <div
-                        className="bg-blue-500"
-                        style={{ width: `${(stats.watching / (stats.plan_to_watch + stats.watching + stats.completed + stats.dropped || 1)) * 100}%`, height: "80%" }}
-                      ></div>
-                      <div
-                        className="bg-green-500"
-                        style={{ width: `${(stats.completed / (stats.plan_to_watch + stats.watching + stats.completed + stats.dropped || 1)) * 100}%`, height: "90%" }}
-                      ></div>
-                      <div
-                        className="bg-red-500 rounded-r"
-                        style={{ width: `${(stats.dropped / (stats.plan_to_watch + stats.watching + stats.completed + stats.dropped || 1)) * 100}%`, height: "70%" }}
-                      ></div>
-                    </div>
-                    <p className="text-right text-sm mt-2">Всего: {stats.plan_to_watch + stats.watching + stats.completed + stats.dropped}</p>
+                    <p className="text-sm text-gray-400 mt-4">
+                      Всего: {stats.plan_to_watch + stats.watching + stats.completed + stats.dropped}
+                    </p>
+                    <p className="text-sm text-gray-400 mt-1">Показаны данные за последние 6 месяцев</p>
                   </div>
                 </div>
               )}
