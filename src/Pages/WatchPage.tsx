@@ -1,9 +1,7 @@
-// WatchPage.js
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { BsBookmark, BsBookmarkFill } from "react-icons/bs";
+import { BsBookmark, BsBookmarkFill, } from "react-icons/bs";
 import { API_URL } from "../assets/config";
 import LoadingEl from "../components/ui/Loading";
 import KinoboxPlayer from "../components/Kinobox";
@@ -143,7 +141,7 @@ function WatchPage() {
             </div>
             <div className="z-10 bg-gray-900/85 flex-1 flex flex-col text-center sm:text-left p-3 rounded-2xl">
               <h1 className="text-3xl font-bold break-words whitespace-normal">{animeData.Title}</h1>
-              <p className="text-2xl text-gray-300 mb-2">{animeData.TitleEng}</p>
+              <p className="text-2xl text-white/65 mb-2">{animeData.TitleEng}</p>
               <p className="mb-2">Год: {animeData.Year}</p>
               <p className="mb-2">Дата релиза: {animeData.Released}</p>
               <p className="mb-2">Рейтинг IMDb: {animeData.imdbRating}</p>

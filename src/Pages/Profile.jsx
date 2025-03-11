@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { BsPeopleFill, BsBookmarkFill, BsGearFill, BsBarChartFill  } from "react-icons/bs";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import imageCompression from "browser-image-compression";
@@ -257,30 +258,34 @@ function Profile() {
 
             <div className="mt-4 flex items-center gap-4 flex-wrap">
               <button
-                className={`px-4 py-2 ${activeTab === "favorites" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
+                className={`px-4 py-2 ${activeTab === "favorites" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer flex gap-2 items-center`}
                 onClick={() => setActiveTab("favorites")}
               >
+                <BsBookmarkFill/>
                 Избранное
               </button>
               {isOwnProfile && (
                 <button
-                  className={`px-4 py-2 ${activeTab === "friends" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
+                  className={`px-4 py-2 ${activeTab === "friends" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer flex gap-2 items-center`}
                   onClick={() => setActiveTab("friends")}
                 >
+                  <BsPeopleFill/>
                   Друзья
                 </button>
               )}
               <button
-                className={`px-4 py-2 ${activeTab === "stats" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
+                className={`px-4 py-2 ${activeTab === "stats" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer flex gap-2 items-center`}
                 onClick={() => setActiveTab("stats")}
               >
+                <BsBarChartFill/>
                 Статистика
               </button>
               {isOwnProfile && (
                 <button
-                  className={`px-4 py-2 ${activeTab === "settings" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer`}
+                  className={`px-4 py-2 ${activeTab === "settings" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer flex gap-2 items-center`}
                   onClick={() => setActiveTab("settings")}
                 >
+                  <BsGearFill/>
                   Настройки
                 </button>
               )}

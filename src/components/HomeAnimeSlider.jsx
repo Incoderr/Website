@@ -364,6 +364,7 @@ const CategorySlider = ({ category }) => {
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                   src={anime.poster}
                   alt={anime.title}
+                  loading="lazy"
                 />
                 {anime.imdbID && (
                   <div className="absolute w-[296px] inset-0 bg-gradient-to-t from-black/90 via-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -440,7 +441,7 @@ const Top10Anime = () => {
               <div className="w-10">
                 <span className=" text-2xl font-bold text-[#A78BFA] text-center">{index + 1}</span>
               </div>
-              <img src={anime.poster} alt={anime.title} className="w-26 h-34 object-cover rounded" />
+              <img src={anime.poster} alt={anime.title} className="w-26 h-34 object-cover rounded" loading="lazy" />
               <div className="ml-5">
                 <h3 className="text-lg font-semibold text-white">{anime.title}</h3>
                 <p className="text-sm text-gray-300">Рейтинг: {anime.rating}</p>
@@ -458,7 +459,7 @@ const Top10Anime = () => {
               <div className="w-10">
                 <span className=" text-2xl font-bold text-[#A78BFA] text-center">{index + 6}</span>
               </div>
-              <img src={anime.poster} alt={anime.title} className="w-26 h-34 object-cover rounded" />
+              <img src={anime.poster} alt={anime.title} className="w-26 h-34 object-cover rounded" loading="lazy"/>
               <div className="ml-5">
                 <h3 className="text-lg font-semibold text-white">{anime.title}</h3>
                 <p className="text-sm text-gray-300">Рейтинг: {anime.rating}</p>
