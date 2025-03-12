@@ -1,6 +1,7 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Helmet } from "react-helmet";
 import Home from "./Pages/Home";
 import NotFound from "./Pages/NotFound";
 import Profile from "./Pages/Profile";
@@ -25,6 +26,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+      <TitleManager />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
@@ -40,6 +42,31 @@ function App() {
       </BrowserRouter>
     </QueryClientProvider>
   );
+}
+
+function TitleManager() {
+  const { pathname } = useLocation();
+
+  const getTitle = () => {
+    switch (pathname) {
+      case "/":
+        return "AniCor | Главная";
+      case "/auth":
+        return "AniCor | Авторизация";
+      case "/search":
+        return "AniCor | Поиск";
+      case "/admin":
+        return "AniCor | Админ-панель";
+      default:
+        if (pathname.startsWith("/profile/")) {
+          const username = pathname.replace("/profile/", "").replace("/", "") || "Мой";
+          return `AniCor | Профиль ${username}`;
+        }
+        return "AniCor";
+    }
+  };
+
+  return <Helmet><title>{getTitle()}</title></Helmet>;
 }
 
 export default App;

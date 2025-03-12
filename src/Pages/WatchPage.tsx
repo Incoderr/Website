@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import axios from "axios";
 import { BsBookmark, BsBookmarkFill, } from "react-icons/bs";
 import { API_URL } from "../assets/config";
 import LoadingEl from "../components/ui/Loading";
 import KinoboxPlayer from "../components/Kinobox";
 import HeaderEl from "../components/HeaderEl";
+
 
 interface AnimeData {
   Poster: string;
@@ -107,6 +109,9 @@ function WatchPage() {
 
   return (
     <div className="text-white">
+      <Helmet>
+        <title>{`AniCor | ${animeData.Title}`}</title>
+      </Helmet>
       <HeaderEl />
       <div className="p-[56px]">
         <div className="flex justify-center">

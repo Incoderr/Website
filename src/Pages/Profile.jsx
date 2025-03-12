@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import axios from "axios";
 import { BsPeopleFill, BsBookmarkFill, BsGearFill, BsBarChartFill  } from "react-icons/bs";
 import { useNavigate, useParams } from "react-router-dom";
@@ -242,6 +243,9 @@ function Profile() {
 
   return (
     <div>
+      <Helmet>
+        <title>{`AniCor | ${userData.username}`}</title>
+      </Helmet>
       <HeaderEl />
       <main className="pt-[56px]">
         <div className="p-5 text-white">
