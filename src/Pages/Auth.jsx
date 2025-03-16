@@ -9,6 +9,7 @@ import {
   IoAtOutline,
   IoEye,
   IoEyeOff,
+  IoExitOutline,
 } from "react-icons/io5";
 import { API_URL } from "../assets/config";
 
@@ -82,19 +83,20 @@ const Auth = () => {
   const togglePasswordVisibilitySignup = () => setShowPasswordSignup(!showPasswordSignup);
 
   return (
-    <div className="bg-gray-800">
+    <div className="bg-[#161a22]">
       <Link
-        className="absolute top-10 left-10 bg-gray-500 rounded-md p-1"
+        className="absolute top-10 left-10 bg-gray-600 rounded-md pl-2 pr-2 p-1 text-lg flex items-center gap-2"
         to={"/"}
       >
         Выйти
+        <IoExitOutline className="text-2xl"/>
       </Link>
-      <div className=" flex min-h-screen justify-center items-center">
-        <div className="bg-gray-900">
+      <div className=" flex min-h-screen justify-center items-center sm:items-baseline">
+        <div className="rounded-md sm:mt-40">
           <form onSubmit={handleSubmit(isLogin ? onLoginSubmit : onSignupSubmit)}>
             {isLogin ? (
-              <div className="p-5 bg- w-79 h-auto gap-2 items-center flex-col flex rounded-md">
-                <h1 className="text-2xl">Войти</h1>
+              <div className="p-5 w-79 h-auto gap-2 items-center flex-col flex">
+                <h1 className="text-2xl mb-6">Авторизация</h1>
                 {errorMessage && (
                   <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
                 )}
@@ -137,11 +139,12 @@ const Auth = () => {
                   </div>
                   {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
                 </label>
-                <div className="flex gap-5 mt-4 text-center flex-col">
+                <div className="flex gap-5 mt-4 text-center">
                   <p onClick={toggleForm} className="cursor-pointer select-none">
                     Нет аккаунта?
                   </p>
-                  <p className="cursor-pointer select-none">Забыли пароль?</p>
+                  
+                  {/*<p className="cursor-pointer select-none">Забыли пароль?</p>*/}
                 </div>
                 <button
                   className="select-none bg-white mt-auto cursor-pointer sm:hover:scale-102 duration-300 text-black p-2 w-full rounded-md text-lg"
@@ -152,7 +155,7 @@ const Auth = () => {
               </div>
             ) : (
               <div className="p-5 bg- w-79 h-auto gap-2 items-center flex-col flex rounded-md">
-                <h1 className="text-2xl">Регистрация</h1>
+                <h1 className="text-2xl mb-6">Регистрация</h1>
                 {errorMessage && (
                   <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
                 )}

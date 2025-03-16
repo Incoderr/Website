@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import axios from "axios";
-import { BsBookmark, BsBookmarkFill, } from "react-icons/bs";
+import { BsBookmark, BsBookmarkFill } from "react-icons/bs";
 import { API_URL } from "../assets/config";
 import LoadingEl from "../components/ui/Loading";
 import KinoboxPlayer from "../components/Kinobox";
 import HeaderEl from "../components/HeaderEl";
-
 
 interface AnimeData {
   Poster: string;
@@ -50,7 +49,10 @@ function WatchPage() {
           setWatchStatus(status ? status.status : "plan_to_watch");
         }
       } catch (error) {
-        console.error("Ошибка при загрузке данных:", error.response?.data || error.message);
+        console.error(
+          "Ошибка при загрузке данных:",
+          error.response?.data || error.message
+        );
       } finally {
         setLoading(false);
       }
@@ -58,6 +60,42 @@ function WatchPage() {
 
     fetchData();
   }, [imdbID, token]);
+
+  useEffect(() => {
+    const removeAds = () => {
+      const adElements = document.querySelectorAll(".allplay__video-wrapper");
+      if (adElements.length > 0) {
+        console.log(`⚠️Найдено ${adElements.length} рекламных элементов`);
+        adElements.forEach((element, index) => {
+          element.remove();
+          console.log(`⚠️Удален рекламный элемент #${index + 1}`);
+        });
+        console.log("⚠️Все рекламные элементы успешно удалены");
+      } else {
+        console.log("⚠️Рекламные элементы не найдены");
+      }
+    };
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(() => {
+        console.log("⚠️Обнаружено изменение в DOM, проверяем рекламу...");
+        removeAds();
+      });
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    console.log("⚠️Инициализация блокировщика рекламы");
+    removeAds();
+
+    return () => {
+      observer.disconnect();
+      console.log("⚠️Блокировщик рекламы отключен");
+    };
+  }, []);
 
   const handleToggleFavorite = async () => {
     if (!token) {
@@ -81,11 +119,16 @@ function WatchPage() {
         setIsFavorite(true);
       }
     } catch (error) {
-      console.error("Ошибка при изменении избранного:", error.response?.data || error.message);
+      console.error(
+        "Ошибка при изменении избранного:",
+        error.response?.data || error.message
+      );
     }
   };
 
-  const handleWatchStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleWatchStatusChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const newStatus = e.target.value;
     if (!token) {
       console.log("Требуется авторизация для изменения статуса просмотра");
@@ -100,12 +143,21 @@ function WatchPage() {
       );
       setWatchStatus(newStatus);
     } catch (error) {
-      console.error("Ошибка при изменении статуса:", error.response?.data || error.message);
+      console.error(
+        "Ошибка при изменении статуса:",
+        error.response?.data || error.message
+      );
     }
   };
 
-  if (loading) return <div className="p-3 h-full text-lg flex items-center justify-center"><LoadingEl /></div>;
-  if (!animeData) return <div className="p-3 text-white text-lg">Аниме не найдено</div>;
+  if (loading)
+    return (
+      <div className="p-3 h-full text-lg flex items-center justify-center">
+        <LoadingEl />
+      </div>
+    );
+  if (!animeData)
+    return <div className="p-3 text-white text-lg">Аниме не найдено</div>;
 
   return (
     <div className="text-white">
@@ -123,14 +175,22 @@ function WatchPage() {
                 className="w-64 h-96 object-cover rounded-md z-10"
               />
               <div className="bg-gray-900 w-full absolute top-0 left-0">
-                <img src={animeData.Backdrop} alt="" className="object-cover h-200 w-full" />
+                <img
+                  src={animeData.Backdrop}
+                  alt=""
+                  className="object-cover h-200 w-full"
+                />
               </div>
               <div
                 onClick={handleToggleFavorite}
                 className="z-10 mt-4 p-3 text-lg flex items-center gap-2 bg-gray-700 rounded-full cursor-pointer sm:duration-300 sm:hover:scale-105"
               >
                 {isFavorite ? "Удалить из избранного" : "Добавить в избранное"}
-                {isFavorite ? <BsBookmarkFill className="text-2xl" /> : <BsBookmark className="text-2xl" />}
+                {isFavorite ? (
+                  <BsBookmarkFill className="text-2xl" />
+                ) : (
+                  <BsBookmark className="text-2xl" />
+                )}
               </div>
               <select
                 value={watchStatus}
@@ -145,8 +205,12 @@ function WatchPage() {
               </select>
             </div>
             <div className="z-10 bg-gray-900/85 flex-1 flex flex-col text-center sm:text-left p-3 rounded-2xl">
-              <h1 className="text-3xl font-bold break-words whitespace-normal">{animeData.Title}</h1>
-              <p className="text-2xl text-white/65 mb-2">{animeData.TitleEng}</p>
+              <h1 className="text-3xl font-bold break-words whitespace-normal">
+                {animeData.Title}
+              </h1>
+              <p className="text-2xl text-white/65 mb-2">
+                {animeData.TitleEng}
+              </p>
               <p className="mb-2">Год: {animeData.Year}</p>
               <p className="mb-2">Дата релиза: {animeData.Released}</p>
               <p className="mb-2">Рейтинг IMDb: {animeData.imdbRating}</p>

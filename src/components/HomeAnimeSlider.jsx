@@ -256,11 +256,10 @@ const MainSwiper = () => {
               </div>
               {anime.imdbID ? (
                 <>
-                  <div className="flex sm:w-130 justify-center sm:justify-normal gap-2 mb-5 flex-wrap">
-                    <p className="bg-green-600 rounded-full px-3 py-1 text-sm sm:text-base">Рейтинг: {anime.rating}</p>
+                  <div className="flex sm:w-130 justify-center gap-2 mb-5 flex-wrap">
+                    <p className="bg-gradient-to-r from-green-500 to-green-800 rounded-full px-3 py-1 text-sm sm:text-base">Рейтинг: {anime.rating}</p>
                     <p className="bg-gray-700 rounded-full px-3 py-1 text-sm sm:text-base">Серий: {anime.episodes}</p>
                     <p className="bg-gray-700 rounded-full px-3 py-1 text-sm sm:text-base">Год: {anime.year || "N/A"}</p>
-                    <p className="bg-gray-700 rounded-full px-3 py-1 text-sm sm:text-base">Статус: {anime.status || "N/A"}</p>
                   </div>
                   <div className="hidden sm:overflow-hidden sm:w-130 sm:mb-2 sm:line-clamp-4 sm:text-gray-200">{anime.description}</div>
                   <div className="flex w-130 items-center justify-center gap-3">
@@ -360,6 +359,7 @@ const CategorySlider = ({ category }) => {
           <SwiperSlide key={anime.id} className="max-w-[296px]">
             <div className="group select-none w-[296px]">
               <div className="relative h-[420px] w-[296px] rounded-lg overflow-hidden">
+                <span className="absolute bg-gradient-to-r from-green-500 to-green-800 rounded-full px-3 text-lg right-4 top-4 z-10">{anime.rating}</span>
                 <img
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                   src={anime.poster}

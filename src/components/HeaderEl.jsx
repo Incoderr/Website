@@ -93,7 +93,7 @@ function HeaderEl() {
       {isFavoritesOpen && (
         <div
           ref={favoritesRef}
-          className="absolute right-0 mr-5 lg:mr-19 flex gap-3 flex-col top-20 z-100 bg-gray-700 p-2 rounded-md max-w-100 max-h-100 overflow-y-auto shadow-lg"
+          className="absolute  bookmarkhed right-0 mr-5 lg:mr-19 flex gap-3 flex-col top-20 z-100 bg-gray-700 p-2 rounded-md max-w-100 max-h-100 overflow-y-auto shadow-lg"
           onClick={(e) => e.stopPropagation()}
         >
           {isLoading ? (

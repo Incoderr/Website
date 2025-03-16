@@ -8,18 +8,38 @@ body {
   font-style: normal;
 }
 
-.h-title{
+.h-title {
   font-size: 30px;
 }
-.custom-bt-swiper{
+.custom-bt-swiper {
   .swiper-button-next,
-  .swiper-button-prev{
+  .swiper-button-prev {
     color: #ffffff;
     top: 42%;
   }
 }
-.active-link{
+.active-link {
   color: #75e753;
+}
+
+.bookmarkhed {
+  --sb-track-color: #232e33;
+  --sb-thumb-color: #e2edff;
+  --sb-size: 6px;
+}
+
+.bookmarkhed::-webkit-scrollbar {
+  width: var(--sb-size);
+}
+
+.bookmarkhed::-webkit-scrollbar-track {
+  background: var(--sb-track-color);
+  border-radius: 3px;
+}
+
+.bookmarkhed::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb-color);
+  border-radius: 3px;
 }
 @media screen and (max-width: 640px) {
   .swiper-button-next,
@@ -27,4 +47,3 @@ body {
     visibility: hidden;
   }
 }
-
