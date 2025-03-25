@@ -4,9 +4,9 @@ import SearchEl from "../components/SearchEl";
 
 function Search() {
   return (
-    <div>
+    <div className='min-h-screen bg-[#181a1b]'>
       <HeaderEl/>
-      <div className='pt-[56px]'>
+      <div>
         <div className='search-container'>
           <SearchEl/>
         </div>

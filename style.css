@@ -3,11 +3,11 @@ body {
   background-color: black;
   color: white;
 
-  font-family: "Ubuntu", sans-serif;
+  font-family: "Rubik", sans-serif;
+  font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
 }
-
 .h-title {
   font-size: 30px;
 }

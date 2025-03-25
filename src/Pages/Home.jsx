@@ -25,7 +25,7 @@ const Home = () => {
   return (
     <div>
       <HeaderEl />
-      <main>
+      <main className="bg-[#00171f]">
         <QueryClientProvider client={queryClient}>
           <HomeAnimeSlider />
         </QueryClientProvider>

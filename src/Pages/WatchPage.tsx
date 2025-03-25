@@ -46,7 +46,7 @@ function WatchPage() {
 
           const userWatchStatus = profileResponse.data.watchStatus || [];
           const status = userWatchStatus.find((ws) => ws.imdbID === imdbID);
-          setWatchStatus(status ? status.status : "plan_to_watch");
+          setWatchStatus(status ? status.status : "");
         }
       } catch (error) {
         console.error(
@@ -61,41 +61,6 @@ function WatchPage() {
     fetchData();
   }, [imdbID, token]);
 
-  useEffect(() => {
-    const removeAds = () => {
-      const adElements = document.querySelectorAll(".allplay__video-wrapper");
-      if (adElements.length > 0) {
-        console.log(`⚠️Найдено ${adElements.length} рекламных элементов`);
-        adElements.forEach((element, index) => {
-          element.remove();
-          console.log(`⚠️Удален рекламный элемент #${index + 1}`);
-        });
-        console.log("⚠️Все рекламные элементы успешно удалены");
-      } else {
-        console.log("⚠️Рекламные элементы не найдены");
-      }
-    };
-
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach(() => {
-        console.log("⚠️Обнаружено изменение в DOM, проверяем рекламу...");
-        removeAds();
-      });
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
-
-    console.log("⚠️Инициализация блокировщика рекламы");
-    removeAds();
-
-    return () => {
-      observer.disconnect();
-      console.log("⚠️Блокировщик рекламы отключен");
-    };
-  }, []);
 
   const handleToggleFavorite = async () => {
     if (!token) {
@@ -152,7 +117,7 @@ function WatchPage() {
 
   if (loading)
     return (
-      <div className="p-3 h-full text-lg flex items-center justify-center">
+      <div className="p-3 min-h-screen text-lg flex items-center justify-center">
         <LoadingEl />
       </div>
     );
@@ -174,49 +139,57 @@ function WatchPage() {
                 alt={animeData.Title}
                 className="w-64 h-96 object-cover rounded-md z-10"
               />
-              <div className="bg-gray-900 w-full absolute top-0 left-0">
-                <img
-                  src={animeData.Backdrop}
-                  alt=""
-                  className="object-cover h-200 w-full"
-                />
+              <div className="flex w-full absolute top-0 left-0 h-200">
+                <div className="w-full">
+                  <img
+                      src={animeData.Backdrop}
+                      alt=""
+                      className="object-cover h-200 w-full"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+                </div>
               </div>
-              <div
-                onClick={handleToggleFavorite}
-                className="z-10 mt-4 p-3 text-lg flex items-center gap-2 bg-gray-700 rounded-full cursor-pointer sm:duration-300 sm:hover:scale-105"
-              >
-                {isFavorite ? "Удалить из избранного" : "Добавить в избранное"}
-                {isFavorite ? (
-                  <BsBookmarkFill className="text-2xl" />
-                ) : (
-                  <BsBookmark className="text-2xl" />
-                )}
-              </div>
-              <select
-                value={watchStatus}
-                onChange={handleWatchStatusChange}
-                className="z-10 mt-4 p-2 bg-gray-700 rounded-md text-white"
-                disabled={!token}
-              >
-                <option value="plan_to_watch">Буду смотреть</option>
-                <option value="watching">Смотрю</option>
-                <option value="completed">Просмотрено</option>
-                <option value="dropped">Брошено</option>
-              </select>
             </div>
-            <div className="z-10 bg-gray-900/85 flex-1 flex flex-col text-center sm:text-left p-3 rounded-2xl">
+            <div className="z-10 flex-1 flex flex-col text-center sm:text-left p-3 rounded-2xl">
               <h1 className="text-3xl font-bold break-words whitespace-normal">
                 {animeData.Title}
               </h1>
-              <p className="text-2xl text-white/65 mb-2">
+              <p className="text-2xl text-white/80 mb-2">
                 {animeData.TitleEng}
               </p>
               <p className="mb-2">Год: {animeData.Year}</p>
               <p className="mb-2">Дата релиза: {animeData.Released}</p>
-              <p className="mb-2">Рейтинг IMDb: {animeData.imdbRating}</p>
+              <p className="mb-2">Рейтинг <span className="text-blue-400">Shikikmori: </span>{animeData.imdbRating}</p>
+              <p className="mb-2">Рейтинг <span className="text-yellow-400">IMDB: </span> </p>
               <p className="mb-2">Жанры: {animeData.Genre}</p>
+              <p className="mb-2">Количество серий: {animeData.Episodes}</p>
               <h1 className="mt-2 text-lg">Описание:</h1>
               <p>{animeData.OverviewRu}</p>
+              <div className="flex gap-4">
+                <div
+                  onClick={handleToggleFavorite}
+                  className="z-10 mt-4 p-3 h-12 text-lg flex items-center gap-2 backdrop-blur-[3px] bg-black/50 rounded-full cursor-pointer sm:duration-300 sm:hover:scale-105"
+                >
+                  {isFavorite ? "Удалить из избранного" : "Добавить в избранное"}
+                  {isFavorite ? (
+                    <BsBookmarkFill className="text-2xl" />
+                  ) : (
+                    <BsBookmark className="text-2xl" />
+                  )}
+                </div>
+                <select
+                  value={watchStatus}
+                  onChange={handleWatchStatusChange}
+                  className="z-10 mt-4 text-lg h-12 p-3 backdrop-blur-[3px] bg-black/50 rounded-full text-white outline-0 cursor-pointer sm:duration-300 sm:hover:scale-105"
+                  disabled={!token}
+                >
+                  <option value="">Не выбрано</option>
+                  <option value="plan_to_watch">Буду смотреть</option>
+                  <option value="watching">Смотрю</option>
+                  <option value="completed">Просмотрено</option>
+                  <option value="dropped">Брошено</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>

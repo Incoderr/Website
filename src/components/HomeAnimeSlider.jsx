@@ -3,6 +3,8 @@ import { Navigation, EffectFade, Autoplay } from "swiper/modules";
 import { Link, useNavigate } from "react-router-dom";
 import { BsBookmark, BsBookmarkFill, BsFillPlayFill } from "react-icons/bs";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Skeleton from 'react-loading-skeleton'; 
+import 'react-loading-skeleton/dist/skeleton.css';
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -162,17 +164,13 @@ const filterAndUseMongoData = (anilistData, myDatabase) => {
 const MainSwiper = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const token = localStorage.getItem("token");
 
-  // Предполагаем, что токен хранится в localStorage или контексте
-  const token = localStorage.getItem("token"); // Замените на ваш способ получения токена
-
-  // Получение данных AniList
   const { data: anilistData = [], isLoading: anilistLoading, error: anilistError } = useQuery({
     queryKey: ["anilist", "TRENDING_DESC", 5],
     queryFn: fetchAnilistData,
   });
 
-  // Получение данных MongoDB
   const { data: dbData = [], isLoading: dbLoading, error: dbError } = useQuery({
     queryKey: ["database", { 
       fields: "Title,TitleEng,Episodes,Year,TMDbRating,imdbRating,OverviewRu,Poster,Backdrop,imdbID,Genre,Status",
@@ -181,20 +179,17 @@ const MainSwiper = () => {
     queryFn: fetchMyDatabase,
   });
 
-  // Получение профиля пользователя с избранным
   const { data: userProfile, isLoading: profileLoading } = useQuery({
     queryKey: ["userProfile"],
     queryFn: () => fetchUserProfile(token),
-    enabled: !!token, // Выполняется только если токен есть
+    enabled: !!token,
   });
 
-  const favorites = userProfile?.favorites || []; // Список избранного из профиля
-
+  const favorites = userProfile?.favorites || [];
   const animeList = filterAndUseMongoData(anilistData, dbData).slice(0, 5);
   const loading = anilistLoading || dbLoading || profileLoading;
   const error = anilistError || dbError;
 
-  // Мутации для добавления и удаления из избранного
   const addFavoriteMutation = useMutation({
     mutationFn: (imdbID) => addToFavorites(imdbID, token),
     onSuccess: () => queryClient.invalidateQueries(["userProfile"]),
@@ -221,7 +216,21 @@ const MainSwiper = () => {
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center h-130 sm:h-190"><p className="text-xl">Загрузка...</p></div>;
+  if (loading) return (
+    <div className="mb-12 hidden sm:block">
+      <div className="h-130 sm:h-200 flex items-center justify-center">
+        <div className="left-0 absolute ml-25">
+          <div className='w-130 flex flex-col items-center'>
+            <Skeleton width={260} height={388} baseColor="#333" highlightColor="#666" className="mb-2" />
+            <Skeleton width={160} height={24} baseColor="#333" highlightColor="#666" className="mb-2" />
+            <Skeleton width={240} height={48} baseColor="#333" highlightColor="#666" className="mb-2" />
+            <Skeleton width={128} height={40} baseColor="#333" highlightColor="#666" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   if (error) return <div className="flex items-center justify-center h-130 sm:h-190"><p className="text-xl text-red-500">{error.message}</p></div>;
   if (!animeList.length) return <div className="flex items-center justify-center h-130 sm:h-190"><p className="text-xl">Нет данных для отображения</p></div>;
 
@@ -250,8 +259,8 @@ const MainSwiper = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent" />
             </div>
             <div className="absolute left-0 top-17 items-center sm:items-baseline z-10 flex w-full flex-col mb-10 sm:mt-0 sm:mb-0 sm:mr-auto sm:ml-25">
-              <div className="w-130 flex flex-col">
-                <img className="h-60 sm:h-100 object-contain" src={anime.poster} alt={anime.title} loading="lazy" />
+              <div className="w-100 sm:w-130 flex flex-col items-center">
+                <img className="h-60 w-45 sm:h-97 sm:w-65 object-contain" src={anime.poster} alt={anime.title} loading="lazy" />
                 <h1 className="text-[20px] mb-2 mt-2 font-bold text-white">{anime.title}</h1>
               </div>
               {anime.imdbID ? (
@@ -290,7 +299,7 @@ const MainSwiper = () => {
   );
 };
 
-// Компонент слайдера категории
+// Компонент CategorySlider с react-loading-skeleton
 const CategorySlider = ({ category }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -316,7 +325,6 @@ const CategorySlider = ({ category }) => {
   });
 
   const favorites = userProfile?.favorites || [];
-
   const animeList = filterAndUseMongoData(anilistData, dbData).slice(0, 20);
   const loading = anilistLoading || dbLoading || profileLoading;
   const error = anilistError || dbError;
@@ -347,7 +355,22 @@ const CategorySlider = ({ category }) => {
     }
   };
 
-  if (loading) return <div className="w-full h-[400px] flex items-center justify-center"><div className="text-xl text-gray-600">Загрузка...</div></div>;
+  if (loading) return (
+    <div className="flex flex-col mb-12 p-5 hidden sm:block">
+        <Skeleton width={200} height={40} baseColor="#333" highlightColor="#666" className="mb-6" />
+        <Swiper spaceBetween={30} slidesPerView="auto" navigation={true} modules={[Navigation]} className="w-full custom-bt-swiper">
+          {[...Array(6)].map((_, index) => (
+            <SwiperSlide key={index} className="max-w-[296px]">
+              <div className="w-[296px] flex flex-col items-center">
+                <Skeleton width={296} height={420} baseColor="#333" highlightColor="#666" className="rounded-lg" />
+                <Skeleton width={170} height={30} baseColor="#333" highlightColor="#666" className="mt-3 mx-auto" />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+    </div>
+  );
+
   if (error) return <div className="w-full h-[400px] flex items-center justify-center"><div className="text-xl text-red-600">{error.message}</div></div>;
   if (!animeList.length) return <div className="w-full h-[400px] flex items-center justify-center"><div className="text-xl">Нет данных для отображения</div></div>;
 
@@ -356,9 +379,9 @@ const CategorySlider = ({ category }) => {
       <h2 className="text-3xl font-bold mb-6 flex justify-center sm:justify-normal">{category.label}</h2>
       <Swiper spaceBetween={30} slidesPerView="auto" navigation={true} modules={[Navigation]} className="w-full custom-bt-swiper">
         {animeList.map((anime) => (
-          <SwiperSlide key={anime.id} className="max-w-[296px]">
-            <div className="group select-none w-[296px]">
-              <div className="relative h-[420px] w-[296px] rounded-lg overflow-hidden">
+          <SwiperSlide key={anime.id} className="max-w-38 sm:max-w-[296px]">
+            <div className="group select-none w-42 sm:w-[296px]">
+              <div className="relative h-75 w-42 sm:h-[420px] sm:w-[296px] rounded-lg overflow-hidden">
                 <span className="absolute bg-gradient-to-r from-green-500 to-green-800 rounded-full px-3 text-lg right-4 top-4 z-10">{anime.rating}</span>
                 <img
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -367,7 +390,7 @@ const CategorySlider = ({ category }) => {
                   loading="lazy"
                 />
                 {anime.imdbID && (
-                  <div className="absolute w-[296px] inset-0 bg-gradient-to-t from-black/90 via-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute hidden sm:block sm:w-[296px] inset-0 bg-gradient-to-t from-black/90 via-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="absolute bottom-0 p-4 w-full">
                       <div className="text-gray-300 text-sm line-clamp-10 mb-4">{anime.description}</div>
                       <div className="flex items-center gap-2">
@@ -391,7 +414,7 @@ const CategorySlider = ({ category }) => {
                 )}
               </div>
               <div className="flex text-center justify-center mt-3 "> 
-                <h3 className="text-xl font-bold text-gray-50">{anime.title}</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-50">{anime.title}</h3>
               </div>
               {!anime.imdbID && <p className="text-sm text-gray-400">Только название из AniList</p>}
             </div>
@@ -402,7 +425,7 @@ const CategorySlider = ({ category }) => {
   );
 };
 
-// Компонент топ-10
+// Компонент Top10Anime с react-loading-skeleton
 const Top10Anime = () => {
   const { data: anilistData = [], isLoading: anilistLoading, error: anilistError } = useQuery({
     queryKey: ["anilist", "SCORE_DESC", 20],
@@ -413,7 +436,7 @@ const Top10Anime = () => {
     queryKey: ["database", { 
       fields: "Title,TitleEng,Episodes,Year,TMDbRating,IMDbRating,OverviewRu,Poster,Backdrop,imdbID,Genre,Status",
       limit: 10,
-      sort: "-IMDbRating" // Сортировка по рейтингу из MongoDB
+      sort: "-IMDbRating"
     }],
     queryFn: fetchMyDatabase,
   });
@@ -422,27 +445,58 @@ const Top10Anime = () => {
   const loading = anilistLoading || dbLoading;
   const error = anilistError || dbError;
 
-  if (loading) return <div className="w-full h-[200px] flex items-center justify-center"><div className="text-xl text-gray-600">Загрузка...</div></div>;
+  if (loading) return (
+    <div className="mb-12 p-5 hidden sm:block">
+              <Skeleton width={200} height={40} baseColor="#333" highlightColor="#666" className="mb-6 mx-auto sm:mx-0" />
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col gap-4 w-full sm:w-1/2">
+                  {[...Array(5)].map((_, index) => (
+                    <div key={index} className="flex items-center p-4 bg-gray-800 rounded-lg">
+                      <Skeleton width={40} height={32} baseColor="#333" highlightColor="#666" />
+                      <Skeleton width={104} height={136} baseColor="#333" highlightColor="#666" className="ml-4" />
+                      <div className="ml-5 flex-1">
+                        <Skeleton width={128} height={20} baseColor="#333" highlightColor="#666" className="mb-2" />
+                        <Skeleton width={80} height={16} baseColor="#333" highlightColor="#666" className="mb-1" />
+                        <Skeleton width={64} height={16} baseColor="#333" highlightColor="#666" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-col gap-4 w-full sm:w-1/2">
+                  {[...Array(5)].map((_, index) => (
+                    <div key={index} className="flex items-center p-4 bg-gray-800 rounded-lg">
+                      <Skeleton width={40} height={32} baseColor="#333" highlightColor="#666" />
+                      <Skeleton width={104} height={136} baseColor="#333" highlightColor="#666" className="ml-4" />
+                      <div className="ml-5 flex-1">
+                        <Skeleton width={128} height={20} baseColor="#333" highlightColor="#666" className="mb-2" />
+                        <Skeleton width={80} height={16} baseColor="#333" highlightColor="#666" className="mb-1" />
+                        <Skeleton width={64} height={16} baseColor="#333" highlightColor="#666" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+    </div>
+  );
+
   if (error) return <div className="w-full h-[200px] flex items-center justify-center"><div className="text-xl text-red-600">{error.message}</div></div>;
   if (!animeList.length) return <div className="w-full h-[200px] flex items-center justify-center"><div className="text-xl">Нет данных для отображения</div></div>;
 
-  // Разделяем список на две части
-  const leftColumnAnime = animeList.slice(0, 5); // Элементы с 1 по 5
-  const rightColumnAnime = animeList.slice(5, 10); // Элементы с 6 по 10
+  const leftColumnAnime = animeList.slice(0, 5);
+  const rightColumnAnime = animeList.slice(5, 10);
 
   return (
-    <div className="mb-12 p-5">
+    <div className="mb-12 p-5 hidden sm:block">
       <h2 className="text-3xl font-bold mb-6 text-center sm:text-left">Топ 10 аниме</h2>
       <div className="flex flex-col sm:flex-row gap-4">
-        {/* Левая колонка (1-5) */}
         <div className="flex flex-col gap-4 w-full sm:w-1/2">
           {leftColumnAnime.map((anime, index) => (
             <div key={anime.id} className="flex items-center p-4 bg-gray-800 rounded-lg">
-              <div className="w-10">
-                <span className=" text-2xl font-bold text-[#A78BFA] text-center">{index + 1}</span>
+              <div className="w-11">
+                <span className="text-2xl font-bold text-[#A78BFA] text-center">{index + 1}</span>
               </div>
-              <img src={anime.poster} alt={anime.title} className="w-26 h-34 object-cover rounded" loading="lazy" />
-              <div className="ml-5">
+              <img src={anime.poster} alt={anime.title} className="w-[95px] h-[135px] object-cover mr-5 rounded" loading="lazy" />
+              <div className=" max-w-45">
                 <h3 className="text-lg font-semibold text-white">{anime.title}</h3>
                 <p className="text-sm text-gray-300">Рейтинг: {anime.rating}</p>
                 <p className="text-sm text-gray-400">Серий: {anime.episodes}</p>
@@ -451,16 +505,14 @@ const Top10Anime = () => {
             </div>
           ))}
         </div>
-        
-        {/* Правая колонка (6-10) */}
         <div className="flex flex-col gap-4 w-full sm:w-1/2">
           {rightColumnAnime.map((anime, index) => (
             <div key={anime.id} className="flex items-center p-4 bg-gray-800 rounded-lg">
-              <div className="w-10">
-                <span className=" text-2xl font-bold text-[#A78BFA] text-center">{index + 6}</span>
+              <div className="w-11">
+                <span className="text-2xl font-bold text-[#A78BFA] text-center">{index + 6}</span>
               </div>
-              <img src={anime.poster} alt={anime.title} className="w-26 h-34 object-cover rounded" loading="lazy"/>
-              <div className="ml-5">
+              <img src={anime.poster} alt={anime.title} className="w-[95px] h-[135px] object-cover rounded mr-5" loading="lazy"/>
+              <div className="max-w-45">
                 <h3 className="text-lg font-semibold text-white">{anime.title}</h3>
                 <p className="text-sm text-gray-300">Рейтинг: {anime.rating}</p>
                 <p className="text-sm text-gray-400">Серий: {anime.episodes}</p>
@@ -474,7 +526,7 @@ const Top10Anime = () => {
   );
 };
 
-// Главный компонент
+// Главный компонент остается без изменений
 const AnimeCombinedComponent = () => {
   const categories = [
     { label: "Популярное", sort: "POPULARITY_DESC" },

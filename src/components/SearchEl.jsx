@@ -1,10 +1,31 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { BsFilter, BsSearch } from "react-icons/bs";
+import { LuSearch } from "react-icons/lu";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import genresData from "../assets/json/available_genres.json";
 import { API_URL } from "../assets/config";
 import LoadingEl from "../components/ui/Loading";
+
+// Объект с изображениями для жанров (пути к файлам или URL)
+const genreImages = {
+  "Экшен": "../../public/genres/Action.jpg",
+  "Приключения": "../../public/genres/Adventure.jpg",
+  "Комедия": "../../public/genres/Comedy.jpg",
+  "Драма": "../../public/genres/Drama.jpg",
+  "Этти": "../../public/genres/Ecchi.jpg",
+  "Фэнтези": "../../public/genres/Fantasy.jpg",
+  "Хоррор": "../../public/genres/Horror.jpg",
+  "Меха": "../../public/genres/Mecha.jpg",
+  "Музыка": "../../public/genres/Music.jpg",
+  "Детектив": "../../public/genres/Mystery.jpg",
+  "Психологическое": "../../public/genres/Psychological.jpg",
+  "Романтика": "../../public/genres/Romance.jpg",
+  "Научная фантастика": "../../public/genres/Sci-Fi.jpg",
+  "Повседневность": "../../public/genres/Slice of life.jpg",
+  "Спорт": "../../public/genres/Sports.jpg",
+  "Сверхъестественное": "../../public/genres/Supernatural.jpg",
+  "Триллер": "../../public/genres/Thriller.jpg",
+};
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -17,36 +38,33 @@ const debounce = (func, delay) => {
 function SearchEl() {
   const [anime, setAnime] = useState([]);
   const [visibleAnime, setVisibleAnime] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(12); // Установлено 12 по умолчанию
+  const [visibleCount, setVisibleCount] = useState(12);
   const [selectedGenre, setSelectedGenre] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [showGenres, setShowGenres] = useState(true);
   const navigate = useNavigate();
 
-  // Маппинг русских жанров в английские для запросов к серверу
   const genreMapping = {
-    Экшен: "Action",
-    Приключения: "Adventure",
-    Комедия: "Comedy",
-    Драма: "Drama",
-    Этти: "Ecchi",
-    Фэнтези: "Fantasy",
-    Хоррор: "Horror",
-    Меха: "Mecha",
-    Музыка: "Music",
-    Детектив: "Mystery",
-    Психологическое: "Psychological",
-    Романтика: "Romance",
-    Научная_фантастика: "Sci-Fi",
-    Повседневность: "Slice of Life",
-    Спорт: "Sports",
-    Сверхъестественное: "Supernatural",
-    Триллер: "Thriller",
-    // Добавьте другие маппинги по необходимости
+    "Экшен": "Action",
+    "Приключения": "Adventure",
+    "Комедия": "Comedy",
+    "Драма": "Drama",
+    "Этти": "Ecchi",
+    "Фэнтези": "Fantasy",
+    "Хоррор": "Horror",
+    "Меха": "Mecha",
+    "Музыка": "Music",
+    "Детектив": "Mystery",
+    "Психологическое": "Psychological",
+    "Романтика": "Romance",
+    "Научная фантастика": "Sci-Fi",
+    "Повседневность": "Slice of Life",
+    "Спорт": "Sports",
+    "Сверхъестественное": "Supernatural",
+    "Триллер": "Thriller",
   };
 
-  // Загружаем аниме с сервера
   const loadAnime = useCallback(
     (params, reset = false) => {
       setLoading(true);
@@ -60,22 +78,19 @@ function SearchEl() {
           },
         })
         .then((response) => {
-          // Убираем дубликаты по _id
           const uniqueAnime = Array.from(
             new Map(response.data.map((item) => [item._id, item])).values()
           ).map((item) => ({
             ...item,
             Genre: Array.isArray(item.Genre)
               ? item.Genre.map((g) => {
-                  // Преобразуем английские жанры в русские для отображения
                   const russianGenre = Object.entries(genreMapping).find(
                     ([_, eng]) => eng === g
                   )?.[0];
-                  return russianGenre || g; // Возвращаем русский жанр или английский, если маппинга нет
+                  return russianGenre || g;
                 })
               : [],
           }));
-          console.log("📌 Ответ от сервера:", uniqueAnime);
           setAnime(uniqueAnime);
           setVisibleAnime(uniqueAnime.slice(0, reset ? 12 : visibleCount));
           setLoading(false);
@@ -88,19 +103,17 @@ function SearchEl() {
     [visibleCount]
   );
 
-  // Фильтрация по жанру
   const filterByGenre = useCallback(
     (genreValue) => {
       setSelectedGenre(genreValue);
       setSearchQuery("");
       setVisibleCount(12);
       setShowGenres(false);
-      loadAnime({ genre: genreValue }, true); // Передаём русский жанр, сервер преобразует в английский
+      loadAnime({ genre: genreValue }, true);
     },
     [loadAnime]
   );
 
-  // Задержанный поиск
   const debouncedSearch = useCallback(
     debounce((query) => {
       if (query.trim()) {
@@ -115,7 +128,6 @@ function SearchEl() {
     [loadAnime]
   );
 
-  // Обработчик поиска
   const handleSearch = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -124,7 +136,6 @@ function SearchEl() {
     debouncedSearch(query);
   };
 
-  // Возврат к жанрам
   const handleBackToGenres = () => {
     setShowGenres(true);
     setSelectedGenre(null);
@@ -134,7 +145,6 @@ function SearchEl() {
     setVisibleCount(12);
   };
 
-  // Загрузка большего количества аниме
   const handleLoadMore = () => {
     if (visibleCount < anime.length) {
       const newCount = visibleCount + 12;
@@ -143,7 +153,6 @@ function SearchEl() {
     }
   };
 
-  // Переход к странице плеера
   const handleCardClick = (imdbID) => {
     navigate(`/player/${imdbID}`);
   };
@@ -151,30 +160,40 @@ function SearchEl() {
   return (
     <div className="p-3">
       <div className="flex flex-row justify-center mt-15 mb-5 sm:mb-8 gap-2">
-        <div className="relative flex items-center sm:duration-300 hover:scale-101">
-          <BsSearch className="absolute ml-3 text-2xl" />
+        <div className="relative flex w-full sm:w-auto items-center sm:duration-300 hover:scale-101">
+          <LuSearch className="absolute ml-3 text-2xl" />
           <input
             type="text"
             value={searchQuery}
             onChange={handleSearch}
             className="bg-gray-700 w-full sm:w-120 h-11 text-white text-lg pl-11 outline-none focus:ring-blue-600 focus:ring-1 focus:shadow-lg focus:shadow-blue-600/30 rounded-md"
-            placeholder="Поиск аниме..."
+            placeholder="Поиск..."
           />
         </div>
-        <div className="h-11 w-11 rounded-md flex items-center justify-center bg-gray-700 sm:duration-300 hover:scale-105">
+        {/*<div className="h-11 w-11 rounded-md flex items-center justify-center bg-[#182838] sm:duration-300 hover:scale-105">
           <BsFilter className="text-3xl" />
-        </div>
+        </div>*/}
       </div>
 
       {showGenres ? (
-        <div className="flex gap-2 sm:gap-3 justify-center max-w-500 sm:max-w-500 flex-wrap">
+        <div className="flex gap-4 sm:gap-3 justify-center max-w-500 sm:max-w-500 flex-wrap">
           {Object.entries(genresData).map(([key, value]) => (
             <div
               key={key}
               onClick={() => filterByGenre(value)}
-              className="bg-[#14222d] w-47 h-20 sm:w-73 sm:h-30 duration-300 cursor-pointer hover:scale-105 flex justify-center items-center p-2 rounded-md text-white text-xl font-bold"
+              className="relative w-90 h-40 sm:w-85 sm:h-40 duration-300 cursor-pointer hover:scale-105 rounded-md overflow-hidden flex justify-center items-center"
             >
-              {value}
+              <div className="absolute bg-black/35 z-10 w-90 h-40 sm:w-85 sm:h-40"></div>
+                <img
+                      src={genreImages[value]}
+                      alt={value} 
+                      className="w-full h-full object-cover blur-[px]"
+                    />
+              <div className="absolute flex justify-center items-center">
+                <span className="text-white text-2xl font-bold text-center z-10">
+                  {value}
+                </span>
+              </div>
             </div>
           ))}
         </div>
@@ -205,7 +224,6 @@ function SearchEl() {
                   <span className="h-15 w-auto flex justify-center m-4 text-white text-lg font-bold">
                     {item.Title || "Без названия"}
                   </span>
-                  {/* Отображение жанров как списка на русском для фильтрации */}
                 </div>
               ))
             ) : (

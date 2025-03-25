@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { BsSearch, BsBookmark } from "react-icons/bs";
+import { LuSearch, LuBookmark } from "react-icons/lu";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from '../assets/config';
 
@@ -14,7 +14,7 @@ const fetchProfileData = async (token) => {
   });
   if (!response.ok) throw new Error("Ошибка при загрузке профиля");
   const data = await response.json();
-  return data; // Возвращаем полные данные профиля, включая favorites и avatar
+  return data;
 };
 
 function HeaderEl() {
@@ -26,14 +26,15 @@ function HeaderEl() {
   const queryClient = useQueryClient();
 
   const { data: profileData, isLoading, error } = useQuery({
-    queryKey: ["favorites", token], // Используем тот же ключ, что и в профиле
+    queryKey: ["favorites", token],
     queryFn: () => fetchProfileData(token),
     enabled: !!token,
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
   });
 
-  const user = profileData || JSON.parse(localStorage.getItem("user") || "{}");
+  // Используем данные профиля только если они есть, иначе null
+  const user = profileData || null;
   const favoritesData = profileData?.favoritesData || [];
 
   const toggleFavorites = (e) => {
@@ -66,7 +67,7 @@ function HeaderEl() {
         </div>
         <div className="flex items-center gap-4">
           <Link to={"/search"} className="">
-            <BsSearch className="text-[23px]" />
+            <LuSearch className="text-[27px]" />
           </Link>
           <button
             ref={bookmarkRef}
@@ -75,9 +76,9 @@ function HeaderEl() {
             style={{ background: "none", border: "none", cursor: "pointer" }}
             className="relative"
           >
-            <BsBookmark className="text-[23px]" />
+            <LuBookmark className="text-[27px]" />
           </button>
-          {user.username ? (
+          {user && user.username ? (
             <div className="flex items-center gap-2">
               <Link to="/profile">
                 <img src={user.avatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
@@ -93,7 +94,7 @@ function HeaderEl() {
       {isFavoritesOpen && (
         <div
           ref={favoritesRef}
-          className="absolute  bookmarkhed right-0 mr-5 lg:mr-19 flex gap-3 flex-col top-20 z-100 bg-gray-700 p-2 rounded-md max-w-100 max-h-100 overflow-y-auto shadow-lg"
+          className="absolute bookmarkhed right-0 mr-5 lg:mr-19 flex gap-3 flex-col top-20 z-100 bg-gray-700 p-2 rounded-md max-w-100 max-h-100 overflow-y-auto shadow-lg"
           onClick={(e) => e.stopPropagation()}
         >
           {isLoading ? (
@@ -105,7 +106,7 @@ function HeaderEl() {
               <Link
                 key={anime.imdbID}
                 to={`/player/${anime.imdbID}`}
-                className="flex items-center gap-2 p-2 bg-gray-800 rounded-md h-30 hover:scale-104 duration-300"
+                className="flex h-auto items-center gap-2 p-2 bg-gray-800 rounded-md h-30 hover:scale-104 duration-300"
                 onClick={() => setIsFavoritesOpen(false)}
               >
                 <div className="flex">
