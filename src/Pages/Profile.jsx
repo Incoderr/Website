@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Helmet } from "react-helmet";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 import axios from "axios";
-import { BsPeopleFill, BsBookmarkFill, BsGearFill, BsBarChartFill  } from "react-icons/bs";
+import { BsPeopleFill, BsBookmarkFill, BsGearFill, BsBarChartFill, BsCollectionFill  } from "react-icons/bs";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import imageCompression from "browser-image-compression";
 import HeaderEl from "../components/HeaderEl";
 import LoadingEl from "../components/ui/Loading";
+import Collections from "../components/Collections";
 import { API_URL } from "../assets/config";
 
 function Profile() {
@@ -242,9 +243,10 @@ function Profile() {
   const isOwnProfile = !username || username === JSON.parse(localStorage.getItem("user") || "{}").username;
 
   return (
+    <HelmetProvider>
     <div>
       <Helmet>
-        <title>{`AniCor | ${userData.username}`}</title>
+        <title>{`AniCor - ${userData.username}`}</title>
       </Helmet>
       <HeaderEl />
       <main className="pt-[56px]">
@@ -284,6 +286,15 @@ function Profile() {
                 <BsBarChartFill/>
                 Статистика
               </button>
+
+              <button
+                  className={`px-4 py-2 ${activeTab === "collections" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer flex gap-2 items-center`}
+                  onClick={() => setActiveTab("collections")}
+                >
+                  <BsCollectionFill />
+                  Коллекции
+                </button>
+
               {isOwnProfile && (
                 <button
                   className={`px-4 py-2 ${activeTab === "settings" ? "bg-gray-700" : "bg-gray-800"} rounded cursor-pointer flex gap-2 items-center`}
@@ -487,6 +498,14 @@ function Profile() {
                 </div>
               )}
 
+              {activeTab === "collections" && (
+                <Collections
+                  userId={userData?._id}
+                  isOwnProfile={isOwnProfile}
+                  token={token}
+                />
+              )}
+
               {activeTab === "settings" && isOwnProfile && (
                 <div className="flex flex-col gap-4">
                   <div>
@@ -568,6 +587,7 @@ function Profile() {
         </div>
       </main>
     </div>
+    </HelmetProvider>
   );
 }
 

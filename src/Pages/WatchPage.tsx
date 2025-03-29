@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 import axios from "axios";
 import { BsBookmark, BsBookmarkFill } from "react-icons/bs";
 import { API_URL } from "../assets/config";
@@ -125,9 +125,10 @@ function WatchPage() {
     return <div className="p-3 text-white text-lg">Аниме не найдено</div>;
 
   return (
+    <HelmetProvider>
     <div className="text-white">
       <Helmet>
-        <title>{`AniCor | ${animeData.Title}`}</title>
+        <title>{`AniCor - ${animeData.Title}`}</title>
       </Helmet>
       <HeaderEl />
       <div className="p-[56px]">
@@ -146,7 +147,7 @@ function WatchPage() {
                       alt=""
                       className="object-cover h-200 w-full"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+                    <div className="absolute bg-black/25 inset-0 bg-gradient-to-t from-black to-transparent"></div>
                 </div>
               </div>
             </div>
@@ -198,6 +199,7 @@ function WatchPage() {
         </div>
       </div>
     </div>
+    </HelmetProvider>
   );
 }
 

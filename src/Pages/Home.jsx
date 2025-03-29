@@ -1,17 +1,15 @@
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import "../css/style.scss";
 import "../css/Home.scss";
-import { Link } from "react-router-dom";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 /*кампоненты*/
 import HeaderEl from "../components/HeaderEl";
-import FooterEl from "../components/FooterEl";
 import HomeAnimeSlider from "../components/HomeAnimeSlider";
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 /*свайпер*/
 
 const Home = () => {
-
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -23,14 +21,19 @@ const Home = () => {
   });
 
   return (
-    <div>
-      <HeaderEl />
-      <main className="bg-[#00171f]">
-        <QueryClientProvider client={queryClient}>
-          <HomeAnimeSlider />
-        </QueryClientProvider>
-      </main>
-    </div>
+    <HelmetProvider>
+      <div>
+        <Helmet>
+          <title>AniCor - Главная</title>
+        </Helmet>
+        <HeaderEl />
+        <main className="bg-[#00171f]">
+          <QueryClientProvider client={queryClient}>
+            <HomeAnimeSlider />
+          </QueryClientProvider>
+        </main>
+      </div>
+    </HelmetProvider>
   );
-}
+};
 export default Home;
