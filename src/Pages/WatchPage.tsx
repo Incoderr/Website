@@ -147,7 +147,7 @@ function WatchPage() {
                       alt=""
                       className="object-cover h-200 w-full"
                     />
-                    <div className="absolute bg-black/25 inset-0 bg-gradient-to-t from-black to-transparent"></div>
+                    <div className="absolute backdrop-blur-sm bg-black/25 inset-0 bg-gradient-to-t from-black to-transparent"></div>
                 </div>
               </div>
             </div>
@@ -169,7 +169,7 @@ function WatchPage() {
               <div className="flex gap-4">
                 <div
                   onClick={handleToggleFavorite}
-                  className="z-10 mt-4 p-3 h-12 text-lg flex items-center gap-2 backdrop-blur-[3px] bg-black/50 rounded-full cursor-pointer sm:duration-300 sm:hover:scale-105"
+                  className="z-10 ring-white/35 ring-1 mt-4 p-3 h-12 text-lg flex items-center gap-2 backdrop-blur-[3px] bg-black/50 rounded-full cursor-pointer sm:duration-300 sm:hover:scale-105"
                 >
                   {isFavorite ? "Удалить из избранного" : "Добавить в избранное"}
                   {isFavorite ? (
@@ -181,7 +181,7 @@ function WatchPage() {
                 <select
                   value={watchStatus}
                   onChange={handleWatchStatusChange}
-                  className="z-10 mt-4 text-lg h-12 p-3 backdrop-blur-[3px] bg-black/50 rounded-full text-white outline-0 cursor-pointer sm:duration-300 sm:hover:scale-105"
+                  className="z-10 ring-white/35 ring-1 mt-4 text-lg h-12 p-3 backdrop-blur-[3px] bg-black/50 rounded-full text-white outline-0 cursor-pointer sm:duration-300 sm:hover:scale-105"
                   disabled={!token}
                 >
                   <option value="">Не выбрано</option>

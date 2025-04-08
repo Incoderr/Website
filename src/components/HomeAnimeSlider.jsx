@@ -395,8 +395,8 @@ const CategorySlider = ({ category }) => {
                       <div className="text-gray-300 text-sm line-clamp-10 mb-4">{anime.description}</div>
                       <div className="flex items-center gap-2">
                         <div onClick={() => handleWatchClick(anime.imdbID)} className="flex cursor-pointer items-center gap-2 bg-white hover:scale-104 h-10 w-full text-black p-2 rounded transition delay-15 ease-in-out">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z" /></svg>
-                          Смотреть
+                        <BsFillPlayFill className="text-3xl" />
+                        <span className="text-lg">Смотреть</span>
                         </div>
                         <div
                           onClick={() => toggleFavorite(anime.imdbID)}
@@ -416,7 +416,7 @@ const CategorySlider = ({ category }) => {
               <div className="flex text-center justify-center mt-3 "> 
                 <h3 className="text-lg sm:text-xl font-bold text-gray-50">{anime.title}</h3>
               </div>
-              {!anime.imdbID && <p className="text-sm text-gray-400">Только название из AniList</p>}
+              {!anime.imdbID && <p className="text-sm text-gray-400">Нет в базе</p>}
             </div>
           </SwiperSlide>
         ))}
@@ -446,7 +446,7 @@ const Top10Anime = () => {
   const error = anilistError || dbError;
 
   if (loading) return (
-    <div className="mb-12 p-5 hidden sm:block">
+    <div className="p-5 hidden sm:block">
               <Skeleton width={200} height={40} baseColor="#333" highlightColor="#666" className="mb-6 mx-auto sm:mx-0" />
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex flex-col gap-4 w-full sm:w-1/2">
@@ -486,7 +486,7 @@ const Top10Anime = () => {
   const rightColumnAnime = animeList.slice(5, 10);
 
   return (
-    <div className="mb-12 p-5 hidden sm:block">
+    <div className="p-5 hidden sm:block">
       <h2 className="text-3xl font-bold mb-6 text-center sm:text-left">Топ 10 аниме</h2>
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex flex-col gap-4 w-full sm:w-1/2">

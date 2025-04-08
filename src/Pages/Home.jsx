@@ -27,7 +27,7 @@ const Home = () => {
           <title>AniCor - Главная</title>
         </Helmet>
         <HeaderEl />
-        <main className="bg-[#00171f]">
+        <main className="bg-[#0d0d0f]">
           <QueryClientProvider client={queryClient}>
             <HomeAnimeSlider />
           </QueryClientProvider>

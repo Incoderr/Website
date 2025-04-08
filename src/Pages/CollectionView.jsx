@@ -3,6 +3,7 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { BsPlusCircleFill } from "react-icons/bs";
+import { toast, Toaster } from "react-hot-toast"; // Импортируем react-hot-toast
 import HeaderEl from "../components/HeaderEl";
 import LoadingEl from "../components/ui/Loading";
 import { API_URL } from "../assets/config";
@@ -18,16 +19,24 @@ function CollectionView() {
   useEffect(() => {
     const fetchCollection = async () => {
       try {
-        const response = await axios.get(`${API_URL}/collections/${collectionId}`);
+        const response = await axios.get(
+          `${API_URL}/collections/${collectionId}`
+        );
         setCollection(response.data);
 
-        // Получаем информацию о создателе
-        const userResponse = await axios.get(`${API_URL}/profile/${response.data.userId.username}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(() => null); // Если нет доступа, игнорируем ошибку
-        setCreator(userResponse?.data || { username: response.data.userId.username });
+        const userResponse = await axios
+          .get(`${API_URL}/profile/${response.data.userId.username}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .catch(() => null);
+        setCreator(
+          userResponse?.data || { username: response.data.userId.username }
+        );
       } catch (error) {
-        console.error("Ошибка при загрузке коллекции:", error.response?.data || error.message);
+        console.error(
+          "Ошибка при загрузке коллекции:",
+          error.response?.data || error.message
+        );
         setCollection(null);
       } finally {
         setLoading(false);
@@ -39,7 +48,7 @@ function CollectionView() {
 
   const handleAddToSelf = async () => {
     if (!token) {
-      alert("Войдите в аккаунт, чтобы добавить коллекцию к себе");
+      toast.error("Войдите в аккаунт, чтобы добавить коллекцию к себе"); // Заменяем alert на toast
       navigate("/auth");
       return;
     }
@@ -51,18 +60,34 @@ function CollectionView() {
         { collectionId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("Коллекция успешно добавлена к вам!");
-      navigate(`/profile`); // Перенаправляем в профиль после добавления
+      toast.success("Коллекция успешно добавлена к вам!"); // Успешное уведомление
+      navigate(`/profile`);
     } catch (error) {
-      console.error("Ошибка при копировании коллекции:", error.response?.data || error.message);
-      alert("Не удалось добавить коллекцию: " + (error.response?.data?.message || error.message));
+      console.error(
+        "Ошибка при копировании коллекции:",
+        error.response?.data || error.message
+      );
+      toast.error(
+        "Не удалось добавить коллекцию: " +
+          (error.response?.data?.message || error.message)
+      ); // Ошибка с текстом
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="p-5 text-white flex justify-center"><LoadingEl /></div>;
-  if (!collection) return <div className="p-5 text-white flex justify-center">Коллекция не найдена</div>;
+  if (loading)
+    return (
+      <div className="p-5 text-white flex justify-center">
+        <LoadingEl />
+      </div>
+    );
+  if (!collection)
+    return (
+      <div className="p-5 text-white flex justify-center">
+        Коллекция не найдена
+      </div>
+    );
 
   return (
     <HelmetProvider>
@@ -76,7 +101,7 @@ function CollectionView() {
             <div className="flex flex-col items-center">
               <h1 className="text-2xl font-bold mb-2">{collection.name}</h1>
               <p className="text-sm text-gray-400 mb-4">
-                Создатель: 
+                Создатель:
                 {creator && creator.username ? (
                   <span
                     onClick={() => navigate(`/profile/${creator.username}`)}
@@ -121,6 +146,24 @@ function CollectionView() {
             </div>
           </div>
         </main>
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          toastOptions={{
+            success: {
+              style: {
+                background: "#10B981",
+                color: "#fff",
+              },
+            },
+            error: {
+              style: {
+                background: "#EF4444",
+                color: "#fff",
+              },
+            },
+          }}
+        />
       </div>
     </HelmetProvider>
   );
