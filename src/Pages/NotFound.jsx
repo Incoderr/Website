@@ -19,7 +19,7 @@ const NotFound = () => {
     </pre>
 
       <h2 className="mt-5 text-3xl">Страница не найдена</h2>
-      <Link to="/" className="text-[16px]">
+      <Link to="/" className="text-[16px] text-blue-600">
         Домой
       </Link>
     </div>

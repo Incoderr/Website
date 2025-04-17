@@ -2,7 +2,6 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Turnstile from "react-turnstile"; // Импортируем библиотеку Turnstile
 import {
   IoPerson,
   IoLockClosed,
@@ -18,7 +17,6 @@ const Auth = () => {
   const [showPasswordLogin, setShowPasswordLogin] = React.useState(false);
   const [showPasswordSignup, setShowPasswordSignup] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
-  const [turnstileToken, setTurnstileToken] = React.useState(null); // Состояние для токена Turnstile
   const navigate = useNavigate();
 
   const {
@@ -46,20 +44,11 @@ const Auth = () => {
   };
 
   const onSignupSubmit = async (data) => {
-    if (!turnstileToken) {
-      setErrorMessage("Пожалуйста, пройдите проверку капчи");
-      return;
-    }
-
     try {
-      const response = await axios.post(`${API_URL}/register`, {
-        ...data,
-        turnstileToken,
-      });
+      const response = await axios.post(`${API_URL}/register`, data);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       reset();
-      setTurnstileToken(null);
       navigate('/profile');
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Ошибка регистрации';
@@ -76,7 +65,6 @@ const Auth = () => {
     setIsLogin(!isLogin);
     setErrorMessage("");
     reset();
-    setTurnstileToken(null);
   };
 
   const togglePasswordVisibilityLogin = () => setShowPasswordLogin(!showPasswordLogin);
@@ -229,11 +217,6 @@ const Auth = () => {
                   </div>
                   {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
                 </label>
-                <Turnstile
-                  sitekey="0x4AAAAAAA_sMfxp2Rh9qrbM" // Ваш Site Key из Cloudflare
-                  onVerify={(token) => setTurnstileToken(token)}
-                  theme="dark"
-                />
                 <p className="cursor-pointer select-none" onClick={toggleForm}>
                   Уже есть аккаунт?
                 </p>

@@ -112,7 +112,6 @@ function Profile() {
                 className="w-32 h-32 rounded-full object-cover mb-4"
               />
               <h1 className="text-2xl font-bold">{userData.username}</h1>
-              {userData.role && <p className="text-sm text-gray-400">Роль: {userData.role}</p>}
 
               <div className="mt-4 flex items-center gap-4 flex-wrap">
                 <button
